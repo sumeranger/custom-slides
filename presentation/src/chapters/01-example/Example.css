@@ -1,0 +1,139 @@
+/* ── 示範章節 — prefix .ex-（每章自己一個前綴，物理隔離）──────────── */
+
+.ex-scene {
+  position: absolute;
+  inset: 0;
+}
+.ex-center {
+  display: grid;
+  place-items: center;
+}
+.ex-pad {
+  display: flex;
+  flex-direction: column;
+  gap: 48px;
+  padding: 95px 130px 75px;
+  position: relative;
+}
+
+/* v-em 上色只在 .v-serif-bold 內生效，章節內其他位置自己補 */
+.ex-scene .v-em {
+  color: var(--accent);
+}
+
+.ex-title-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 44px;
+}
+.ex-pill {
+  opacity: 0;
+  animation: ex-rise 700ms var(--ease-quart) 100ms both;
+}
+.ex-h {
+  margin: 0;
+  font-size: 110px;
+  line-height: 1.08;
+}
+.ex-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 30px 44px;
+  opacity: 0;
+  animation: ex-stamp 550ms var(--ease-overshoot) 1500ms both;
+}
+.ex-card-k {
+  font-size: 16px;
+  color: var(--accent);
+}
+.ex-card-num {
+  font-size: 92px;
+  line-height: 1;
+  color: var(--text);
+}
+.ex-card-d {
+  font-size: 21px;
+  color: var(--text-2);
+}
+
+.ex-head {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 22px;
+  opacity: 0;
+  animation: ex-rise 700ms var(--ease-quart) 100ms both;
+}
+.ex-h2 {
+  margin: 0;
+  font-size: 72px;
+  line-height: 1.1;
+}
+.ex-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 26px;
+}
+.ex-item {
+  display: flex;
+  align-items: baseline;
+  gap: 22px;
+  font-family: var(--font-display-cn);
+  font-size: 38px;
+  font-weight: 700;
+  color: var(--text);
+  opacity: 0;
+  animation: ex-rise 550ms var(--ease-quart) both;
+}
+.ex-item-idx {
+  font-size: 20px;
+  color: var(--accent);
+}
+.ex-src {
+  position: absolute;
+  bottom: 38px;
+  right: 130px;
+  font-size: 16px;
+  color: var(--text-faint);
+  opacity: 0;
+  animation: ex-fade 600ms ease 2200ms both;
+}
+
+@keyframes ex-rise {
+  from {
+    opacity: 0;
+    transform: translateY(26px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes ex-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes ex-stamp {
+  0% {
+    opacity: 0;
+    transform: scale(1.5);
+  }
+  70% {
+    opacity: 1;
+    transform: scale(0.97);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}

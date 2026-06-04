@@ -1,0 +1,167 @@
+/* ─────────────────────────────────────────────────────────────────────
+ * paper-grid.css — restyle layer on top of base tokens.
+ *
+ * Replaces the midnight-press dark tokens with a warm-cream editorial
+ * paper look + blueprint grid signature. Loaded AFTER tokens.css and
+ * base.css so its :root rules win cascade.
+ *
+ * Adds three new global primitives:
+ *   .v-corners     ← four bracket marks at card corners (terracotta)
+ *   .v-pill        ← uppercase mono label with rounded outline (terracotta)
+ *   .v-breadcrumb  ← top-left mono path label (greyscale)
+ * ───────────────────────────────────────────────────────────────────── */
+
+:root {
+  /* ─── palette: cream paper + brick accent ─── */
+  --shell:        #e0d5be;
+  --surface:      #f4ecd8;
+  --surface-2:    #fbf6e8;
+  --surface-3:    #ece1c5;
+  --text:         #1a1310;
+  --text-2:       #3d2f25;
+  --text-mute:    #7a6a55;
+  --text-faint:   #b3a78e;
+  --rule:         #c8b890;
+  --accent:       #b53d22;             /* brick terracotta */
+  --accent-soft:  rgba(181, 61, 34, 0.10);
+  --accent-glow:  rgba(181, 61, 34, 0.28);
+
+  /* ─── fonts: thick editorial serif ─── */
+  --font-display-cn: "Noto Serif SC", "Source Han Serif SC", serif;
+  --font-display-en: "Fraunces", "Playfair Display", Georgia, serif;
+  --font-body:       "Source Serif 4", "Source Serif Pro", "Noto Serif SC", Georgia, serif;
+  --font-mono:       "JetBrains Mono", "IBM Plex Mono", ui-monospace, monospace;
+  --font-features:   "ss01", "ss02", "tnum", "dlig";
+
+  /* ─── motion ─── */
+  --dur-base:       600ms;
+  --dur-slow:       950ms;
+  --dur-cinematic:  1400ms;
+
+  /* ─── design identity ─── */
+  --r-card:        8px;
+  --r-stage:       0;
+  --rule-w:        1.5px;
+  --rule-style:    solid;
+  --hero-num-font:    var(--font-display-en);
+  --hero-num-style:   italic;
+  --hero-num-weight:  700;
+  --hero-num-track:   -0.04em;
+  --stage-pad-x:   120px;
+  --stage-pad-y:   90px;
+  --card-shadow:
+    0 1px 0 var(--rule),
+    0 12px 32px rgba(60, 40, 20, 0.08);
+  --shadow-stage:
+    0 60px 160px rgba(60, 40, 20, 0.28),
+    0 0 0 1px rgba(0, 0, 0, 0.05);
+
+  /* ─── SIGNATURE — blueprint grid baked into the stage ─── */
+  --surface-pattern:
+    linear-gradient(to right,  rgba(70, 100, 150, 0.08) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(70, 100, 150, 0.08) 1px, transparent 1px);
+  --surface-pattern-size: 48px 48px;
+  --surface-pattern-blend: multiply;
+  --surface-pattern-opacity: 1;
+  --surface-vignette:
+    radial-gradient(circle at 50% 65%, transparent 55%, rgba(60, 40, 20, 0.10) 100%);
+
+  /* ─── stage edge (paper sheet) ─── */
+  --stage-border: 1px solid rgba(60, 40, 20, 0.15);
+}
+
+/* ─── Stage gets a warm paper edge so the grid feels held in a sheet ─── */
+.stage-frame {
+  box-shadow:
+    inset 0 0 0 1px rgba(60, 40, 20, 0.15),
+    0 60px 160px rgba(60, 40, 20, 0.28);
+}
+
+/* ─────────────────────────────────────────────────────────────────────
+ * Global primitives — used across chapters for the "field notebook" look.
+ * ───────────────────────────────────────────────────────────────────── */
+
+/* corner brackets — 4 L-shaped marks drawn with linear-gradients */
+.v-corners {
+  position: relative;
+  background-color: var(--surface-2);
+  background-image:
+    linear-gradient(var(--accent), var(--accent)),
+    linear-gradient(var(--accent), var(--accent)),
+    linear-gradient(var(--accent), var(--accent)),
+    linear-gradient(var(--accent), var(--accent)),
+    linear-gradient(var(--accent), var(--accent)),
+    linear-gradient(var(--accent), var(--accent)),
+    linear-gradient(var(--accent), var(--accent)),
+    linear-gradient(var(--accent), var(--accent));
+  background-size:
+    32px 1.5px, 1.5px 32px,   /* TL */
+    32px 1.5px, 1.5px 32px,   /* TR */
+    32px 1.5px, 1.5px 32px,   /* BL */
+    32px 1.5px, 1.5px 32px;   /* BR */
+  background-position:
+    0 0, 0 0,
+    100% 0, 100% 0,
+    0 100%, 0 100%,
+    100% 100%, 100% 100%;
+  background-repeat: no-repeat;
+}
+
+/* terracotta rounded outline label — used as section / card tags */
+.v-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 14px;
+  border: 1.5px solid var(--accent);
+  border-radius: 999px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--accent);
+  background: transparent;
+}
+
+/* mono breadcrumb at top-left of stage */
+.v-breadcrumb {
+  position: absolute;
+  top: 36px; left: 60px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--text-mute);
+  z-index: 4;
+}
+.v-breadcrumb-sep {
+  color: var(--text-faint);
+  margin: 0 8px;
+}
+
+/* hand-drawn diagonal line — for "crossed out" / "broken" elements */
+.v-strike {
+  position: relative;
+}
+.v-strike::after {
+  content: "";
+  position: absolute;
+  left: -8px; right: -8px; top: 50%;
+  height: 2px;
+  background: var(--accent);
+  transform: rotate(-3deg);
+  transform-origin: center;
+  pointer-events: none;
+}
+
+/* heavy serif headline weight bump (override default 500 weight) */
+.v-serif-bold {
+  font-family: var(--font-display-cn);
+  font-weight: 900;
+  letter-spacing: -0.025em;
+  color: var(--text);
+}
+.v-serif-bold .v-em {
+  color: var(--accent);
+  font-weight: inherit;
+}
