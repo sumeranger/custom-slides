@@ -55,7 +55,7 @@ cd <新專案>/presentation && npm install && npm run dev
 | 視覺演示 | 每章至少 1–2 處「動起來的演示」（長條生長/格子點亮/連線自繪/數字對撞/打字機 steps()）；每步主導動作要不同；整章純文字 = 重做 |
 | 畫面 > 口播 | 回 article 抽口播沒唸的細節掛成角標/副標/出處行（右下出處行 ≥16px） |
 | 反 AI 味 | 禁紫粉漸變、emoji 當圖標、假 logo、假數據、頁眉頁腳；缺素材用 placeholder 卡不要 fake |
-| 字號 | hero ≥80px、最小字 ≥16px |
+| 字號 | hero ≥80px、body/描述 ≥28px、label/kicker/mono標籤 ≥18px、最小字（純裝飾）≥16px。白底上灰色文字 contrast ≥ 4.5:1。左上 breadcrumb/kicker 必須 ≥18px 且顏色夠深，不能「一眼看不到」 |
 | 結構變更 bump key | 改章節數/步數後，`src/hooks/useStepper.ts` 的 STORAGE_KEY v1→v2→… |
 
 ## 3. Term hover tooltip（本模板招牌互動）
