@@ -137,7 +137,7 @@ body {
   height: 1080px;
   transform-origin: top left;
   background: var(--surface);
-  overflow: hidden;
+  overflow: visible;
   cursor: pointer;
   box-shadow: var(--shadow-stage);
   border: var(--stage-border, none);

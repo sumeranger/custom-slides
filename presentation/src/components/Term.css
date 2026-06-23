@@ -33,7 +33,7 @@
   left: 50%;
   bottom: calc(100% + 14px);
   transform: translateX(var(--tip-tx)) translateY(6px);
-  z-index: 50;
+  z-index: 9999;
   width: max-content;
   max-width: 560px;
   padding: 16px 22px;

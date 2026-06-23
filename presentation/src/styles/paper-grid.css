@@ -111,11 +111,11 @@
 .v-pill {
   display: inline-flex;
   align-items: center;
-  padding: 4px 14px;
+  padding: 8px 22px;
   border: 1.5px solid var(--accent);
   border-radius: 999px;
   font-family: var(--font-mono);
-  font-size: 13px;
+  font-size: 20px;
   font-weight: 600;
   letter-spacing: 0.18em;
   text-transform: uppercase;
@@ -128,7 +128,7 @@
   position: absolute;
   top: 36px; left: 60px;
   font-family: var(--font-mono);
-  font-size: 13px;
+  font-size: 20px;
   letter-spacing: 0.22em;
   text-transform: uppercase;
   color: var(--text-mute);
