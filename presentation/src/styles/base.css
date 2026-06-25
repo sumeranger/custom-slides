@@ -59,16 +59,20 @@ body {
    *    body     ┃ body & descriptions
    *    label    ┃ eyebrow / kicker / pill / mono tag   (≥ floor)
    *    caption  ┃ smallest caption / source line       (= floor, 20px)
-   * ──────────────────────────────────────────────────────────────────── */
-  --t-display-1:   clamp(140px, 11vw, 200px);
-  --t-display-2:   clamp(90px, 7vw, 128px);
-  --t-h1:          clamp(64px, 5vw, 96px);
-  --t-h2:          clamp(48px, 3.8vw, 64px);
-  --t-h3:          40px;
-  --t-lead:        30px;
-  --t-body:        26px;
-  --t-label:       22px;
-  --t-micro:       20px;   /* HARD projection floor — nothing smaller */
+   *
+   *  FIXED px (not vw-clamp): the stage is a 1920×1080 canvas transform-scaled
+   *  to fit (Stage.tsx), so vw would resolve to the window, not the canvas, and
+   *  mis-size every headline. Sizes are design-canvas px; the transform scales
+   *  them to the room. ──────────────────────────────────────────────────── */
+  --t-display-1:   150px;  /* one giant number / word, full-bleed */
+  --t-display-2:   120px;
+  --t-h1:          92px;   /* title page · section-opener topic headline */
+  --t-h2:          62px;   /* in-page headline (the per-step <h2>) */
+  --t-h3:          44px;   /* sub-headline / big card title / section eyebrow */
+  --t-lead:        32px;   /* deck / standfirst / lead body line */
+  --t-body:        26px;   /* body & descriptions */
+  --t-label:       22px;   /* eyebrow / kicker / pill / mono tag */
+  --t-micro:       20px;   /* smallest caption / source line — HARD floor */
 
   /* ── Tracking presets (used by primitive classes) ── */
   --track-tight:   -0.025em;   /* large serif display */
