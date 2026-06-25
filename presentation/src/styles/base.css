@@ -44,14 +44,31 @@ body {
  *    A theme can override any of these in its tokens.css.
  * ───────────────────────────────────────────────────────────────────── */
 :root {
-  /* ── Type scale (used by primitive classes below; chapters can use
-        these OR write hard-coded sizes — whatever the content needs) ── */
+  /* ── Projection-first type scale (~1.25 modular) ──────────────────────
+   *  The stage is a 1920×1080 canvas scaled to fill a room projector. From
+   *  the back row anything under ~20px is unreadable, so 20px is the HARD
+   *  floor. PICK FROM THESE STEPS — don't invent arbitrary px; a shared scale
+   *  is what keeps the hierarchy legible and scannable (ad-hoc sizes are the
+   *  #1 cause of mushy, hard-to-read decks).
+   *
+   *    display  ┃ one giant number / word, full-bleed
+   *    h1       ┃ title page · section-opener topic headline
+   *    h2       ┃ in-page headline (the per-step <h2>)
+   *    h3       ┃ sub-headline / big card title
+   *    lead     ┃ deck / standfirst / lead body line under a headline
+   *    body     ┃ body & descriptions
+   *    label    ┃ eyebrow / kicker / pill / mono tag   (≥ floor)
+   *    caption  ┃ smallest caption / source line       (= floor, 20px)
+   * ──────────────────────────────────────────────────────────────────── */
   --t-display-1:   clamp(140px, 11vw, 200px);
-  --t-display-2:   clamp(80px, 7vw, 128px);
-  --t-h1:          clamp(56px, 5vw, 88px);
-  --t-h2:          clamp(40px, 3.6vw, 60px);
-  --t-body:        20px;
-  --t-micro:       18px;
+  --t-display-2:   clamp(90px, 7vw, 128px);
+  --t-h1:          clamp(64px, 5vw, 96px);
+  --t-h2:          clamp(48px, 3.8vw, 64px);
+  --t-h3:          40px;
+  --t-lead:        30px;
+  --t-body:        26px;
+  --t-label:       22px;
+  --t-micro:       20px;   /* HARD projection floor — nothing smaller */
 
   /* ── Tracking presets (used by primitive classes) ── */
   --track-tight:   -0.025em;   /* large serif display */
@@ -208,7 +225,7 @@ body {
 }
 .kicker {
   font-family: var(--font-mono);
-  font-size: 18px;
+  font-size: var(--t-label);
   letter-spacing: 0.18em;
   text-transform: uppercase;
   color: var(--text-mute);
@@ -307,7 +324,7 @@ body {
   align-items: center;
   gap: var(--space-3);
   font-family: var(--font-mono);
-  font-size: 16px;
+  font-size: var(--t-micro);
   letter-spacing: var(--track-caps);
   text-transform: uppercase;
   color: var(--text-mute);
@@ -338,7 +355,7 @@ body {
   border: var(--bw-1) solid var(--rule);
   border-radius: var(--r-pill);
   font-family: var(--font-mono);
-  font-size: 16px;
+  font-size: var(--t-micro);
   letter-spacing: var(--track-caps);
   text-transform: uppercase;
   color: var(--text-mute);
@@ -395,7 +412,7 @@ body {
 .masthead .issue {
   margin-left: auto;
   font-family: var(--font-mono);
-  font-size: 16px;
+  font-size: var(--t-micro);
   letter-spacing: var(--track-caps);
   text-transform: uppercase;
   color: var(--text-mute);
