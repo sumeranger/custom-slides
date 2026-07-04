@@ -102,11 +102,13 @@
   border-color: var(--accent);
 }
 
-/* current — filled accent pill: the "different colour" highlight. It sizes to
-   its content (never truncates); the other pills flex to share the remaining
-   width, so reaching a long-titled chapter temporarily shrinks the rest. */
+/* current — filled accent pill (the "different colour" highlight). It keeps
+   the same equal-width share as the others (so a SHORT title doesn't make it
+   shrink), but `min-width: max-content` lets it grow past that share to fit a
+   LONG title in full — in which case the others shrink/ellipsize to make room.
+   Prominence comes from the accent colour, not from being bigger. */
 .pb-current {
-  flex: 0 0 auto;
+  min-width: max-content;
   background: var(--accent);
   border-color: var(--accent);
   color: var(--surface);
