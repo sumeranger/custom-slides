@@ -12,41 +12,16 @@
   justify-content: center;
   pointer-events: none;
 }
-.pb {
-  position: relative;
-  /* same width + paper surface as the stage → reads as its footer, not a
-     separate floating panel */
+
+/* footer band = same width + paper surface as the stage, so it reads as the
+   card's footer, not a separate floating panel */
+.pb-chapters {
   width: var(--stage-w, auto);
   max-width: calc(100vw - 32px);
   background: var(--surface);
-  /* the seam is the progress TRACK; .pb-rail fills it up to --pb-progress */
   border-top: 1px solid rgba(60, 40, 20, 0.15);
   border-radius: 0 0 var(--r-stage, 0) var(--r-stage, 0);
   padding: 12px 24px;
-  /* continue the stage's 1px edge on the 3 open sides + share its soft drop
-     shadow so the whole [stage + footer] casts one shadow */
-  box-shadow:
-    inset 1px 0 0 rgba(60, 40, 20, 0.15),
-    inset -1px 0 0 rgba(60, 40, 20, 0.15),
-    inset 0 -1px 0 rgba(60, 40, 20, 0.15),
-    0 40px 100px rgba(60, 40, 20, 0.22);
-  pointer-events: auto;
-}
-
-/* progress fill over the seam-track: shows how far through the WHOLE deck */
-.pb-rail {
-  position: absolute;
-  top: -1px;
-  left: 0;
-  height: 2px;
-  width: calc(var(--pb-progress, 0) * 100%);
-  background: var(--accent);
-  border-radius: 0 2px 2px 0;
-  transition: width var(--dur-base) var(--ease-quart);
-  pointer-events: none;
-}
-
-.pb-chapters {
   display: flex;
   justify-content: center;
   gap: 28px;
@@ -55,6 +30,14 @@
   overflow-y: hidden;
   scrollbar-width: thin;
   scrollbar-color: var(--text-faint) transparent;
+  /* continue the stage's 1px edge on the 3 open sides + share its soft drop
+     shadow so the whole [stage + footer] casts one shadow */
+  box-shadow:
+    inset 1px 0 0 rgba(60, 40, 20, 0.15),
+    inset -1px 0 0 rgba(60, 40, 20, 0.15),
+    inset 0 -1px 0 rgba(60, 40, 20, 0.15),
+    0 40px 100px rgba(60, 40, 20, 0.22);
+  pointer-events: auto;
 }
 .pb-chapters::-webkit-scrollbar {
   height: 4px;
@@ -67,8 +50,8 @@
   border-radius: 2px;
 }
 
-/* chapter = plain label; hierarchy is carried by weight + color (past /
-   current / future), not a box */
+/* chapter = plain label; hierarchy carried by weight + color (past / current
+   / future), not a box */
 .pb-chapter {
   flex-shrink: 0;
   display: flex;
@@ -95,8 +78,7 @@
 .pb-past {
   color: var(--text-mute);
 }
-/* current — you are here: accent number + dark bold title, aligned with the
-   leading edge of the progress rail above */
+/* current — you are here: accent number + dark bold title */
 .pb-current {
   color: var(--text);
 }
@@ -110,4 +92,29 @@
 /* future — ghosted, ahead */
 .pb-future {
   color: var(--text-faint);
+}
+
+/* step ticks — small graph-paper squares (echo the blueprint grid), filled
+   up to the current step; each is click-to-jump */
+.pb-pips {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-left: 10px;
+}
+.pb-pip {
+  width: 8px;
+  height: 8px;
+  border-radius: 1px;
+  background: transparent;
+  border: 1.5px solid var(--text-faint);
+  cursor: pointer;
+  transition: background var(--dur-quick), border-color var(--dur-quick);
+}
+.pb-pip:hover {
+  border-color: var(--accent);
+}
+.pb-pip-on {
+  background: var(--accent);
+  border-color: var(--accent);
 }
