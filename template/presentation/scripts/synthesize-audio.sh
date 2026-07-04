@@ -17,7 +17,7 @@
 # Azure / etc.).
 #
 # Choosing a provider:
-#   PRESENTATION_TTS=<name>       env var  (default: minimax)
+#   PRESENTATION_TTS=<name>       env var  (default: edge)
 #   --provider=<name>             CLI flag (overrides env)
 #
 # Choosing a voice (provider decides what's valid):
@@ -47,7 +47,7 @@ SEGMENTS="$ROOT/audio-segments.json"
 OUT_DIR="$ROOT/public/audio"
 PROVIDERS_DIR="$SCRIPT_DIR/tts-providers"
 
-PROVIDER="${PRESENTATION_TTS:-minimax}"
+PROVIDER="${PRESENTATION_TTS:-edge}"
 VOICE="${PRESENTATION_TTS_VOICE:-}"
 FORCE=false
 

@@ -13,7 +13,7 @@
 ## 怎么用
 
 ```bash
-# 默认（minimax）
+# 默认（edge，免费免 key）
 npm run synthesize-audio
 
 # 换 provider
@@ -36,10 +36,11 @@ npm run synthesize-audio -- --force
 
 | 文件 | 后端 | 鉴权 | 备注 |
 |---|---|---|---|
-| `minimax.sh` | MiniMax `mmx` CLI | `mmx auth login --api-key` | **默认**；中文口播质量稳 |
+| `edge.sh` | Microsoft Edge TTS (`edge-tts`) | 无（免费、免 key） | **默认**；`pip install edge-tts`，需 ffmpeg |
+| `minimax.sh` | MiniMax `mmx` CLI | `mmx auth login --api-key` | 中文口播质量稳 |
 | `openai.sh` | OpenAI Audio Speech API | `OPENAI_API_KEY` env var | curl-based；多数 agent 已有 key |
 
-只内置这两个 —— 我们不替你做更多技术选型。其它后端的代码片段在下面，
+内置这三个 —— 默认 `edge`（免费免 key，适合别人开箱即用）。其它后端的代码片段在下面，
 复制到 `tts-providers/<name>.sh` 即可启用。
 
 ---
@@ -140,36 +141,6 @@ tts_synthesize() {
     -H "xi-api-key: $ELEVENLABS_API_KEY" \
     -H "Content-Type: application/json" \
     -d "$payload"
-}
-```
-
-### edge-tts — `tts-providers/edge-tts.sh`（免费 / 无 API key）
-
-```bash
-# Docs:   https://github.com/rany2/edge-tts
-# Install: pip install edge-tts
-# Voices: edge-tts --list-voices
-#   zh-CN-YunxiNeural     (男声)
-#   zh-CN-XiaoxiaoNeural  (女声)
-#   en-US-AriaNeural      (英文女声)
-#   en-US-GuyNeural       (英文男声)
-
-tts_check() {
-  command -v edge-tts >/dev/null || { echo "✗ edge-tts not found" >&2; return 1; }
-}
-
-tts_install_help() {
-  cat <<'EOF' >&2
-Install edge-tts (free, uses Microsoft Edge's TTS backend, no API key):
-  pip install edge-tts
-List available voices:
-  edge-tts --list-voices | less
-EOF
-}
-
-tts_synthesize() {
-  local text="$1" out="$2" voice="${3:-zh-CN-YunxiNeural}"
-  edge-tts --text "$text" --voice "$voice" --write-media "$out" >/dev/null 2>&1
 }
 ```
 
