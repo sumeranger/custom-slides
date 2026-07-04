@@ -1,10 +1,10 @@
 # GUIDE-FOR-AI — paper-grid 簡報開發指南
 
 > 給 AI agent 的操作手冊。目標：用這個模板，對任何主題快速產出與
-> `may-monthly-report`、`headroom-slides` 同款的「點擊驅動網頁簡報」——
+> `2026-06-monthly-report` 同款（唯一視覺/互動基準）的「點擊驅動網頁簡報」——
 > 暖紙編輯風 + 逐步揭示 + hover tooltip。
 >
-> 成功範例（卡住時去翻實際代碼）：`/home/hank/repo/headroom-slides/`
+> 成功範例（卡住時去翻實際代碼）：`example/`（本 skill 內建的去識別化參考章節）
 
 ---
 
@@ -27,8 +27,10 @@ Checkpoint 對齊）。本指南只補「本模板特有」的部分。沒有該
 
 ## 1. 起專案
 
+`<skill 根>` = 本 skill 安裝所在目錄（含 `SKILL.md` 的那層）。
+
 ```bash
-cp -r /home/hank/repo/paper-grid-slides-template/presentation <新專案>/presentation
+cp -r "<skill 根>/template/presentation" <新專案>/presentation
 cd <新專案>/presentation && npm install && npm run dev
 # 確認 example 章節跑得起來後，做真實章節時刪掉它：
 # rm -rf src/chapters/01-example （並更新 registry/chapters.ts）
