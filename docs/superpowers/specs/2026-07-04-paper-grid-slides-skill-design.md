@@ -68,6 +68,7 @@ paper-grid-slides/
 | 複製 `…/paper-grid-slides-template/presentation/` | `template/presentation/`（skill 相對） |
 | 範例 `/home/hank/repo/headroom-slides/` | `example/`（從 `2026-06-monthly-report` 取一章精簡化，bundle 進來） |
 | 依賴 `web-video-presentation` skill 的內容流程 | 吸收進 `references/SCRIPT.md` + `OUTLINE.md`，不再依賴外部 plugin |
+| TTS 為可選、方向反（從已切段 narrations 產 mp3） | 因 §C.5 走 Y，TTS 成必產前置；bundle **`edge-tts`（免費免 key）為預設**，並補「連貫稿→SRT→切 step」工具 |
 
 `GUIDE.md` 內部所有跨檔引用（§ 編號、腳本路徑）一併改成 skill 相對；`headroom-slides` 相關表述
 改成指向 bundle 的 `example/`。
@@ -176,7 +177,7 @@ example 章節結構才 bump。
         ↓
 ③ 人閘門（輕）：hank 唸一遍 wince test —— 驗收已打磨稿，不是搶救生肉
         ↓
-outline.md（section=敘事職責）→ 再切 step
+④ 產出連貫自然稿 + outline（section=敘事職責）→ 切 step 見 §C.5
 ```
 
 **迴圈輪數**：預設 **2 輪**（writer→critic→重寫，跑兩趟）。skill 在開跑前**問使用者要幾輪**
@@ -186,27 +187,37 @@ outline.md（section=敘事職責）→ 再切 step
 另一個 agent 的聲音**——AI 聽不見自己，但聽得見別人。critic 迴圈**自動跑**（主 agent 自己
 spawn critic subagent），hank 只在最後唸一遍驗收。
 
-### C.5 適配取捨：step 先定、音頻下游可選（依賴方向與 video-podcast 相反）
+### C.5 切 step：忠於 video-podcast 流程（SRT 必產、提早）
 
-video-podcast 靠「TTS 出 SRT → 從 SRT 取 beat 邊界」切節拍——**音頻是主時鐘，beat 跟著音頻**。
-paper-grid 的依賴方向**相反**：`稿 → 切 step（narrations.ts）→ 之後才可選 TTS`——**step 結構
-先寫死、音頻是下游且可選**。所以這裡**永遠沒有 SRT 可依**（跟「點擊 vs auto 播放」無關；即使開
-`?auto=1` auto 模式，step 也早在音頻之前就定好了）。
+**決定走 Option Y**——採 video-podcast 的作法：**先產 SRT，再用真實停頓/時長切 step**
+（不靠純文字猜「哪裡該點一下」）。產線順序：
 
-因此「切 step」換成**對文字的判斷**（講者自然停頓處 / 觀眾需要一個 click 處），由密度分級指引。
-`narrations.ts` 仍是 step 數唯一真相源不動，但 step 是從自然稿**切**出來，不是寫時**湊**出來。
+1. 文稿收斂後（C.4 出連貫自然口播 + section=敘事職責的 outline）。
+2. **TTS 一次**（跑在收斂後的稿上，**非每輪 critic 都跑**）→ 產 **SRT**（詞/句時間戳）。SRT 必產。
+3. 用 SRT 的實際停頓 + 密度分級**切 step** → 寫進各章 `narrations.ts`；音頻按 step 邊界切片/對齊
+   （沿用 video-podcast 的 **align-from-SRT** 模式，避免二次 TTS）。
+4. 建章節。播放時**點擊手動推進 or auto（`audio.ended`）並存**——click 控制不受影響（正交）。
 
-> 註：click-driven 是本工具的**產品身分**（人控節奏 + hover tooltip + 點章跳轉），不在本次
-> 拔除範圍；auto/audio 模式已內建並存（`useAutoMode` / `useAudioPlayer`）。此處只是不再用
-> 「click-driven」當切 step 的理由——真正的理由是上面的依賴方向。
+`narrations.ts` 仍是 step 數唯一真相源；step 邊界由 SRT 決定，不是寫時**湊**出來。
+
+**取捨（誠實揭露）**：TTS 因此從「可選的最後一步」變成**開發時必產的前置**。兩點緩解：
+
+- **critic 迴圈維持純文字**、TTS 只在收斂後跑一次，不每輪燒。
+- **預設用免費、免 API key 的 TTS（`edge-tts`，video-podcast 的預設）**，把「別人裝了得先接
+  TTS」的門檻壓到最低；需要更好音色再換 provider。
+
+> click-driven 是本工具的**產品身分**（人控節奏 + hover tooltip + 點章跳轉），保留不變。
+> SRT 必產只改變「切 step 的依據」與「TTS 的時機」，**不改變誰控制翻頁**。
 
 ### C.6 產出檔案
 
 - **`references/SCRIPT.md`**：C.2–C.5 全部寫成 skill 自帶文稿心法，含 critic rubric（五類
   AI 腔判準 + 信息保留軟化版 + 人工分段痕跡清單）與對抗迴圈流程。取代對
   `web-video-presentation:SCRIPT-STYLE` 的依賴。
-- **`references/OUTLINE.md`**：章節切分改「敘事職責制」，含「先寫自然稿再切 step」流程與密度
-  分級表。取代對 `web-video-presentation:OUTLINE-FORMAT` 的依賴。
+- **`references/OUTLINE.md`**：章節切分改「敘事職責制」，含「先寫自然稿 →（§C.5）TTS→SRT→
+  依真實停頓切 step」流程與密度分級表。取代對 `web-video-presentation:OUTLINE-FORMAT` 的依賴。
+- **切段工具（新增）**：對收斂後連貫稿產 SRT + 依 SRT 切 step 寫回 `narrations.ts` 的腳本
+  （沿用 video-podcast 的 align-from-SRT 模式）；預設 TTS = `edge-tts`。細節於 implementation。
 
 ---
 
@@ -218,9 +229,10 @@ worktree」不適用；且 hank 明確要求用 worktree 測試。約定：
 **每次對 skill 做出改動後**：
 
 1. 開 git worktree（隔離工作區）。
-2. 依 skill 流程，以 `/home/hank/repo/2026-06-monthly-report/script.md` 為輸入，**實際產一次 deck**。
+2. 依 skill 流程，以 `/home/hank/repo/2026-06-monthly-report/script.md` 為輸入，**實際產一次 deck**
+   （含 §C.5 的 TTS→SRT→切 step；測試環境用預設 `edge-tts`）。
 3. 跑 `npx tsc --noEmit`（0 錯誤）+ 逐步截圖目測（版面、字級、進度條、動畫完成態）。
-4. 針對本次改動重點驗證：B → 章節 bar 常駐 / 高亮 / 點跳；C → 文稿流程與 critic 迴圈可跑。
+4. 針對本次改動重點驗證：B → 章節 bar 常駐 / 高亮 / 點跳；C → 文稿 critic 迴圈可跑 + SRT 切 step 正確。
 5. 收掉 worktree（未改動自動清除）。
 
 ---
@@ -245,10 +257,16 @@ worktree」不適用；且 hank 明確要求用 worktree 測試。約定：
 - **範例 deck 來源** → 從 `2026-06-monthly-report` 取一章精簡化，bundle 進 `example/`
   （取哪一章、去識別哪些專屬內容，於 implementation 決定）。
 - **critic 迴圈輪數** → 預設 2 輪，開跑前問使用者可調，硬上限 4 輪。
-- **click-driven** → 保留為產品身分；僅修 §C.5 用詞，非拔除。
+- **切 step 方式** → 走 **Option Y：忠於 video-podcast，SRT 必產、提早**，用真實停頓切 step。
+- **TTS** → 從可選變必產前置；預設 `edge-tts`（免費免 key）壓低門檻。
+- **click-driven** → 保留為產品身分（正交於 SRT），不拔除。
 
 ## 開放問題 / 風險
 
-1. **GUIDE.md 內文遷移量**：原 GUIDE-FOR-AI 有大量 § 交叉引用與絕對路徑，遷移時要逐一校對。
-2. **skill 最終落點**：重構完成後 skill 目錄搬到哪個 skills 路徑成為存活產物（`~/.claude/skills/`
+1. **切段工具是新工作量**：「連貫稿→SRT→依 SRT 切 step 寫回 narrations.ts」是現有 pipeline 沒有的
+   （現有方向相反），要新做；含 edge-tts 整合與 align-from-SRT。
+2. **TTS 必產抬高門檻**：即使預設 edge-tts 免 key，仍比「純文字就能做無聲 deck」多一道環境依賴；
+   需在 SKILL.md 明確標示前置需求與安裝步驟。
+3. **GUIDE.md 內文遷移量**：原 GUIDE-FOR-AI 有大量 § 交叉引用與絕對路徑，遷移時要逐一校對。
+4. **skill 最終落點**：重構完成後 skill 目錄搬到哪個 skills 路徑成為存活產物（`~/.claude/skills/`
    或專屬 skill repo），於 implementation 確認；原 template repo 退役時機一併決定。
