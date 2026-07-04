@@ -47,17 +47,11 @@ export function ProgressBar({
       <div className="pb-chapters">
         {chapters.map((c, i) => {
           const isCurrent = i === cursor.chapter;
-          const state =
-            i < cursor.chapter
-              ? "pb-past"
-              : isCurrent
-                ? "pb-current"
-                : "pb-future";
           return (
             <button
               key={c.id}
               ref={isCurrent ? activeRef : undefined}
-              className={`pb-chapter ${state}`}
+              className={`pb-chapter ${isCurrent ? "pb-current" : ""}`}
               aria-current={isCurrent ? "step" : undefined}
               onClick={(e) => {
                 e.stopPropagation();
