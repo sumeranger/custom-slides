@@ -25,7 +25,6 @@
   /* small side padding so the outermost pills reach (touch) the card edges */
   padding: 12px 10px;
   display: flex;
-  justify-content: space-between;
   align-items: stretch;
   gap: 8px;
   overflow: hidden;
@@ -69,15 +68,15 @@
 .pb-chapter {
   position: relative;
   z-index: 1;
-  /* natural-width pills; space-between spreads them so first/last touch the
-     card edges. white-space:nowrap keeps long titles on one line. */
-  flex: 0 0 auto;
-  white-space: nowrap;
+  /* equal-width segments that fill the footer edge-to-edge with even, tight
+     gaps (bilibili-style). Long titles ellipsize rather than wrap. */
+  flex: 1 1 0;
+  min-width: 0;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  padding: 6px 16px;
+  padding: 6px 14px;
   border-radius: 999px;
   background: var(--surface-2);
   border: 1px solid var(--surface-3);
@@ -89,8 +88,15 @@
     border-color var(--dur-quick);
 }
 .pb-num {
+  flex-shrink: 0;
   color: var(--accent);
   font-weight: 600;
+}
+.pb-title {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .pb-chapter:hover {
   border-color: var(--accent);
@@ -112,6 +118,7 @@
 /* step dots — only on the current (accent) pill, so they read light;
    filled up to the current step, each click-to-jump */
 .pb-pips {
+  flex-shrink: 0;
   display: inline-flex;
   align-items: center;
   gap: 5px;
