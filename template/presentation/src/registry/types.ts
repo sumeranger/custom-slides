@@ -15,6 +15,12 @@ export type Narration = string;
 
 export interface ChapterDef {
   id: string;
+  /**
+   * Short nav handle shown in the bottom progress bar's equal-width pill.
+   * Keep it ≤ ~6 CJK chars (fewer as chapter count grows) so it fits one
+   * line without truncating — put the full descriptive framing on the
+   * chapter's own eyebrow / heading, not here. See references/OUTLINE.md §1.3.
+   */
   title: string;
   /**
    * Per-step narration text. **Length === total steps in this chapter.**
