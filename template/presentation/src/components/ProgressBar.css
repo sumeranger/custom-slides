@@ -13,24 +13,18 @@
   pointer-events: none;
 }
 .pb {
+  position: relative;
   /* same width + paper surface as the stage → reads as its footer, not a
      separate floating panel */
   width: var(--stage-w, auto);
   max-width: calc(100vw - 32px);
   background: var(--surface);
+  /* the seam is the progress TRACK; .pb-rail fills it up to --pb-progress */
   border-top: 1px solid rgba(60, 40, 20, 0.15);
   border-radius: 0 0 var(--r-stage, 0) var(--r-stage, 0);
   padding: 12px 24px;
-  display: flex;
-  justify-content: center;
-  gap: 8px;
-  /* 溢出時橫向捲動而非擠壓 */
-  overflow-x: auto;
-  overflow-y: hidden;
-  scrollbar-width: thin;
-  scrollbar-color: var(--text-faint) transparent;
-  /* continue the stage's 1px edge on the 3 open sides + share its soft
-     drop shadow so the whole [stage + footer] casts one shadow */
+  /* continue the stage's 1px edge on the 3 open sides + share its soft drop
+     shadow so the whole [stage + footer] casts one shadow */
   box-shadow:
     inset 1px 0 0 rgba(60, 40, 20, 0.15),
     inset -1px 0 0 rgba(60, 40, 20, 0.15),
@@ -38,61 +32,82 @@
     0 40px 100px rgba(60, 40, 20, 0.22);
   pointer-events: auto;
 }
-.pb::-webkit-scrollbar {
+
+/* progress fill over the seam-track: shows how far through the WHOLE deck */
+.pb-rail {
+  position: absolute;
+  top: -1px;
+  left: 0;
+  height: 2px;
+  width: calc(var(--pb-progress, 0) * 100%);
+  background: var(--accent);
+  border-radius: 0 2px 2px 0;
+  transition: width var(--dur-base) var(--ease-quart);
+  pointer-events: none;
+}
+
+.pb-chapters {
+  display: flex;
+  justify-content: center;
+  gap: 28px;
+  /* 溢出時橫向捲動而非擠壓 */
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: var(--text-faint) transparent;
+}
+.pb-chapters::-webkit-scrollbar {
   height: 4px;
 }
-.pb::-webkit-scrollbar-track {
+.pb-chapters::-webkit-scrollbar-track {
   background: transparent;
 }
-.pb::-webkit-scrollbar-thumb {
+.pb-chapters::-webkit-scrollbar-thumb {
   background: var(--text-faint);
   border-radius: 2px;
 }
 
+/* chapter = plain label; hierarchy is carried by weight + color (past /
+   current / future), not a box */
 .pb-chapter {
   flex-shrink: 0;
   display: flex;
   align-items: center;
   gap: 8px;
   background: transparent;
-  border: 1px solid transparent;
-  color: var(--text-2);
-  padding: 6px 14px;
-  border-radius: 6px;
+  border: none;
+  padding: 2px 2px;
   font-family: var(--font-mono);
   font-size: var(--t-label);
+  color: var(--text-mute);
   cursor: pointer;
-  transition: color var(--dur-quick), background var(--dur-quick),
-    border-color var(--dur-quick);
+  transition: color var(--dur-quick);
+}
+.pb-num {
+  color: inherit;
+  font-weight: 600;
 }
 .pb-chapter:hover {
   color: var(--accent);
 }
-.pb-active {
-  color: var(--accent);
-  background: var(--accent-soft);
-  border-color: var(--accent);
+
+/* past — covered, calm but legible */
+.pb-past {
+  color: var(--text-mute);
 }
-.pb-num {
+/* current — you are here: accent number + dark bold title, aligned with the
+   leading edge of the progress rail above */
+.pb-current {
+  color: var(--text);
+}
+.pb-current .pb-num {
   color: var(--accent);
+  font-weight: 700;
+}
+.pb-current .pb-title {
   font-weight: 600;
 }
-
-.pb-pips {
-  flex-shrink: 0;
-  display: flex;
-  gap: 4px;
-  margin-left: 8px;
-}
-.pb-pip {
-  flex-shrink: 0;
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--text-faint);
-  cursor: pointer;
-  transition: background var(--dur-quick);
-}
-.pb-pip-on {
-  background: var(--accent);
+/* future — ghosted, ahead */
+.pb-future {
+  color: var(--text-faint);
 }

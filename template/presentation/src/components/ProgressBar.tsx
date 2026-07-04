@@ -26,9 +26,20 @@ export function ProgressBar({
   onJumpChapter,
 }: Props) {
   const scale = useStageScale();
+
+  // Overall deck progress (0..1) — drives the fill rail so the footer reads
+  // as an actual progress indicator, not just a chapter list.
+  const totalSteps = chapters.reduce((n, c) => n + c.narrations.length, 0);
+  const stepsBefore = chapters
+    .slice(0, cursor.chapter)
+    .reduce((n, c) => n + c.narrations.length, 0);
+  const progress =
+    totalSteps > 0 ? (stepsBefore + cursor.step + 1) / totalSteps : 0;
+
   const dockStyle = {
     "--stage-w": `${1920 * scale}px`,
     "--stage-half-h": `${540 * scale}px`,
+    "--pb-progress": progress,
   } as CSSProperties;
   const activeRef = useRef<HTMLButtonElement | null>(null);
 
@@ -43,39 +54,34 @@ export function ProgressBar({
   return (
     <div className="pb-hover" style={dockStyle} data-no-advance>
       <div className="pb">
-        {chapters.map((c, i) => {
-          const isActive = i === cursor.chapter;
-          return (
-            <button
-              key={c.id}
-              ref={isActive ? activeRef : undefined}
-              className={`pb-chapter ${isActive ? "pb-active" : ""}`}
-              onClick={(e) => {
-                e.stopPropagation();
-                onJumpChapter(i, 0);
-              }}
-            >
-              <span className="pb-num">{String(i + 1).padStart(2, "0")}</span>
-              <span className="pb-title">{c.title}</span>
-              {isActive && (
-                <div className="pb-pips">
-                  {Array.from({ length: c.narrations.length }, (_, s) => (
-                    <span
-                      key={s}
-                      className={`pb-pip ${
-                        s <= cursor.step ? "pb-pip-on" : ""
-                      }`}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onJumpChapter(i, s);
-                      }}
-                    />
-                  ))}
-                </div>
-              )}
-            </button>
-          );
-        })}
+        {/* progress rail: the top seam doubles as a fill showing how far
+            through the whole deck we are */}
+        <div className="pb-rail" aria-hidden="true" />
+        <div className="pb-chapters">
+          {chapters.map((c, i) => {
+            const state =
+              i < cursor.chapter
+                ? "pb-past"
+                : i === cursor.chapter
+                  ? "pb-current"
+                  : "pb-future";
+            return (
+              <button
+                key={c.id}
+                ref={i === cursor.chapter ? activeRef : undefined}
+                className={`pb-chapter ${state}`}
+                aria-current={i === cursor.chapter ? "step" : undefined}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onJumpChapter(i, 0);
+                }}
+              >
+                <span className="pb-num">{String(i + 1).padStart(2, "0")}</span>
+                <span className="pb-title">{c.title}</span>
+              </button>
+            );
+          })}
+        </div>
       </div>
     </div>
   );
