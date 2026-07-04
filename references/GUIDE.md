@@ -1,4 +1,4 @@
-# GUIDE-FOR-AI — paper-grid 簡報開發指南
+# GUIDE — paper-grid 簡報開發指南
 
 > 給 AI agent 的操作手冊。目標：用這個模板，對任何主題快速產出與
 > `2026-06-monthly-report` 同款（唯一視覺/互動基準）的「點擊驅動網頁簡報」——
