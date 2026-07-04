@@ -16,6 +16,7 @@
 /* footer band = same width + paper surface as the stage, so it reads as the
    card's footer, not a separate floating panel */
 .pb-chapters {
+  position: relative;
   width: var(--stage-w, auto);
   max-width: calc(100vw - 32px);
   background: var(--surface);
@@ -39,6 +40,20 @@
     0 40px 100px rgba(60, 40, 20, 0.22);
   pointer-events: auto;
 }
+/* continue the stage's blueprint grid into the footer so the surface reads
+   as one card. Cell size = --pb-grid (48px × stage scale) to match the
+   stage's on-screen grid. */
+.pb-chapters::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background-image: var(--surface-pattern, none);
+  background-size: var(--pb-grid, 48px) var(--pb-grid, 48px);
+  mix-blend-mode: var(--surface-pattern-blend, multiply);
+  opacity: var(--surface-pattern-opacity, 1);
+  pointer-events: none;
+}
 .pb-chapters::-webkit-scrollbar {
   height: 4px;
 }
@@ -53,6 +68,8 @@
 /* chapter = plain label; hierarchy carried by weight + color (past / current
    / future), not a box */
 .pb-chapter {
+  position: relative;
+  z-index: 1;
   flex-shrink: 0;
   display: flex;
   align-items: center;
@@ -94,8 +111,7 @@
   color: var(--text-faint);
 }
 
-/* step ticks — small graph-paper squares (echo the blueprint grid), filled
-   up to the current step; each is click-to-jump */
+/* step dots — filled up to the current step; each is click-to-jump */
 .pb-pips {
   display: inline-flex;
   align-items: center;
@@ -105,7 +121,7 @@
 .pb-pip {
   width: 8px;
   height: 8px;
-  border-radius: 1px;
+  border-radius: 50%;
   background: transparent;
   border: 1.5px solid var(--text-faint);
   cursor: pointer;

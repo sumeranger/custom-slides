@@ -29,6 +29,8 @@ export function ProgressBar({
   const dockStyle = {
     "--stage-w": `${1920 * scale}px`,
     "--stage-half-h": `${540 * scale}px`,
+    // match the stage's on-screen grid cell (48px base, scaled by the stage)
+    "--pb-grid": `${48 * scale}px`,
   } as CSSProperties;
   const activeRef = useRef<HTMLButtonElement | null>(null);
 
