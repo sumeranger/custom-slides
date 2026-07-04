@@ -9,16 +9,13 @@ interface Props {
 }
 
 /**
- * Hidden-on-hover progress bar, fixed to the bottom of the viewport.
+ * Persistent chapter progress bar, fixed to the bottom of the viewport.
  * Click chapter pill or pip to jump.
  *
  * Width is content-adaptive and capped at `100vw - 32px`; if total chapters
  * (or an active chapter's step pips) overflow, the bar scrolls horizontally
  * instead of squeezing items. The active chapter is auto-scrolled into view
- * on chapter change so it's visible the moment hover reveals the bar.
- *
- * A GitHub link sits to the right of the viewport, sharing the same hover
- * trigger so it appears/disappears in sync with the bar.
+ * on chapter change so it stays visible as the deck advances.
  */
 export function ProgressBar({
   chapters,
