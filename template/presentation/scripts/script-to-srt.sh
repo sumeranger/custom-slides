@@ -62,7 +62,7 @@ if [[ ! -f "$input_script" ]]; then
 fi
 
 # Check if edge-tts is available
-if ! command -v edge-tts &>/dev/null && ! python3 -m edge_tts --version &>/dev/null; then
+if ! command -v edge-tts &>/dev/null && ! python3 -m edge_tts --help &>/dev/null; then
   cat >&2 <<'EOF'
 Error: edge-tts is not installed.
 
