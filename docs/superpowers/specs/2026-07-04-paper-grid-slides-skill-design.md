@@ -9,7 +9,8 @@ status: draft
 ## 背景
 
 `paper-grid-slides-template` 是 hank 的「點擊驅動網頁簡報」模板（暖紙編輯風 + 逐步揭示 +
-hover tooltip），視覺與互動沿襲 `may-monthly-report` / `headroom-slides`。目前有兩個載體：
+hover tooltip），視覺與互動的**唯一參考基準**為最新的 `2026-06-monthly-report`
+（舊的 `may-monthly-report` / `headroom-slides` 不再引用）。目前有兩個載體：
 
 1. **模板 repo**：`/home/hank/repo/paper-grid-slides-template/`（`presentation/` + `GUIDE-FOR-AI.md`）。
 2. **skill**：`/home/hank/.claude/skills/paper-grid-slides/SKILL.md`——一張「指路便條」，全靠寫死
@@ -24,6 +25,9 @@ hover tooltip），視覺與互動沿襲 `may-monthly-report` / `headroom-slides
 讓本專案**先變成給別人標準安裝的 self-contained skill**，並在打包的同時完成兩項升級：
 章節進度條（B）與文稿階段重規劃（C）。
 
+**最終形態：只剩 skill，本 repo 載體淘汰。** 打包後 skill 是唯一存活的交付物；
+`paper-grid-slides-template` 這個 repo 只是遷移期的工作區，遷移完成即退役，不再維護。
+
 本設計涵蓋四塊：
 
 - **A**：打包成 self-contained skill（主容器）
@@ -37,7 +41,8 @@ hover tooltip），視覺與互動沿襲 `may-monthly-report` / `headroom-slides
 
 ### A.1 目錄結構
 
-把本 repo **重構成一個合法 skill 目錄**（單一真相源，開發與發佈同一處）：
+把本 repo **重構成一個合法 skill 目錄**（單一真相源）。此結構即最終交付物；重構完成後，
+skill 目錄搬到 skills 路徑成為唯一存活產物，原 template repo 退役（見「目標」）：
 
 ```
 paper-grid-slides/
@@ -58,9 +63,10 @@ paper-grid-slides/
 
 | 現況（寫死絕對路徑） | 改為 |
 |---|---|
+| 視覺/互動參考散指 `may-monthly-report` / `headroom-slides` | 收斂到唯一基準 `2026-06-monthly-report` |
 | 讀 `/home/hank/repo/paper-grid-slides-template/GUIDE-FOR-AI.md` | `references/GUIDE.md`（skill 相對） |
 | 複製 `…/paper-grid-slides-template/presentation/` | `template/presentation/`（skill 相對） |
-| 範例 `/home/hank/repo/headroom-slides/` | `example/`（bundle 進來的精簡範例） |
+| 範例 `/home/hank/repo/headroom-slides/` | `example/`（從 `2026-06-monthly-report` 取一章精簡化，bundle 進來） |
 | 依賴 `web-video-presentation` skill 的內容流程 | 吸收進 `references/SCRIPT.md` + `OUTLINE.md`，不再依賴外部 plugin |
 
 `GUIDE.md` 內部所有跨檔引用（§ 編號、腳本路徑）一併改成 skill 相對；`headroom-slides` 相關表述
@@ -166,23 +172,33 @@ example 章節結構才 bump。
      · 五類 AI 腔 + 「真人會這樣講嗎」
      · 被摘掉的乾貨（信息保留軟化版）
      · 清嗓開場 / PPT 標題感 / 人工分段痕跡
-   → 標記 + 重寫 → **自動 loop until 連兩輪挑不出東西**
+   → 標記 + 重寫 → **自動 loop（預設 2 輪；開跑前問使用者要幾輪）**
         ↓
 ③ 人閘門（輕）：hank 唸一遍 wince test —— 驗收已打磨稿，不是搶救生肉
         ↓
 outline.md（section=敘事職責）→ 再切 step
 ```
 
+**迴圈輪數**：預設 **2 輪**（writer→critic→重寫，跑兩趟）。skill 在開跑前**問使用者要幾輪**
+（可調），並設硬上限（如 4 輪）避免無限打磨燒 token。
+
 核心主張：**「第一版不理想」的解不是叫 AI 寫更好、也不是逼人重寫，而是讓一個獨立 critic 去聽
 另一個 agent 的聲音**——AI 聽不見自己，但聽得見別人。critic 迴圈**自動跑**（主 agent 自己
-spawn critic subagent，跑到挑不出東西），hank 只在最後唸一遍驗收。
+spawn critic subagent），hank 只在最後唸一遍驗收。
 
-### C.5 click-driven 適配（誠實揭露的取捨）
+### C.5 適配取捨：step 先定、音頻下游可選（依賴方向與 video-podcast 相反）
 
-video-podcast 靠「TTS 出 SRT → 從 SRT 取 beat 邊界」切節拍。本簡報**點擊驅動、音頻可選、
-沒 SRT 可依**，所以「切 step」換成**對文字的判斷**（講者自然停頓處 / 觀眾需要一個 click 處），
-由密度分級指引。`narrations.ts` 仍是 step 數唯一真相源不動，但 step 是從自然稿**切**出來，
-不是寫時**湊**出來。
+video-podcast 靠「TTS 出 SRT → 從 SRT 取 beat 邊界」切節拍——**音頻是主時鐘，beat 跟著音頻**。
+paper-grid 的依賴方向**相反**：`稿 → 切 step（narrations.ts）→ 之後才可選 TTS`——**step 結構
+先寫死、音頻是下游且可選**。所以這裡**永遠沒有 SRT 可依**（跟「點擊 vs auto 播放」無關；即使開
+`?auto=1` auto 模式，step 也早在音頻之前就定好了）。
+
+因此「切 step」換成**對文字的判斷**（講者自然停頓處 / 觀眾需要一個 click 處），由密度分級指引。
+`narrations.ts` 仍是 step 數唯一真相源不動，但 step 是從自然稿**切**出來，不是寫時**湊**出來。
+
+> 註：click-driven 是本工具的**產品身分**（人控節奏 + hover tooltip + 點章跳轉），不在本次
+> 拔除範圍；auto/audio 模式已內建並存（`useAutoMode` / `useAudioPlayer`）。此處只是不再用
+> 「click-driven」當切 step 的理由——真正的理由是上面的依賴方向。
 
 ### C.6 產出檔案
 
@@ -202,7 +218,7 @@ worktree」不適用；且 hank 明確要求用 worktree 測試。約定：
 **每次對 skill 做出改動後**：
 
 1. 開 git worktree（隔離工作區）。
-2. 依 skill 流程，以 `/home/hank/repo/may-monthly-report/script.md` 為輸入，**實際產一次 deck**。
+2. 依 skill 流程，以 `/home/hank/repo/2026-06-monthly-report/script.md` 為輸入，**實際產一次 deck**。
 3. 跑 `npx tsc --noEmit`（0 錯誤）+ 逐步截圖目測（版面、字級、進度條、動畫完成態）。
 4. 針對本次改動重點驗證：B → 章節 bar 常駐 / 高亮 / 點跳；C → 文稿流程與 critic 迴圈可跑。
 5. 收掉 worktree（未改動自動清除）。
@@ -214,7 +230,7 @@ worktree」不適用；且 hank 明確要求用 worktree 測試。約定：
 - **A**：全 repo grep 無 `/home/hank` 絕對路徑；把 skill 複製到乾淨路徑仍能起專案。
 - **B**：截圖確認章節 bar 常駐、當前章高亮、點膠囊跳章且不誤翻頁；字級 ≥22px、走 token。
 - **C**：`references/SCRIPT.md` / `OUTLINE.md` 存在且 self-contained（不引用外部 plugin）；
-  critic 迴圈能對 may-monthly-report 素材自動跑到收斂。
+  critic 迴圈能對 `2026-06-monthly-report` 素材自動跑（預設 2 輪）到收斂。
 - **D**：一次完整 worktree 測試通過（tsc 0 錯 + 截圖目測 OK）。
 
 ## 範圍界線（YAGNI）
@@ -224,9 +240,15 @@ worktree」不適用；且 hank 明確要求用 worktree 測試。約定：
 - **不動** `narrations.ts` = step 數真相源的技術不變量。
 - **不做** 音頻合成 pipeline 的重寫（沿用現有 extract-narrations / synthesize-audio）。
 
+## 已決事項（原開放問題）
+
+- **範例 deck 來源** → 從 `2026-06-monthly-report` 取一章精簡化，bundle 進 `example/`
+  （取哪一章、去識別哪些專屬內容，於 implementation 決定）。
+- **critic 迴圈輪數** → 預設 2 輪，開跑前問使用者可調，硬上限 4 輪。
+- **click-driven** → 保留為產品身分；僅修 §C.5 用詞，非拔除。
+
 ## 開放問題 / 風險
 
-1. **範例 deck 從哪來**：`example/` 要新做一個精簡範例，還是從 headroom-slides 抽一章精簡化？
-   （抽一章較快但要去識別 hank 專屬內容。）
-2. **critic 迴圈的收斂上限**：「連兩輪挑不出」需設硬上限（如最多 4 輪）避免無限打磨燒 token。
-3. **GUIDE.md 內文遷移量**：原 GUIDE-FOR-AI 有大量 § 交叉引用與絕對路徑，遷移時要逐一校對。
+1. **GUIDE.md 內文遷移量**：原 GUIDE-FOR-AI 有大量 § 交叉引用與絕對路徑，遷移時要逐一校對。
+2. **skill 最終落點**：重構完成後 skill 目錄搬到哪個 skills 路徑成為存活產物（`~/.claude/skills/`
+   或專屬 skill repo），於 implementation 確認；原 template repo 退役時機一併決定。
