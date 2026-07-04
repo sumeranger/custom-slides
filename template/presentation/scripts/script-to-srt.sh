@@ -66,13 +66,12 @@ if ! command -v edge-tts &>/dev/null && ! python3 -m edge_tts --help &>/dev/null
   cat >&2 <<'EOF'
 Error: edge-tts is not installed.
 
-Install with:
-  pip install edge-tts
+Install it in an isolated tool env (no global site-packages pollution):
+  uv tool install edge-tts       # recommended
+  # or: pipx install edge-tts
 
-Note: edge-tts requires ffmpeg. Install with:
-  Ubuntu/Debian: sudo apt-get install ffmpeg
-  macOS: brew install ffmpeg
-  Or download from https://ffmpeg.org/download.html
+edge-tts is an online service (needs network at runtime). No ffmpeg needed —
+--write-media writes mp3 directly.
 EOF
   exit 1
 fi

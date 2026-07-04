@@ -36,12 +36,15 @@ npm run synthesize-audio -- --force
 
 | 文件 | 后端 | 鉴权 | 备注 |
 |---|---|---|---|
-| `edge.sh` | Microsoft Edge TTS (`edge-tts`) | 无（免费、免 key） | **默认**；`pip install edge-tts`，需 ffmpeg |
+| `edge.sh` | Microsoft Edge TTS (`edge-tts`) | 无（免费、免 key） | **默认**；`uv tool install edge-tts`（或 pipx），免 ffmpeg；在线服务、需联网 |
 | `minimax.sh` | MiniMax `mmx` CLI | `mmx auth login --api-key` | 中文口播质量稳 |
 | `openai.sh` | OpenAI Audio Speech API | `OPENAI_API_KEY` env var | curl-based；多数 agent 已有 key |
 
-内置这三个 —— 默认 `edge`（免费免 key，适合别人开箱即用）。其它后端的代码片段在下面，
+内置这三个 —— 默认 `edge`（免费免 key）。其它后端的代码片段在下面，
 复制到 `tts-providers/<name>.sh` 即可启用。
+
+> **安装需要 Python 套件的 provider（如 edge-tts）请用隔离安装，别污染全局 site-packages：**
+> `uv tool install <pkg>`（推荐）或 `pipx install <pkg>`。避免 `pip install` 直接装进系统 Python。
 
 ---
 
