@@ -16,10 +16,12 @@ export type Narration = string;
 export interface ChapterDef {
   id: string;
   /**
-   * Short nav handle shown in the bottom progress bar's equal-width pill.
-   * Keep it ≤ ~6 CJK chars (fewer as chapter count grows) so it fits one
-   * line without truncating — put the full descriptive framing on the
-   * chapter's own eyebrow / heading, not here. See references/OUTLINE.md §1.3.
+   * Nav handle shown in the bottom progress bar's pill. The CURRENT chapter's
+   * pill expands to show this in full; inactive pills share the remaining
+   * width and truncate with an ellipsis if needed. So keep it reasonably
+   * short (≤ ~8 CJK chars, fewer as chapter count grows) so inactive pills
+   * stay readable — full descriptive framing goes on the chapter's own
+   * eyebrow / heading, not here. See references/OUTLINE.md §1.3.
    */
   title: string;
   /**

@@ -102,8 +102,11 @@
   border-color: var(--accent);
 }
 
-/* current — filled accent pill: the "different colour" highlight */
+/* current — filled accent pill: the "different colour" highlight. It sizes to
+   its content (never truncates); the other pills flex to share the remaining
+   width, so reaching a long-titled chapter temporarily shrinks the rest. */
 .pb-current {
+  flex: 0 0 auto;
   background: var(--accent);
   border-color: var(--accent);
   color: var(--surface);
@@ -112,6 +115,8 @@
   color: var(--surface);
 }
 .pb-current .pb-title {
+  overflow: visible;
+  text-overflow: clip;
   font-weight: 700;
 }
 
