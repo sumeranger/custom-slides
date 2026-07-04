@@ -1,13 +1,14 @@
 // 跳到指定步，hover 指定文字，截圖驗證 tooltip
 import { chromium } from "playwright";
 import { mkdirSync } from "node:fs";
+import { dirname } from "node:path";
 
 const URL = process.env.SNAP_URL ?? "http://localhost:5173/";
 const CH = Number(process.env.SNAP_CH ?? 0);
 const ST = Number(process.env.SNAP_ST ?? 0);
 const TEXT = process.env.SNAP_TEXT ?? "";
 const OUT = process.env.SNAP_OUT ?? "./.snap/hover.png";
-mkdirSync(new URL("./.snap/", import.meta.url), { recursive: true });
+mkdirSync(dirname(OUT), { recursive: true });
 
 const browser = await chromium.launch();
 const page = await browser.newPage({ viewport: { width: 1920, height: 1080 } });

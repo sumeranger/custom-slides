@@ -5,7 +5,7 @@ import { mkdirSync } from "node:fs";
 const URL = process.env.SNAP_URL ?? "http://localhost:5176/";
 const STEPS = Number(process.env.SNAP_STEPS ?? 4);
 const OUT = process.env.SNAP_OUT ?? "./.snap";
-mkdirSync(new URL("./.snap/", import.meta.url), { recursive: true });
+mkdirSync(OUT, { recursive: true });
 const PREFIX = process.env.SNAP_PREFIX ?? "step";
 const SETTLE = Number(process.env.SNAP_SETTLE ?? 5000);
 
