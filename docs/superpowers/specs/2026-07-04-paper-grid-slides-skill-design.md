@@ -165,9 +165,11 @@ example 章節結構才 bump。
 真人能救稿是因為換了一雙耳朵——用**另一個 agent** 當這雙耳朵：
 
 ```
+⓪ 前置定義（C.7）：受眾 / 語氣（professional·casual）/ verbosity / 目標時長
+        ↓
 素材/大綱（hank 給 or AI 調查） → article.md（數字·出處）
         ↓
-① writer agent 照 C.2/C.3 全套法則寫 v1        ← 接受它不理想
+① writer agent 照 C.2/C.3 全套法則 + ⓪ 的語氣旋鈕寫 v1   ← 接受它不理想
         ↓
 ② critic agent（乾淨 context、不護短）逐句獵殺：
      · 五類 AI 腔 + 「真人會這樣講嗎」
@@ -219,6 +221,32 @@ spawn critic subagent），hank 只在最後唸一遍驗收。
 - **切段工具（新增）**：對收斂後連貫稿產 SRT + 依 SRT 切 step 寫回 `narrations.ts` 的腳本
   （沿用 video-podcast 的 align-from-SRT 模式）；預設 TTS = `edge-tts`。細節於 implementation。
 
+### C.7 對齊 video-podcast 的補齊項（收官差異全數納入）
+
+收官差異盤點後，把 video-podcast 有、而本 spec 尚缺的項目全數補上。分三類，各標明掛載點：
+
+**（甲）TTS 連帶帳——選 Y（SRT 必產）後才相關，直接決定 SRT / 切 step 準度：**
+
+1. **發音預檢 `phonemes.json`**（掛 §C.5，TTS 前）：zh 多音字 / 英文詞 / 品牌名三遍預檢，
+   產發音覆寫表餵給 TTS。寫進 `SCRIPT.md`。
+2. **數字格式化規則**（掛 §C.5，TTS 前）：保留數字 vs 中文唸法的成套規則（年份 / 百分比 /
+   版本號 / 電話 / 大整數…）。寫進 `SCRIPT.md`。
+3. **時長 dry-run**（掛 §C.5，TTS 時）：TTS 前/後估總時長，偏離目標（如 >12min / <3min）
+   就回頭調稿。
+
+**（乙）語氣前置（反 AI 腔的正面錨點）——掛 C.4 步驟 ⓪：**
+
+4. **`topic_definition`**：開工先定 受眾 / 風格 / 範圍 / 目標時長。寫進 `OUTLINE.md` 起手式。
+5. **tone / verbosity 旋鈕**：`tone: professional|casual`、`verbosity: concise|detailed`
+   （對應每段字數帶寬），供 writer 與 critic 共用的語域基準。寫進 `SCRIPT.md`。
+
+**（丙）品質審 + 密度指引：**
+
+6. **beat-sync 自動審**（掛「驗收方法」）：類 `audit_beat_sync.py`，抓「動畫/step 音頻與
+   口播 drift」（沿用 GUIDE 既有「動畫 ≤ 口播、字數÷4」規則，加自動 drift 檢測門檻）。
+7. **每章 step 數指引**（掛 §C.2）：丟掉 web-video 的「3~8 步」硬公式後，改由**密度分級 +
+   SRT 切點**驅動；給一個**參考帶寬**（非硬限）避免章節過薄/過載，範圍於 implementation 定。
+
 ---
 
 ## D. worktree 驗證工作流
@@ -242,7 +270,8 @@ worktree」不適用；且 hank 明確要求用 worktree 測試。約定：
 - **A**：全 repo grep 無 `/home/hank` 絕對路徑；把 skill 複製到乾淨路徑仍能起專案。
 - **B**：截圖確認章節 bar 常駐、當前章高亮、點膠囊跳章且不誤翻頁；字級 ≥22px、走 token。
 - **C**：`references/SCRIPT.md` / `OUTLINE.md` 存在且 self-contained（不引用外部 plugin）；
-  critic 迴圈能對 `2026-06-monthly-report` 素材自動跑（預設 2 輪）到收斂。
+  critic 迴圈能對 `2026-06-monthly-report` 素材自動跑（預設 2 輪）到收斂；phonemes 預檢 +
+  數字格式化 + 時長 dry-run 皆就位；beat-sync 自動審通過（step 音頻/動畫與口播 drift 在門檻內）。
 - **D**：一次完整 worktree 測試通過（tsc 0 錯 + 截圖目測 OK）。
 
 ## 範圍界線（YAGNI）
@@ -260,6 +289,9 @@ worktree」不適用；且 hank 明確要求用 worktree 測試。約定：
 - **切 step 方式** → 走 **Option Y：忠於 video-podcast，SRT 必產、提早**，用真實停頓切 step。
 - **TTS** → 從可選變必產前置；預設 `edge-tts`（免費免 key）壓低門檻。
 - **click-driven** → 保留為產品身分（正交於 SRT），不拔除。
+- **收官差異** → video-podcast 有而 spec 缺的**全數補上**（見 §C.7）：phonemes 預檢、數字格式化、
+  時長 dry-run、topic_definition、tone/verbosity、beat-sync 自動審、每章 step 數參考帶寬。
+  刻意保留的差異：輸出仍是點擊網頁 deck（非 MP4/Remotion/BGM）、多一層自動對抗 critic 迴圈。
 
 ## 開放問題 / 風險
 
