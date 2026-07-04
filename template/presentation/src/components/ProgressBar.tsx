@@ -1,5 +1,6 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, type CSSProperties } from "react";
 import type { ChapterDef } from "../registry/types";
+import { useStageScale } from "../hooks/useStageScale";
 import "./ProgressBar.css";
 
 interface Props {
@@ -9,19 +10,26 @@ interface Props {
 }
 
 /**
- * Persistent chapter progress bar, fixed to the bottom of the viewport.
- * Click chapter pill or pip to jump.
+ * Chapter progress bar docked as the stage card's footer: it matches the
+ * stage's rendered width and sits flush against the stage's bottom edge,
+ * sharing the paper surface + a hairline seam so the deck + nav read as one
+ * card (not a second floating panel). Reads `useStageScale` to align to the
+ * live stage box.
  *
- * Width is content-adaptive and capped at `100vw - 32px`; if total chapters
- * (or an active chapter's step pips) overflow, the bar scrolls horizontally
- * instead of squeezing items. The active chapter is auto-scrolled into view
- * on chapter change so it stays visible as the deck advances.
+ * Content-adaptive within the stage width; if chapters (or an active
+ * chapter's step pips) overflow, the footer scrolls horizontally instead of
+ * squeezing items. The active chapter auto-scrolls into view on change.
  */
 export function ProgressBar({
   chapters,
   cursor,
   onJumpChapter,
 }: Props) {
+  const scale = useStageScale();
+  const dockStyle = {
+    "--stage-w": `${1920 * scale}px`,
+    "--stage-half-h": `${540 * scale}px`,
+  } as CSSProperties;
   const activeRef = useRef<HTMLButtonElement | null>(null);
 
   useEffect(() => {
@@ -33,7 +41,7 @@ export function ProgressBar({
   }, [cursor.chapter]);
 
   return (
-    <div className="pb-hover" data-no-advance>
+    <div className="pb-hover" style={dockStyle} data-no-advance>
       <div className="pb">
         {chapters.map((c, i) => {
           const isActive = i === cursor.chapter;

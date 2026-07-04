@@ -1,29 +1,42 @@
+/* Docked to the stage card's bottom edge. `--stage-w` / `--stage-half-h`
+   are set inline from useStageScale so the footer aligns to the live stage
+   box. The small negative offset overlaps the stage's rounded bottom corners
+   so the seam reads as one card (no notch). */
 .pb-hover {
   position: fixed;
-  bottom: 0;
   left: 0;
   right: 0;
+  top: calc(50vh + var(--stage-half-h, 400px) - 18px);
   z-index: 10;
   display: flex;
-  align-items: flex-end;
   justify-content: center;
-  pointer-events: auto;
+  pointer-events: none;
 }
 .pb {
-  background: var(--surface-2);
-  border: 1px solid var(--surface-3);
-  border-bottom: none;
-  padding: 10px 20px;
-  border-radius: 12px 12px 0 0;
-  display: flex;
-  gap: 8px;
-  /* 常駐：不再 hover 才顯示。溢出時橫向捲動而非擠壓。 */
+  /* same width + paper surface as the stage → reads as its footer, not a
+     separate floating panel */
+  width: var(--stage-w, auto);
   max-width: calc(100vw - 32px);
+  background: var(--surface);
+  border-top: 1px solid rgba(60, 40, 20, 0.15);
+  border-radius: 0 0 var(--r-stage, 0) var(--r-stage, 0);
+  padding: 12px 24px;
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  /* 溢出時橫向捲動而非擠壓 */
   overflow-x: auto;
   overflow-y: hidden;
   scrollbar-width: thin;
   scrollbar-color: var(--text-faint) transparent;
-  box-shadow: 0 -2px 12px rgba(26, 19, 16, 0.08);
+  /* continue the stage's 1px edge on the 3 open sides + share its soft
+     drop shadow so the whole [stage + footer] casts one shadow */
+  box-shadow:
+    inset 1px 0 0 rgba(60, 40, 20, 0.15),
+    inset -1px 0 0 rgba(60, 40, 20, 0.15),
+    inset 0 -1px 0 rgba(60, 40, 20, 0.15),
+    0 40px 100px rgba(60, 40, 20, 0.22);
+  pointer-events: auto;
 }
 .pb::-webkit-scrollbar {
   height: 4px;
