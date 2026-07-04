@@ -88,32 +88,48 @@ paper-grid-slides/
 
 ---
 
-## B. 章節進度條 `ChapterNav`
+## B. 章節進度條（改造既有 `ProgressBar` 就地演進）
+
+### B.0 探勘修正（重要）
+
+探勘發現：現有 `components/ProgressBar.tsx` **本身就是**點擊跳章的章節 bar——已排章節膠囊
+（編號 + 章名）、`pb-active` 高亮、`onJumpChapter` 跳章、當前章帶步驟 pips、溢出橫捲、
+自動捲入視野。原以為「新增 ChapterNav」是誤判。**改為就地演進 `ProgressBar`**（DRY，不複製
+跳章邏輯、不搞兩條 bar）。
+
+它與參考圖的差距（＝本次要改的）：
+
+| 現況 | 目標（參考圖） |
+|---|---|
+| hover 才出現（`opacity:0` + `translateY(100%)`，`.pb-hover:hover` 才顯示） | **常駐**底部 |
+| 深色（`rgba(0,0,0,0.85)` 毛玻璃） | 亮色暖紙、走 token |
+| `font-size: 11px`（⚠️ 違反投影地板 ≥22px） | 投影可讀（`--t-label` 22px） |
+| 右側寫死 `ConardLi/garden-skills` GitHub 連結 | 移除（去品牌化，關聯 A） |
 
 ### B.1 行為
 
-- **底部常駐**（不靠 hover），對齊參考圖：一排膠囊，每顆是一個章名，當前章 terracotta 高亮。
-- **點章跳轉**：點膠囊 → `jumpToChapter(idx)`；膠囊掛 `data-no-advance` 防止點擊同時觸發翻頁。
-- 保留現有 `ProgressBar`（hover 才出現的細條）作為**章內步驟**進度，與 `ChapterNav` 分工：
-  - `ChapterNav` = 章層級（我在第幾章）
-  - `ProgressBar` = 步層級（本章第幾步）
+- **底部常駐**（移除 hover-reveal）：一排膠囊、每顆一個章名、當前章 terracotta 高亮。
+- **點章跳轉**：沿用既有 `onJumpChapter(i, 0)`；容器已在 `.pb-hover` 掛 `data-no-advance`，
+  且各按鈕 `e.stopPropagation()`——翻頁不誤觸，保留不動。
+- 步驟 pips 保留（當章內進度），一併改亮色 token。
 
 ### B.2 資料來源
 
-資料已現成——`registry/types.ts` 的 `ChapterDef` 已有 `id` + `title`。`ChapterNav` 讀
-`CHAPTERS[].title` 排膠囊，用 stepper 的 `cursor.chapter` 判當前章。**不需新增資料欄位。**
+不變——`ProgressBar` 已吃 `chapters={CHAPTERS}` / `cursor` / `onJumpChapter`（見 `App.tsx`）。
+**不需新增資料欄位、不需新 props。**
 
-### B.3 樣式
+### B.3 樣式（只改 `ProgressBar.css`）
 
-- 顏色一律走 token（`--accent` 高亮、`--surface` / `--text-2` 底），**不硬寫色碼**。
-- 字級守投影地板（章名屬 label 類，≥22px）。
-- 新增 `ChapterNav.tsx` + `ChapterNav.css`，前綴隔離。樣式覆寫仍只走 `paper-grid.css` 慣例，
-  不動 `styles/` 既有檔案的既有規則。
+- 常駐：移除 `.pb` / `.pb-github` 的 `opacity:0` + `translateY(100%)` 與 `.pb-hover:hover`
+  規則，改為預設可見。
+- 顏色走 token：底 `--surface-2`（+ 邊框 `--surface-3`）、字 `--text-2`、當前章 `--accent`；
+  **不硬寫色碼**（現況的 `rgba(0,0,0,0.85)` / `11px` 都拔掉）。
+- 字級守投影地板：章名 `--t-label`（22px）、編號 mono 同級。
+- 移除 `.pb-github` 相關 DOM 與樣式（去品牌化）。
 
 ### B.4 結構變更
 
-新增常駐 UI 不改章節 step 數，`useStepper` 的 `STORAGE_KEY` 不需 bump。若順帶調整
-example 章節結構才 bump。
+不改章節 step 數，`useStepper` 的 `STORAGE_KEY` 不需 bump。
 
 ---
 
