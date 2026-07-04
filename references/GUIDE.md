@@ -10,20 +10,27 @@
 
 ## 0. 內容流程（先內容、後代碼）
 
-若環境有 `web-video-presentation` skill（presentation-skills plugin），**整個內容
-流程照它走**（SCRIPT-STYLE / OUTLINE-FORMAT / CHAPTER-CRAFT 三份規範 +
-Checkpoint 對齊）。本指南只補「本模板特有」的部分。沒有該 skill 時，按下面
-精簡版：
+整條內容流程由本 skill 自帶的兩份方法論規範，**不需要安裝任何外部
+plugin**：`references/SCRIPT.md`（寫稿心法：語氣定調、去 AI 腔、對抗式
+critic 迴圈）→ `references/OUTLINE.md`（切章心法：敘事職責切分、
+SRT-informed 切 step）。實際跑起來的步驟：
 
 1. **`article.md`** — 素材庫：研究蒐證後把所有數字 / 引用 / 出處寫進去，
    分 §1 §2… 編號。畫面上的每個數字都必須能在這裡找到出處，**禁止捏造**。
-2. **`script.md`** — 口播稿：口語短句、每段（`---` 之間）= 一次點擊 = 一個
-   聚焦想法。去 AI 腔（禁「說白了/本質上/恰恰/首先其次最後」、假共情、
-   排比堆砌）。
-3. **`outline.md`** — 開發計劃：章節切分（每章 3~8 步、30~60s）+ 每步一行
-   屏幕內容 + 每章「信息池」（從 article 抽細節並標 `—— 來源 article §X`）。
-   **不寫動畫**（動畫由實作章節時自由設計）。
-4. **停下來給用戶對齊**：標題 / 稿子 / outline / 素材 / 開發模式，確認後才寫代碼。
+2. **`script.md`** — 口播稿：照 `SCRIPT.md` 寫（先定 `topic_definition` 語氣、
+   寫稿、跑對抗式 critic 迴圈收斂），口語短句、去 AI 腔（禁「說白了/本質上/
+   恰恰/首先其次最後」、假共情、排比堆砌）。
+3. **`outline.md`** — 開發計劃：照 `OUTLINE.md` 切（敘事職責定章節、密度
+   分級 + SRT-informed 判斷切 step）+ 每步一行屏幕內容 + 每章「信息池」
+   （從 article 抽細節並標 `—— 來源 article §X`）。**不寫動畫**（動畫由實作
+   章節時自由設計）。
+4. **checkpoint：停下來給用戶對齊**：標題 / 稿子 / outline / 素材 / 開發
+   模式，確認後才寫代碼。
+5. **逐章開發**：見本文件 §1 起。
+
+> 概念源自 video-podcast 類文稿工具（`web-video-presentation` skill）的
+> 實戰經驗，但 `SCRIPT.md` / `OUTLINE.md` 已是完整、可獨立操作的版本——
+> 不依賴、也不要求安裝該 skill。
 
 ## 1. 起專案
 
@@ -104,8 +111,10 @@ SNAP_STEPS_JSON='[[0,5],[1,4]]' node snap-sweep.mjs   # 全 tooltip 超界掃描
 第 1 章先做完 → 給用戶驗收（風格錨點）→ 其餘章節依用戶選擇逐章 / 並行
 （並行時每個 subagent 給：本指南路徑 + outline 對應章 + article 路徑 + 第 1 章
 代碼當風格參考 + 各自的 CSS 前綴）。全部完成後問是否合成音頻
-（`npm run extract-narrations` → `npm run synthesize-audio`，詳見
-web-video-presentation skill 的 AUDIO.md；合成後 `?auto=1` 可自動播放錄屏）。
+（`npm run extract-narrations` → `npm run synthesize-audio`；provider 見
+`scripts/tts-providers/README.md`，本 skill 建議預設用 `edge-tts`——免費、
+免 API key，`PRESENTATION_TTS=edge` 或 `--provider=edge`；合成後 `?auto=1`
+可自動播放錄屏）。
 
 ## 6. 實戰教訓（必讀）
 
