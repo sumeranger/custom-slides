@@ -207,6 +207,12 @@ spawn critic subagent），hank 只在最後唸一遍驗收。
 
 ### C.5 切 step：忠於 video-podcast 流程（SRT 必產、提早）
 
+> **修訂（2026-07-04，端到端實測後）**：本節原定「SRT 必產、提早」。實測用
+> may-monthly-report/script.md 跑一次時，agent 跳過 SRT、純密度＋語義判斷切段，
+> deck 依然做得好。故**降級**：切 step 以「密度＋語義判斷」為**底線**，
+> `script-to-srt.sh`＋讀真實停頓改為**可選校準**（要更精準時才跑）。工具照留、
+> 不刪。以 `references/OUTLINE.md` §3 的現行說法為準；下文保留作決策脈絡。
+
 **決定走 Option Y**——採 video-podcast 的作法：**先產 SRT，再用真實停頓/時長切 step**
 （不靠純文字猜「哪裡該點一下」）。產線順序：
 
