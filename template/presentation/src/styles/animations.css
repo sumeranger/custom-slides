@@ -4,10 +4,15 @@
  * All durations / easings come from the active theme's tokens.
  * ───────────────────────────────────────────────────────────────────── */
 
-/* MaskReveal — clip-path text wipe (left → right) */
+/* MaskReveal — clip-path text wipe (left → right).
+ * Right padding + matching negative margin gives italic glyphs (which lean
+ * right past their inline-box width) a safety buffer so clip-path's right
+ * inset never shaves off a trailing letter. See GUIDE.md §6.15. */
 .mask-reveal {
   clip-path: inset(0 100% 0 0);
   transition: clip-path 700ms var(--ease-quart);
+  padding-right: 0.15em;
+  margin-right: -0.15em;
 }
 .mask-reveal.in { clip-path: inset(0 0 0 0); }
 

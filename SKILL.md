@@ -10,17 +10,20 @@ description: Use when asked to make a slide deck / presentation / 簡報 / slide
 
 ## 怎麼做
 
-1. **內容流程**：`article.md`（素材/出處）→ `references/SCRIPT.md`（寫稿心法 +
+1. **全新主題、使用者只有口述構想時**：先讀 `references/ALIGN.md`，把口述
+   收斂成一小段人類可讀的對齊骨架（命名/術語校正 + 順序確認），經使用者
+   點頭後才往下走——不要跳過這步直接展開成長文件，事後修正成本高很多。
+2. **內容流程**：`article.md`（素材/出處）→ `references/SCRIPT.md`（寫稿心法 +
    對抗式 critic 迴圈，收斂出 `script.md`）→ `references/OUTLINE.md`（敘事職責
    切章、SRT-informed 切 step，產出各章 `narrations.ts`）→ 停下來給用戶
    checkpoint 對齊（標題／稿子／outline／素材／開發模式）→ 逐章開發（GUIDE
    §1 起，本 skill 自足，不依賴任何外部 plugin）。
-2. **讀完整手冊**：`references/GUIDE.md` —— 章節鐵則、Term tooltip 規範、
+3. **讀完整手冊**：`references/GUIDE.md` —— 章節鐵則、Term tooltip 規範、
    驗證腳本，全部在那裡。
-3. **起專案**：複製 `template/presentation/` 到新 repo（GUIDE §1），
+4. **起專案**：複製 `template/presentation/` 到新 repo（GUIDE §1），
    `npm install && npm run dev`。不要重新 scaffold、不要改 `styles/`。
-4. **參考範例**：`example/`（去識別化的實作章節，示範全部慣例，卡住時去翻）。
-5. **音頻**（可選，全部章節完成後）：`npm run extract-narrations` →
+5. **參考範例**：`example/`（去識別化的實作章節，示範全部慣例，卡住時去翻）。
+6. **音頻**（可選，全部章節完成後）：`npm run extract-narrations` →
    `npm run synthesize-audio`。本 skill 建議把 `edge-tts` 當預設 provider
    （免費、免 API key）：`PRESENTATION_TTS=edge npm run synthesize-audio`
    或 `npm run synthesize-audio -- --provider=edge`；`OUTLINE.md` §3 的
