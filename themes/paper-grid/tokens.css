@@ -1,0 +1,76 @@
+/* ─────────────────────────────────────────────────────────────────────
+ * Theme · paper-grid
+ *   Warm-cream editorial paper look + blueprint grid signature. This is
+ *   the theme this skill actively develops decks against.
+ *
+ *   character knobs:
+ *     • hero numbers   — bold italic editorial serif (Fraunces)
+ *     • rule           — 1.5px solid warm hairline
+ *     • card           — refined 8px radius, paper-lift shadow
+ *     • surface        — blueprint grid (multiply) + warm vignette
+ *     • motion         — moderate, editorial (600/950/1400ms)
+ *
+ *   Selector-level overrides this theme also needs (.stage-frame edge,
+ *   .v-corners/.v-pill/.v-breadcrumb/.v-strike/.v-serif-bold primitives,
+ *   and legacy .scene .co-*/.av-*/.at-*/.cl-*/.mn-* chapter-card
+ *   overrides) live in the sibling extras.css — see THEMES.md for why
+ *   this theme needs both files while dbx-style needs only this one.
+ * ───────────────────────────────────────────────────────────────────── */
+:root {
+  /* ─── palette: cream paper + brick accent ─── */
+  --shell:        #e0d5be;
+  --surface:      #f4ecd8;
+  --surface-2:    #fbf6e8;
+  --surface-3:    #ece1c5;
+  --text:         #1a1310;
+  --text-2:       #3d2f25;
+  --text-mute:    #7a6a55;
+  --text-faint:   #b3a78e;
+  --rule:         #c8b890;
+  --accent:       #b53d22;             /* brick terracotta */
+  --accent-soft:  rgba(181, 61, 34, 0.10);
+  --accent-glow:  rgba(181, 61, 34, 0.28);
+
+  /* ─── fonts: thick editorial serif ─── */
+  --font-display-cn: "Noto Serif SC", "Source Han Serif SC", serif;
+  --font-display-en: "Fraunces", "Playfair Display", Georgia, serif;
+  --font-body:       "Source Serif 4", "Source Serif Pro", "Noto Serif SC", Georgia, serif;
+  --font-mono:       "JetBrains Mono", "IBM Plex Mono", ui-monospace, monospace;
+  --font-features:   "ss01", "ss02", "tnum", "dlig";
+
+  /* ─── motion ─── */
+  --dur-base:       600ms;
+  --dur-slow:       950ms;
+  --dur-cinematic:  1400ms;
+
+  /* ─── design identity ─── */
+  --r-card:        8px;
+  --r-stage:       0;
+  --rule-w:        1.5px;
+  --rule-style:    solid;
+  --hero-num-font:    var(--font-display-en);
+  --hero-num-style:   italic;
+  --hero-num-weight:  700;
+  --hero-num-track:   -0.04em;
+  --stage-pad-x:   120px;
+  --stage-pad-y:   90px;
+  --card-shadow:
+    0 1px 0 var(--rule),
+    0 12px 32px rgba(60, 40, 20, 0.08);
+  --shadow-stage:
+    0 60px 160px rgba(60, 40, 20, 0.28),
+    0 0 0 1px rgba(0, 0, 0, 0.05);
+
+  /* ─── SIGNATURE — blueprint grid baked into the stage ─── */
+  --surface-pattern:
+    linear-gradient(to right,  rgba(70, 100, 150, 0.08) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(70, 100, 150, 0.08) 1px, transparent 1px);
+  --surface-pattern-size: 48px 48px;
+  --surface-pattern-blend: multiply;
+  --surface-pattern-opacity: 1;
+  --surface-vignette:
+    radial-gradient(circle at 50% 65%, transparent 55%, rgba(60, 40, 20, 0.10) 100%);
+
+  /* ─── stage edge (paper sheet) ─── */
+  --stage-border: 1px solid rgba(60, 40, 20, 0.15);
+}

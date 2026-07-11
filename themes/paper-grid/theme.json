@@ -1,0 +1,15 @@
+{
+  "id": "paper-grid",
+  "name": "Paper Grid",
+  "nameZh": "暖紙藍圖",
+  "description": "Warm cream paper with terracotta accent and a blueprint grid signature. The default and only actively-used theme in this skill.",
+  "descriptionZh": "暖紙編輯風＋磚紅 accent＋藍圖網格簽名。本 skill 目前實際使用與驗收的預設主題。",
+  "mood": ["light", "editorial", "warm", "field-notebook"],
+  "bestFor": ["技術簡報", "教程", "產品評測"],
+  "preview": {
+    "shell": "#e0d5be",
+    "surface": "#f4ecd8",
+    "text": "#1a1310",
+    "accent": "#b53d22"
+  }
+}
