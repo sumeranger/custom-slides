@@ -1,0 +1,86 @@
+/* ─────────────────────────────────────────────────────────────────────
+ * Theme · dbx-style
+ *   Dark tech engineering aesthetic modeled on the DBX website
+ *   (https://dbxio.com/cn). Deep blue-black backdrop, glass cards,
+ *   a single steel-blue accent, fixed two-corner glow decoration.
+ *
+ *   Deliberate simplifications vs. the live site (agreed with user):
+ *     • the site's animated multi-layer glass/glow is replaced by ONE
+ *       fixed corner-glow decoration (--surface-vignette) — no per-
+ *       chapter glow variation, no motion.
+ *     • the site has no custom webfont (Tailwind system-font stack);
+ *       --font-mono here is an addition this theme needs because the
+ *       shared base.css primitives (.kicker/.label-mono/.badge-mono/
+ *       .corner-mark) require a monospace family the DBX brand itself
+ *       doesn't define.
+ *
+ *   character knobs:
+ *     • hero numbers   — bold tabular mono (approximates DBX's
+ *                         font-[820]/[780] heavy-weight numerals)
+ *     • rule           — 1px hairline, same hue family as the site's
+ *                         --line token
+ *     • card           — glass: translucent surface + hairline border
+ *     • surface        — two fixed corner glows (blue + green), no grain
+ *     • motion         — kept at base.css defaults (punchy/crisp fits
+ *                         the engineering tone; this theme doesn't need
+ *                         a slow/cinematic override)
+ *
+ *   No extras.css needed: every effect above is expressed purely
+ *   through these tokens, consumed by primitives base.css already
+ *   defines (.card-glass, .stage-frame::before/::after). See THEMES.md.
+ * ───────────────────────────────────────────────────────────────────── */
+:root {
+  /* ─── palette ─── */
+  --shell:        #070b14;
+  --surface:      #0b1120;
+  --surface-2:    #131a2c;
+  --surface-3:    #1a2338;
+  --text:         #f7fbff;
+  --text-2:       #d7e1ef;
+  --text-mute:    #9aa9bc;
+  --text-faint:   #5b6a80;
+  --rule:         rgba(155, 176, 205, 0.18);
+  --accent:       #6ea8ff;
+  --accent-soft:  rgba(110, 168, 255, 0.12);
+  --accent-glow:  rgba(110, 168, 255, 0.35);
+
+  /* ─── fonts: system stack (DBX ships no custom webfont) ─── */
+  --font-display-cn: -apple-system, "PingFang SC", "Microsoft YaHei", ui-sans-serif, system-ui, sans-serif;
+  --font-display-en: ui-sans-serif, -apple-system, system-ui, sans-serif;
+  --font-body:       ui-sans-serif, -apple-system, system-ui, sans-serif;
+  --font-mono:       ui-monospace, "SF Mono", "JetBrains Mono", monospace;
+  --font-features:   "tnum";
+
+  /* ─── design identity ─── */
+  --r-card:        10px;
+  --r-stage:       0;
+  --rule-w:        1px;
+  --rule-style:    solid;
+  --hero-num-font:    var(--font-mono);
+  --hero-num-style:   normal;
+  --hero-num-weight:  700;
+  --hero-num-track:   -0.02em;
+  --stage-pad-x:   120px;
+  --stage-pad-y:   90px;
+  --card-shadow:
+    0 18px 44px rgba(0, 0, 0, 0.14),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.02);
+  --card-glass-bg:     rgba(12, 15, 22, 0.72);
+  --card-glass-border: rgba(155, 176, 205, 0.18);
+  --shadow-stage:
+    0 60px 160px rgba(0, 0, 0, 0.5),
+    0 0 0 1px rgba(110, 168, 255, 0.05);
+
+  /* ─── decoration: 58px faint blue grid + two fixed corner glows ───
+   * Fixed = identical on every chapter (not content-driven), per the
+   * user's simplification call — no dynamic/animated glow. */
+  --surface-pattern:
+    linear-gradient(to right,  rgba(110, 168, 255, 0.08) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(110, 168, 255, 0.08) 1px, transparent 1px);
+  --surface-pattern-size: 58px 58px;
+  --surface-pattern-blend: screen;
+  --surface-pattern-opacity: 0.5;
+  --surface-vignette:
+    radial-gradient(600px circle at 100% 0%, rgba(110, 168, 255, 0.16), transparent 60%),
+    radial-gradient(500px circle at 0% 100%, rgba(68, 209, 157, 0.12), transparent 60%);
+}

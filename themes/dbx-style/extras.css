@@ -1,0 +1,5 @@
+/* theme 'dbx-style' has no selector-level overrides — every effect
+ * (glass cards, corner glow, grid) is expressed purely through the
+ * tokens.css custom properties that base.css's primitives already
+ * consume (.card-glass, .stage-frame::before/::after). See THEMES.md
+ * for why paper-grid needs this file and dbx-style doesn't. */
