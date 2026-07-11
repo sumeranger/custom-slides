@@ -1,0 +1,32 @@
+/* ─────────────────────────────────────────────────────────────────────
+ * dbx-style theme · extras.css
+ *
+ * :root block below: base.css-colliding personality-knob overrides.
+ * base.css's own :root block redeclares --r-card / --rule-w /
+ * --rule-style / --hero-num-* / --stage-pad-x / --stage-pad-y /
+ * --shadow-stage as fallback defaults. tokens.css loads BEFORE base.css,
+ * so declaring these there would lose cascade to base.css's later :root
+ * block — they must live here instead (extras.css loads AFTER base.css).
+ * This theme has no --dur-* override, so base.css's motion defaults
+ * apply as-is (see tokens.css header comment).
+ *
+ * No selector-level overrides needed — every other effect is expressed
+ * purely through tokens.css custom properties, consumed by primitives
+ * base.css already defines (.card-glass, .stage-frame::before/::after).
+ * See THEMES.md for why paper-grid needs selector-level rules too and
+ * dbx-style doesn't.
+ * ───────────────────────────────────────────────────────────────────── */
+:root {
+  --r-card:           10px;
+  --rule-w:           1px;
+  --rule-style:       solid;
+  --hero-num-font:    var(--font-mono);
+  --hero-num-style:   normal;
+  --hero-num-weight:  700;
+  --hero-num-track:   -0.02em;
+  --stage-pad-x:      120px;
+  --stage-pad-y:      90px;
+  --shadow-stage:
+    0 60px 160px rgba(0, 0, 0, 0.5),
+    0 0 0 1px rgba(110, 168, 255, 0.05);
+}

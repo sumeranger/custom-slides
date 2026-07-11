@@ -49,8 +49,14 @@ cd <新專案>/presentation && npm install && npm run dev
 ```
 
 樣式層疊順序（App.tsx，已接好勿動）：
-`fonts → tokens(midnight-press) → base → animations → paper-grid → paper-grid-cards`
-亮色暖紙視覺全部來自 `paper-grid.css` 覆寫。**不要改 styles/ 下任何檔案**。
+`fonts → tokens(主題 token) → base → animations → extras(主題選擇器層 + 性格旋鈕 :root 覆寫，可選，詳見 THEMES.md)`
+
+模板預設就是 `paper-grid` 主題（暖紙視覺）。**不要改
+`base.css`/`animations.css`/`fonts.css`**——那是所有主題共用的骨架。
+要換視覺風格，看 `references/THEMES.md`，用
+`bash <skill 根>/scripts/scaffold.sh <新專案>/presentation --theme=<id>`
+切換 `tokens.css`/`extras.css`，不要手改這兩個檔案本身的內容（它們是
+被 scaffold 覆蓋的產物，手改了下次切主題會被蓋掉）。
 
 ## 2. 章節開發鐵則
 

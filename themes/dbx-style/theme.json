@@ -1,0 +1,15 @@
+{
+  "id": "dbx-style",
+  "name": "DBX Style",
+  "nameZh": "DBX 深色科技",
+  "description": "Dark tech blue-green palette with glass cards and fixed corner glow, based on the DBX website.",
+  "descriptionZh": "深色科技感＋玻璃質感工程師風，取自 DBX 官網色票，固定角落光暈裝飾（不逐畫素還原官網）。",
+  "mood": ["dark", "tech", "engineering", "glass"],
+  "bestFor": ["產品簡報", "技術評測", "工程團隊分享"],
+  "preview": {
+    "shell": "#070b14",
+    "surface": "#0b1120",
+    "text": "#f7fbff",
+    "accent": "#6ea8ff"
+  }
+}

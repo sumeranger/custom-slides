@@ -1,0 +1,411 @@
+/* ─────────────────────────────────────────────────────────────────────
+ * paper-grid theme · extras.css
+ *
+ * Loads AFTER base.css + animations.css so its rules win cascade over
+ * base.css's own rules for the same selectors AND the same :root custom
+ * properties (see plan Global Constraints for why tokens.css alone is
+ * not enough here).
+ *
+ * :root block (below): base.css-colliding personality-knob overrides.
+ *   base.css's own :root block redeclares --r-card / --rule-w /
+ *   --rule-style / --dur-base / --dur-slow / --dur-cinematic /
+ *   --hero-num-* / --stage-pad-x / --stage-pad-y / --shadow-stage as
+ *   fallback defaults. tokens.css loads BEFORE base.css, so declaring
+ *   these there would lose cascade to base.css's later :root block —
+ *   they must live here instead.
+ * Part 1 (further down): .stage-frame paper-edge override + the .v-*
+ *   global primitives this theme adds on top of base.css.
+ * Part 2 (further down still): legacy per-chapter-card overrides,
+ *   verbatim from the old paper-grid-cards.css (scoped under .scene,
+ *   hard-coupled to historical chapter class prefixes — see THEMES.md
+ *   anti-patterns before copying this pattern into a new theme).
+ * ───────────────────────────────────────────────────────────────────── */
+:root {
+  --r-card:           8px;
+  --rule-w:           1.5px;
+  --rule-style:       solid;
+  --dur-base:         600ms;
+  --dur-slow:         950ms;
+  --dur-cinematic:    1400ms;
+  --hero-num-font:    var(--font-display-en);
+  --hero-num-style:   italic;
+  --hero-num-weight:  700;
+  --hero-num-track:   -0.04em;
+  --stage-pad-x:      120px;
+  --stage-pad-y:      90px;
+  --shadow-stage:
+    0 60px 160px rgba(60, 40, 20, 0.28),
+    0 0 0 1px rgba(0, 0, 0, 0.05);
+}
+
+/* ─── Stage gets a warm paper edge so the grid feels held in a sheet ─── */
+.stage-frame {
+  box-shadow:
+    inset 0 0 0 1px rgba(60, 40, 20, 0.15),
+    0 60px 160px rgba(60, 40, 20, 0.28);
+}
+
+/* ─────────────────────────────────────────────────────────────────────
+ * Global primitives — used across chapters for the "field notebook" look.
+ * ───────────────────────────────────────────────────────────────────── */
+
+/* corner brackets — 4 L-shaped marks drawn with linear-gradients */
+.v-corners {
+  position: relative;
+  background-color: var(--surface-2);
+  background-image:
+    linear-gradient(var(--accent), var(--accent)),
+    linear-gradient(var(--accent), var(--accent)),
+    linear-gradient(var(--accent), var(--accent)),
+    linear-gradient(var(--accent), var(--accent)),
+    linear-gradient(var(--accent), var(--accent)),
+    linear-gradient(var(--accent), var(--accent)),
+    linear-gradient(var(--accent), var(--accent)),
+    linear-gradient(var(--accent), var(--accent));
+  background-size:
+    32px 1.5px, 1.5px 32px,   /* TL */
+    32px 1.5px, 1.5px 32px,   /* TR */
+    32px 1.5px, 1.5px 32px,   /* BL */
+    32px 1.5px, 1.5px 32px;   /* BR */
+  background-position:
+    0 0, 0 0,
+    100% 0, 100% 0,
+    0 100%, 0 100%,
+    100% 100%, 100% 100%;
+  background-repeat: no-repeat;
+}
+
+/* terracotta rounded outline label — used as section / card tags */
+.v-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 22px;
+  border: 1.5px solid var(--accent);
+  border-radius: 999px;
+  font-family: var(--font-mono);
+  font-size: var(--t-label);
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--accent);
+  background: transparent;
+}
+
+/* mono breadcrumb at top-left of stage */
+.v-breadcrumb {
+  position: absolute;
+  top: 36px; left: 60px;
+  font-family: var(--font-mono);
+  font-size: var(--t-label);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--text-mute);
+  z-index: 4;
+}
+.v-breadcrumb-sep {
+  color: var(--text-faint);
+  margin: 0 8px;
+}
+
+/* hand-drawn diagonal line — for "crossed out" / "broken" elements */
+.v-strike {
+  position: relative;
+}
+.v-strike::after {
+  content: "";
+  position: absolute;
+  left: -8px; right: -8px; top: 50%;
+  height: 2px;
+  background: var(--accent);
+  transform: rotate(-3deg);
+  transform-origin: center;
+  pointer-events: none;
+}
+
+/* heavy serif headline weight bump (override default 500 weight) */
+.v-serif-bold {
+  font-family: var(--font-display-cn);
+  font-weight: 900;
+  letter-spacing: -0.025em;
+  color: var(--text);
+}
+.v-serif-bold .v-em {
+  color: var(--accent);
+  font-weight: inherit;
+}
+
+/* ─── Part 2: legacy per-chapter-card overrides (verbatim from the old
+ * paper-grid-cards.css). See THEMES.md "extras.css 反模式" before
+ * reusing this pattern in a new theme. ─────────────────────────────── */
+/* ─────────────────────────────────────────────────────────────────────
+ * paper-grid-cards.css — chapter-card overrides for the paper-grid look.
+ *
+ * Selectors are deliberately scoped under `.scene` to outweigh the per-
+ * chapter CSS (which is loaded later via React component imports). Goal:
+ * make existing chapter cards render with the corner-bracket signature
+ * without rewriting per-chapter layout.
+ *
+ * Two patterns get applied:
+ *   1. Corner brackets — 4 L-shaped marks drawn with linear-gradients
+ *      on the element's background, terracotta accent
+ *   2. Inset cream surface with hairline border (replaces darker
+ *      midnight-press surface-2 look chapters were drawn with)
+ *
+ * Status colors (#f5b942 yellow / #4ade80 green etc.) are left alone —
+ * those are semantic state indicators, not theme palette.
+ * ───────────────────────────────────────────────────────────────────── */
+
+/* base card styling shared across chapter cards */
+.scene .co-proj-card,
+.scene .co-board,
+.scene .co-term,
+.scene .co-zoom-board,
+.scene .av-board,
+.scene .av-state-card,
+.scene .av-tree,
+.scene .av-term-window,
+.scene .at-code-window,
+.scene .at-task-col,
+.scene .cl-item,
+.scene .cl-warn-card {
+  background-color: var(--surface-2) !important;
+  border: 1px solid var(--rule) !important;
+  border-radius: 6px !important;
+  box-shadow: 0 1px 0 var(--rule), 0 6px 18px rgba(60, 40, 20, 0.06) !important;
+}
+
+/* corner brackets — drawn as background-image so they overlay border */
+.scene .co-proj-card,
+.scene .av-state-card,
+.scene .cl-item,
+.scene .cl-warn-card {
+  background-image:
+    linear-gradient(var(--accent), var(--accent)),
+    linear-gradient(var(--accent), var(--accent)),
+    linear-gradient(var(--accent), var(--accent)),
+    linear-gradient(var(--accent), var(--accent)),
+    linear-gradient(var(--accent), var(--accent)),
+    linear-gradient(var(--accent), var(--accent)),
+    linear-gradient(var(--accent), var(--accent)),
+    linear-gradient(var(--accent), var(--accent)) !important;
+  background-size:
+    28px 1.5px, 1.5px 28px,
+    28px 1.5px, 1.5px 28px,
+    28px 1.5px, 1.5px 28px,
+    28px 1.5px, 1.5px 28px !important;
+  background-position:
+    0 0, 0 0,
+    100% 0, 100% 0,
+    0 100%, 0 100%,
+    100% 100%, 100% 100% !important;
+  background-repeat: no-repeat !important;
+}
+
+/* convert various "kicker" / mono header dots into pill labels */
+.scene .co-kicker,
+.scene .av-kicker,
+.scene .at-kicker,
+.scene .cl-kicker,
+.scene .pl-kicker {
+  display: inline-flex !important;
+  align-items: center !important;
+  align-self: flex-start !important;
+  padding: 8px 22px !important;
+  border: 2px solid var(--accent) !important;
+  border-radius: 999px !important;
+  font-family: var(--font-mono) !important;
+  font-size: 20px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.18em !important;
+  text-transform: uppercase !important;
+  color: var(--accent) !important;
+  background: transparent !important;
+}
+
+/* hero headlines: thicker serif */
+.scene .co-title-h,
+.scene .co-h2,
+.scene .co-board-h,
+.scene .mn-h2,
+.scene .mn-prompt,
+.scene .av-h2,
+.scene .av-wt-h,
+.scene .av-warn-h,
+.scene .at-h2,
+.scene .cl-h2,
+.scene .cl-warn-h,
+.scene .cl-close-h {
+  font-weight: 900 !important;
+  color: var(--text);
+}
+
+/* terminal / code window: keep dark "screen" look on cream paper */
+.scene .co-term,
+.scene .av-term-window,
+.scene .at-code-window {
+  background: #2a2018 !important;
+  border: 1px solid #4a3a2e !important;
+  color: #f4ecd8 !important;
+  box-shadow: 0 6px 16px rgba(60, 40, 20, 0.18) !important;
+}
+.scene .co-term-bar,
+.scene .av-term-bar,
+.scene .at-code-bar {
+  background: #1f1812 !important;
+  border-bottom-color: #4a3a2e !important;
+}
+.scene .co-term-body,
+.scene .av-term-body,
+.scene .at-code-body {
+  color: #f4ecd8 !important;
+}
+.scene .av-typed,
+.scene .at-line {
+  color: #f4ecd8 !important;
+}
+.scene .av-term-arrow {
+  color: var(--accent) !important;
+}
+.scene .co-term-path {
+  color: #c8b890 !important;
+}
+
+/* worktree tree on cream paper — keep mono */
+.scene .av-tree {
+  font-family: var(--font-mono);
+}
+.scene .av-tree-root {
+  color: var(--accent) !important;
+}
+
+/* board headers — newsprint band rather than dark */
+.scene .co-board-header,
+.scene .av-board-header {
+  background: var(--surface-3) !important;
+  border-bottom: 1px solid var(--rule) !important;
+  color: var(--text-mute) !important;
+}
+.scene .co-board-title,
+.scene .av-board-title {
+  color: var(--accent) !important;
+}
+.scene .av-board-row,
+.scene .co-board-row {
+  border-bottom-color: var(--rule) !important;
+}
+.scene .av-name,
+.scene .co-board-name {
+  color: var(--text) !important;
+}
+.scene .av-task,
+.scene .co-board-task {
+  color: var(--text-2) !important;
+}
+
+/* status icons: keep semantic palette but tone down for paper */
+.scene .av-icon-warn,  .scene .av-state-warn  { color: #c47a1a !important; }
+.scene .av-icon-ok,    .scene .av-state-ok    { color: #4a7a3a !important; }
+.scene .av-icon-fail,  .scene .av-state-fail  { color: var(--accent) !important; }
+.scene .av-icon-live,  .scene .av-state-live  { color: var(--accent) !important; }
+.scene .av-icon-pr,    .scene .av-state-pr    { color: #6a4a8a !important; }
+.scene .av-icon,       .scene .co-board-icon { color: var(--accent) !important; }
+
+/* task list head colors */
+.scene .at-task-head-active { color: var(--accent) !important; }
+.scene .at-task-head-done   { color: #4a7a3a !important; }
+.scene .at-task-active      { border-left-color: var(--accent) !important; }
+.scene .at-task-done        { border-left-color: #4a7a3a !important; }
+
+/* keycap on paper — make it look like a stamp */
+.scene .av-keycap {
+  background: var(--surface-2) !important;
+  border: 2px solid var(--text) !important;
+  border-bottom: 6px solid var(--text) !important;
+  color: var(--text) !important;
+}
+
+/* mailbox bubbles — paper "post-it" feel */
+.scene .at-mail-l {
+  background: var(--surface-2) !important;
+  border: 1px solid var(--rule) !important;
+  border-left: 3px solid var(--accent) !important;
+}
+.scene .at-mail-r {
+  background: var(--surface-3) !important;
+  border: 1px solid var(--rule) !important;
+  border-right: 3px solid var(--accent) !important;
+}
+.scene .at-mail-body {
+  color: var(--text) !important;
+}
+
+/* team Lead: brick brand color on cream */
+.scene .co-team-lead,
+.scene .at-rel-lead {
+  background: var(--accent) !important;
+  color: var(--surface) !important;
+}
+.scene .mn-lead-box { fill: var(--accent) !important; }
+.scene .mn-lead-text { fill: var(--surface) !important; }
+
+/* spoke / mate small chips */
+.scene .co-spoke,
+.scene .at-rel-mate {
+  background: var(--surface-2) !important;
+  border: 1px solid var(--accent) !important;
+  color: var(--text) !important;
+}
+
+/* zoom board (coldopen step 5) on paper */
+.scene .co-zoom-row { color: var(--text-2) !important; }
+.scene .co-zoom-row-dim { color: var(--text-faint) !important; }
+.scene .co-zoom-row-focus {
+  color: var(--accent) !important;
+  background: var(--accent-soft) !important;
+}
+
+/* checklist focus item — terracotta wash */
+.scene .cl-item-focus {
+  background: var(--accent-soft) !important;
+  border-color: var(--accent) !important;
+  box-shadow: 0 0 0 6px rgba(181, 61, 34, 0.06) !important;
+}
+
+/* warning card left bar */
+.scene .cl-warn-card { border-left: 4px solid var(--accent) !important; }
+
+/* scattered bubble lines — paper colors */
+.scene .co-bubble-line { background: var(--rule) !important; }
+.scene .co-bubble-line-short { background: var(--accent) !important; opacity: 0.5; }
+
+/* settings.json code line highlight */
+.scene .at-line-hl {
+  background: rgba(255, 200, 100, 0.22) !important;
+  color: #fff8e8 !important;
+  border-left: 3px solid var(--accent) !important;
+}
+
+/* mental SVG colors */
+.scene .mn-axis-on,
+.scene .mn-tick { fill: var(--accent) !important; stroke: var(--accent) !important; }
+.scene .mn-axis { stroke: var(--text-faint) !important; }
+.scene .mn-axis-label,
+.scene .mn-tick-label { fill: var(--text) !important; }
+.scene .mn-team-line { stroke: var(--accent) !important; }
+.scene .mn-team-node { fill: var(--surface) !important; stroke: var(--accent) !important; }
+.scene .mn-cell { fill: var(--surface-3) !important; stroke: var(--accent) !important; }
+.scene .mn-quadrant { fill: var(--accent-soft) !important; stroke: var(--accent) !important; }
+.scene .mn-num { color: var(--text) !important; }
+.scene .mn-num-result { color: var(--accent) !important; }
+
+/* dim text helpers across chapters → use paper palette */
+.scene .co-caption,
+.scene .av-caption,
+.scene .at-caption,
+.scene .av-state-desc,
+.scene .av-key-desc,
+.scene .at-mate-role,
+.scene .cl-warn-d {
+  color: var(--text-2) !important;
+}
+.scene .co-kicker { color: var(--accent) !important; }
