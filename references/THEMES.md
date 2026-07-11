@@ -65,9 +65,13 @@ fonts.css → tokens.css（主題 token） → base.css → animations.css → e
 
 - **能用 token 做到的效果，不要搬進 `extras.css`。** 90% 的主題個性
   （顏色、字體、圓角、陰影、hero 數字風格、裝飾層）都該留在
-  `tokens.css`，只用主題已提供的 token 插槽表達。`dbx-style` 完全
-  沒有 `extras.css` 內容就是證明——先想清楚能不能用既有插槽做到，
-  想不到才動用 `extras.css`。
+  `tokens.css`，只用主題已提供的 token 插槽表達。`dbx-style` 的
+  `extras.css` 完全沒有**選擇器層**規則（沒有 `.stage-frame` 覆寫、
+  沒有新增 primitive、沒有章節 class 補丁）就是證明——它的
+  `extras.css` 只有一個 `:root {}` 區塊，裝著上面理由二那 13 個
+  base.css 會碰撞的性格旋鈕覆寫，不是完全空白。先想清楚能不能用既
+  有插槽做到，想不到才動用 `extras.css`；就算真的動用了，也盡量只
+  加 `:root` 覆寫（理由二那種），不要加選擇器層規則（理由一那種）。
 - **`paper-grid` 目前的 `extras.css` 有一段歷史技術債**：其中「Part 2」
   是逐字搬過來的舊 `paper-grid-cards.css`，內容是對 `.co-` `.av-`
   `.at-` `.cl-` `.mn-` `.pl-` 這些**特定歷史章節 class 前綴**的
@@ -209,7 +213,7 @@ bash <skill-root>/scripts/scaffold.sh <新專案>/presentation --theme=dbx-style
 
 ## 新增主題
 
-1. 挑一個最接近目標氣質的主題資料夾複製當起點（`cp -r themes/paper-grid themes/my-theme` 或從 `dbx-style` 起手如果目標是「tokens-only、無 extras」）。
+1. 挑一個最接近目標氣質的主題資料夾複製當起點（`cp -r themes/paper-grid themes/my-theme` 或從 `dbx-style` 起手如果目標是「無選擇器層覆寫」——`dbx-style` 的 `extras.css` 仍可能需要一個 `:root` 區塊放理由二那批性格旋鈕覆寫，見下）。
 2. 改 `tokens.css`：調色板 → 字體 → 性格旋鈕 → 裝飾。**先窮盡 token 插槽的可能性，想不到才加 `extras.css`。**
 3. **逐一檢查你想覆蓋的性格旋鈕，是不是上面「可選的性格覆蓋」表格裡標 † 的那 13 個屬性**
    （`--r-card`、`--rule-w`、`--rule-style`、`--dur-base`/`--dur-slow`/
