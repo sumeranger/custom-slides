@@ -29,6 +29,16 @@
   gap: 44px;
 }
 .ex-pill {
+  /* position+z-index (not just the animation) makes this its own stacking
+     context explicitly, so the nested <Term> tooltip's z-index:9999 can
+     actually win against later siblings like .ex-h — an element with a
+     running/filled CSS animation on opacity/transform becomes a stacking
+     context too, but relies on browser-internal compositing rather than an
+     explicit z-index, so it doesn't out-rank a later same-level sibling
+     that has no position/z-index of its own (paint order falls back to
+     DOM order in that case, which put .ex-h on top). */
+  position: relative;
+  z-index: 1;
   opacity: 0;
   animation: ex-rise 700ms var(--ease-quart) 100ms both;
 }
