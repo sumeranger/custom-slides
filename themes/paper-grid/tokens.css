@@ -12,7 +12,7 @@
  *
  *   Selector-level overrides this theme also needs (.stage-frame edge,
  *   .v-corners/.v-pill/.v-breadcrumb/.v-strike/.v-serif-bold primitives,
- *   and legacy .scene .co-*/.av-*/.at-*/.cl-*/.mn-* chapter-card
+ *   and legacy .scene .co-*, .av-*, .at-*, .cl-*, .mn-* chapter-card
  *   overrides) live in the sibling extras.css — see THEMES.md for why
  *   this theme needs both files while dbx-style needs only this one.
  * ───────────────────────────────────────────────────────────────────── */
