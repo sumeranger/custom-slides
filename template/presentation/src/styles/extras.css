@@ -1,4 +1,117 @@
 /* ─────────────────────────────────────────────────────────────────────
+ * paper-grid theme · extras.css
+ *
+ * Selector-level rules that must load AFTER base.css + animations.css
+ * so they win cascade over base.css's own same-selector rules (see
+ * plan Global Constraints for why tokens.css alone is not enough here).
+ *
+ * Part 1 (below): .stage-frame paper-edge override + the .v-* global
+ *   primitives this theme adds on top of base.css.
+ * Part 2 (further down): legacy per-chapter-card overrides, verbatim
+ *   from the old paper-grid-cards.css (scoped under .scene, hard-
+ *   coupled to historical chapter class prefixes — see THEMES.md
+ *   anti-patterns before copying this pattern into a new theme).
+ * ───────────────────────────────────────────────────────────────────── */
+/* ─── Stage gets a warm paper edge so the grid feels held in a sheet ─── */
+.stage-frame {
+  box-shadow:
+    inset 0 0 0 1px rgba(60, 40, 20, 0.15),
+    0 60px 160px rgba(60, 40, 20, 0.28);
+}
+
+/* ─────────────────────────────────────────────────────────────────────
+ * Global primitives — used across chapters for the "field notebook" look.
+ * ───────────────────────────────────────────────────────────────────── */
+
+/* corner brackets — 4 L-shaped marks drawn with linear-gradients */
+.v-corners {
+  position: relative;
+  background-color: var(--surface-2);
+  background-image:
+    linear-gradient(var(--accent), var(--accent)),
+    linear-gradient(var(--accent), var(--accent)),
+    linear-gradient(var(--accent), var(--accent)),
+    linear-gradient(var(--accent), var(--accent)),
+    linear-gradient(var(--accent), var(--accent)),
+    linear-gradient(var(--accent), var(--accent)),
+    linear-gradient(var(--accent), var(--accent)),
+    linear-gradient(var(--accent), var(--accent));
+  background-size:
+    32px 1.5px, 1.5px 32px,   /* TL */
+    32px 1.5px, 1.5px 32px,   /* TR */
+    32px 1.5px, 1.5px 32px,   /* BL */
+    32px 1.5px, 1.5px 32px;   /* BR */
+  background-position:
+    0 0, 0 0,
+    100% 0, 100% 0,
+    0 100%, 0 100%,
+    100% 100%, 100% 100%;
+  background-repeat: no-repeat;
+}
+
+/* terracotta rounded outline label — used as section / card tags */
+.v-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 22px;
+  border: 1.5px solid var(--accent);
+  border-radius: 999px;
+  font-family: var(--font-mono);
+  font-size: var(--t-label);
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--accent);
+  background: transparent;
+}
+
+/* mono breadcrumb at top-left of stage */
+.v-breadcrumb {
+  position: absolute;
+  top: 36px; left: 60px;
+  font-family: var(--font-mono);
+  font-size: var(--t-label);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--text-mute);
+  z-index: 4;
+}
+.v-breadcrumb-sep {
+  color: var(--text-faint);
+  margin: 0 8px;
+}
+
+/* hand-drawn diagonal line — for "crossed out" / "broken" elements */
+.v-strike {
+  position: relative;
+}
+.v-strike::after {
+  content: "";
+  position: absolute;
+  left: -8px; right: -8px; top: 50%;
+  height: 2px;
+  background: var(--accent);
+  transform: rotate(-3deg);
+  transform-origin: center;
+  pointer-events: none;
+}
+
+/* heavy serif headline weight bump (override default 500 weight) */
+.v-serif-bold {
+  font-family: var(--font-display-cn);
+  font-weight: 900;
+  letter-spacing: -0.025em;
+  color: var(--text);
+}
+.v-serif-bold .v-em {
+  color: var(--accent);
+  font-weight: inherit;
+}
+
+/* ─── Part 2: legacy per-chapter-card overrides (verbatim from the old
+ * paper-grid-cards.css). See THEMES.md "extras.css 反模式" before
+ * reusing this pattern in a new theme. ─────────────────────────────── */
+/* ─────────────────────────────────────────────────────────────────────
  * paper-grid-cards.css — chapter-card overrides for the paper-grid look.
  *
  * Selectors are deliberately scoped under `.scene` to outweigh the per-
