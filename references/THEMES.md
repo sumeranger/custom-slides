@@ -56,7 +56,7 @@ token。純 CSS 的 cascade 規則是：**同一個選擇器（或同一個 `:ro
 App.tsx 的載入順序（已接好，不要改）：
 
 ```
-fonts.css → tokens.css（主題 token） → base.css → animations.css → extras.css（主題選擇器層，可選）
+fonts.css → tokens.css（主題 token） → base.css → animations.css → extras.css（主題選擇器層 + 上面理由二那批性格旋鈕 :root 覆寫，可選）
 ```
 
 ## `extras.css` 反模式（讀完再動手）
