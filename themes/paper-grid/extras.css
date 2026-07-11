@@ -1,17 +1,43 @@
 /* ─────────────────────────────────────────────────────────────────────
  * paper-grid theme · extras.css
  *
- * Selector-level rules that must load AFTER base.css + animations.css
- * so they win cascade over base.css's own same-selector rules (see
- * plan Global Constraints for why tokens.css alone is not enough here).
+ * Loads AFTER base.css + animations.css so its rules win cascade over
+ * base.css's own rules for the same selectors AND the same :root custom
+ * properties (see plan Global Constraints for why tokens.css alone is
+ * not enough here).
  *
- * Part 1 (below): .stage-frame paper-edge override + the .v-* global
- *   primitives this theme adds on top of base.css.
- * Part 2 (further down): legacy per-chapter-card overrides, verbatim
- *   from the old paper-grid-cards.css (scoped under .scene, hard-
- *   coupled to historical chapter class prefixes — see THEMES.md
+ * :root block (below): base.css-colliding personality-knob overrides.
+ *   base.css's own :root block redeclares --r-card / --rule-w /
+ *   --rule-style / --dur-base / --dur-slow / --dur-cinematic /
+ *   --hero-num-* / --stage-pad-x / --stage-pad-y / --shadow-stage as
+ *   fallback defaults. tokens.css loads BEFORE base.css, so declaring
+ *   these there would lose cascade to base.css's later :root block —
+ *   they must live here instead.
+ * Part 1 (further down): .stage-frame paper-edge override + the .v-*
+ *   global primitives this theme adds on top of base.css.
+ * Part 2 (further down still): legacy per-chapter-card overrides,
+ *   verbatim from the old paper-grid-cards.css (scoped under .scene,
+ *   hard-coupled to historical chapter class prefixes — see THEMES.md
  *   anti-patterns before copying this pattern into a new theme).
  * ───────────────────────────────────────────────────────────────────── */
+:root {
+  --r-card:           8px;
+  --rule-w:           1.5px;
+  --rule-style:       solid;
+  --dur-base:         600ms;
+  --dur-slow:         950ms;
+  --dur-cinematic:    1400ms;
+  --hero-num-font:    var(--font-display-en);
+  --hero-num-style:   italic;
+  --hero-num-weight:  700;
+  --hero-num-track:   -0.04em;
+  --stage-pad-x:      120px;
+  --stage-pad-y:      90px;
+  --shadow-stage:
+    0 60px 160px rgba(60, 40, 20, 0.28),
+    0 0 0 1px rgba(0, 0, 0, 0.05);
+}
+
 /* ─── Stage gets a warm paper edge so the grid feels held in a sheet ─── */
 .stage-frame {
   box-shadow:

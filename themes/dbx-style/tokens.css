@@ -25,9 +25,13 @@
  *                         the engineering tone; this theme doesn't need
  *                         a slow/cinematic override)
  *
- *   No extras.css needed: every effect above is expressed purely
- *   through these tokens, consumed by primitives base.css already
- *   defines (.card-glass, .stage-frame::before/::after). See THEMES.md.
+ *   extras.css needed (small): every VISUAL effect above is expressed
+ *   purely through these tokens, consumed by primitives base.css already
+ *   defines (.card-glass, .stage-frame::before/::after) — but a handful
+ *   of these token names collide with fallback defaults base.css's own
+ *   :root block declares, so those specific overrides must live in
+ *   extras.css's :root block (loads after base.css) instead of here.
+ *   See extras.css and THEMES.md.
  * ───────────────────────────────────────────────────────────────────── */
 :root {
   /* ─── palette ─── */
@@ -51,25 +55,22 @@
   --font-mono:       ui-monospace, "SF Mono", "JetBrains Mono", monospace;
   --font-features:   "tnum";
 
-  /* ─── design identity ─── */
-  --r-card:        10px;
+  /* ─── design identity ───
+   * NOTE: --r-card, --rule-w, --rule-style, --hero-num-*, --stage-pad-x/-y,
+   * and --shadow-stage are NOT declared here — base.css's own :root block
+   * redeclares these same custom properties as fallback defaults, and
+   * since tokens.css loads BEFORE base.css, a declaration here would
+   * lose cascade to base.css's later :root block. Those overrides live
+   * in the :root block at the top of the sibling extras.css instead
+   * (extras.css loads AFTER base.css so it wins). This theme has no
+   * --dur-* override, so base.css's motion defaults apply as-is. See
+   * extras.css and THEMES.md. */
   --r-stage:       0;
-  --rule-w:        1px;
-  --rule-style:    solid;
-  --hero-num-font:    var(--font-mono);
-  --hero-num-style:   normal;
-  --hero-num-weight:  700;
-  --hero-num-track:   -0.02em;
-  --stage-pad-x:   120px;
-  --stage-pad-y:   90px;
   --card-shadow:
     0 18px 44px rgba(0, 0, 0, 0.14),
     inset 0 0 0 1px rgba(255, 255, 255, 0.02);
   --card-glass-bg:     rgba(12, 15, 22, 0.72);
   --card-glass-border: rgba(155, 176, 205, 0.18);
-  --shadow-stage:
-    0 60px 160px rgba(0, 0, 0, 0.5),
-    0 0 0 1px rgba(110, 168, 255, 0.05);
 
   /* ─── decoration: 58px faint blue grid + two fixed corner glows ───
    * Fixed = identical on every chapter (not content-driven), per the

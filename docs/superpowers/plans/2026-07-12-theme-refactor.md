@@ -17,6 +17,8 @@
 - **不在這次範圍內**：回到 `dbx-slides` 專案套用 `dbx-style` 主題、開始寫 DBX 簡報內容——這是下一個 plan 的事，本 plan 只到「主題架構重構 + 驗收通過」為止。
 - 本 skill（`/home/hank/.claude/skills/paper-grid-slides/`）本身是一個獨立 git repo，已有 `docs/superpowers/plans/`、`docs/superpowers/specs/` 慣例，這份 plan 就存在這裡。每個 task 完成後在**這個 repo**裡 commit（不是 `dbx-slides`）。
 
+> **【事後修正】關鍵技術限制補充（Task 5 修 Critical bug 時發現）**：上面「關鍵技術限制」那條只講到「選擇器層規則要贏過 `base.css` 同選擇器規則」，但漏掉另一種同類型碰撞：`base.css` 自己的 `:root` 區塊也對一批「性格旋鈕」自訂屬性（`--r-card`、`--rule-w`/`--rule-style`、`--dur-base`/`-slow`/`-cinematic`、`--hero-num-*`、`--stage-pad-x`/`-y`、`--shadow-stage`）宣告了 fallback 預設值。`tokens.css` 載入在 `base.css` 之前，兩者都是純 `:root` 選擇器、相同 specificity，所以「後載入者贏」——`base.css` 的預設值會悄悄蓋掉主題在 `tokens.css` 裡對這些屬性的覆寫，而且純文字 diff 完全看不出來（要用 `npm run build` 後 grep `dist/assets/*.css` 裡該屬性「最後一次出現」的值才驗得出來）。**修正**：這些特定屬性名稱的覆寫，也必須跟選擇器層規則一樣搬進 `extras.css` 的 `:root` 區塊（`extras.css` 載入在 `base.css` 之後），不能留在 `tokens.css`。`paper-grid`、`dbx-style` 已在 Task 5 修正；`midnight-press` 有同樣的潛在碰撞，但因為「原封不動搬遷」的硬性前提維持不動（該主題在正式環境本來就會被 `paper-grid.css` 蓋掉，這個 bug 一直是 latent、不影響任何實際輸出）。
+
 ---
 
 ### Task 1: 建立 `themes/midnight-press/`（原樣搬遷，不修改任何值）

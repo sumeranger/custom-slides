@@ -15,6 +15,11 @@
  *   and legacy .scene .co-*, .av-*, .at-*, .cl-*, .mn-* chapter-card
  *   overrides) live in the sibling extras.css — see THEMES.md for why
  *   this theme needs both files while dbx-style needs only this one.
+ *   extras.css's :root block also carries this theme's overrides for
+ *   the personality-knob properties that base.css's own :root block
+ *   redeclares as defaults (--r-card, --rule-w/-style, --dur-base/-slow/
+ *   -cinematic, --hero-num-*, --stage-pad-x/-y, --shadow-stage) — see
+ *   the note above --r-stage below and extras.css's top comment.
  * ───────────────────────────────────────────────────────────────────── */
 :root {
   /* ─── palette: cream paper + brick accent ─── */
@@ -38,28 +43,19 @@
   --font-mono:       "JetBrains Mono", "IBM Plex Mono", ui-monospace, monospace;
   --font-features:   "ss01", "ss02", "tnum", "dlig";
 
-  /* ─── motion ─── */
-  --dur-base:       600ms;
-  --dur-slow:       950ms;
-  --dur-cinematic:  1400ms;
-
-  /* ─── design identity ─── */
-  --r-card:        8px;
+  /* ─── design identity ───
+   * NOTE: --r-card, --rule-w, --rule-style, --dur-base, --dur-slow,
+   * --dur-cinematic, --hero-num-*, --stage-pad-x/-y, and --shadow-stage
+   * are NOT declared here — base.css's own :root block redeclares these
+   * same custom properties as fallback defaults, and since tokens.css
+   * loads BEFORE base.css, a declaration here would lose cascade to
+   * base.css's later :root block. Those overrides live in the :root
+   * block at the top of the sibling extras.css instead (extras.css loads
+   * AFTER base.css so it wins). See extras.css and THEMES.md. */
   --r-stage:       0;
-  --rule-w:        1.5px;
-  --rule-style:    solid;
-  --hero-num-font:    var(--font-display-en);
-  --hero-num-style:   italic;
-  --hero-num-weight:  700;
-  --hero-num-track:   -0.04em;
-  --stage-pad-x:   120px;
-  --stage-pad-y:   90px;
   --card-shadow:
     0 1px 0 var(--rule),
     0 12px 32px rgba(60, 40, 20, 0.08);
-  --shadow-stage:
-    0 60px 160px rgba(60, 40, 20, 0.28),
-    0 0 0 1px rgba(0, 0, 0, 0.05);
 
   /* ─── SIGNATURE — blueprint grid baked into the stage ─── */
   --surface-pattern:
