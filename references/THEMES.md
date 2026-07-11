@@ -28,15 +28,19 @@ token。純 CSS 的 cascade 規則是：**同一個選擇器（或同一個 `:ro
   primitive，都屬於這一類。
 
 - **理由二（容易漏掉）：`base.css` 自己的 `:root` 區塊，也對一批「性
-  格旋鈕」自訂屬性宣告了 fallback 預設值。** 這批屬性是：
-  `--r-card`、`--rule-w`、`--rule-style`、`--dur-base`、`--dur-slow`、
-  `--dur-cinematic`、`--hero-num-font`、`--hero-num-style`、
-  `--hero-num-weight`、`--hero-num-track`、`--stage-pad-x`、
-  `--stage-pad-y`、`--shadow-stage`。`tokens.css` 載入在 `base.css`
-  之前，而兩者都是純 `:root` 選擇器、相同 specificity——所以「後載入
-  者贏」：`base.css` 自己對這些屬性的預設宣告，會悄悄蓋掉主題在
-  `tokens.css` 裡對同一批屬性的覆寫，即使 `tokens.css` 裡看起來寫得
-  好好的。
+  格旋鈕」自訂屬性宣告了 fallback 預設值。** 目前兩個主題實際踩過、
+  已知會撞的是：`--r-card`、`--rule-w`、`--rule-style`、`--dur-base`、
+  `--dur-slow`、`--dur-cinematic`、`--hero-num-font`、
+  `--hero-num-style`、`--hero-num-weight`、`--hero-num-track`、
+  `--stage-pad-x`、`--stage-pad-y`、`--shadow-stage`。**但這份清單只
+  是「目前踩過的」，不是「窮盡的」**——`base.css` 的 `:root` 其實還多
+  宣告了一個目前兩個主題都還沒覆寫、所以還沒被踩到的 `--dur-quick`，
+  一旦有主題想覆寫它就會是第 14 個同類地雷。**判斷標準永遠是「回頭去
+  查 `base.css` 的 `:root` 有沒有再宣告同一個屬性名」，不是背這份清
+  單。** `tokens.css` 載入在 `base.css` 之前，而兩者都是純 `:root`
+  選擇器、相同 specificity——所以「後載入者贏」：`base.css` 自己對這
+  些屬性的預設宣告，會悄悄蓋掉主題在 `tokens.css` 裡對同一批屬性的覆
+  寫，即使 `tokens.css` 裡看起來寫得好好的。
 
   這一點**光看一個主題的 `tokens.css` 本身完全看不出來**——你必須同
   時打開 `base.css` 才會發現它也宣告了同名 `:root` 屬性。更麻煩的
