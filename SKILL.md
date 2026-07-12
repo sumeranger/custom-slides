@@ -27,9 +27,9 @@ description: Use when asked to make a slide deck / presentation / 簡報 / slide
    `components/ExampleTitle.vue`、`styles/example.css`，並拿掉 `styles/index.ts`
    的 `import "./example.css";` 與 `slides.md` 指向它的 `src` 區塊。
 5. **參考範例**：`example/`（去識別化的實作章節，示範全部慣例，卡住時去翻）。
-6. **音頻／影片產線於 phase 2 重建**：React 版的逐步音頻合成與 SRT 字幕產生
-   尚未移植到 Slidev 棧，對應 `npm` scripts 未掛。per-slide notes 已是口播稿
-   真相源，重建產線時直接餵它即可。
+6. **音頻**：合成產線 phase 2 再接（notes 版 extractor 未重建），
+   `scripts/script-to-srt.sh` 今日可用於切 step（OUTLINE §3.2 的 SRT 校準，
+   預設 edge-tts）。工具現況見 `template/presentation/scripts/README.md`。
 
 ## 硬性提醒
 

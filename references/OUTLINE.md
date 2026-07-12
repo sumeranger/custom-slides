@@ -124,20 +124,22 @@
 硬切），就往前後找語意完整的邊界。切好之後：把每個切點對應的文字段落寫進該張
 slide 結尾的 **notes 口播註解**（`<!-- -->`），拍點用 `[click]` 標記對齊該頁的
 `v-click`（`[click]` 數 = 該頁拍數，`npm run lint-notes` 印表對照）。notes 就是
-口播稿真相源；要有聲版本時直接餵它——逐步音頻 pipeline 於 phase 2 重建（見
-`GUIDE.md` §5）。
+口播稿真相源；要有聲版本時直接餵它——逐步音頻**合成**產線 phase 2 再接
+（`scripts/synthesize-audio.sh` 保留在模板，等 notes 版 extractor，見 `GUIDE.md` §5）。
 
 ### 3.2 可選增強：用真實語音停頓（SRT）校準
 
 純文字判斷偶爾難確定「這句到底有沒有明顯停頓」。想更精準時，可**選擇性**產出
 真實語音的時間戳來校準——這是增強，不是必經步驟：
 
-    （可選）對某章連貫稿產出 <name>.mp3 + <name>.srt/.vtt（edge-tts）
+    （可選）對某章連貫稿跑 bash scripts/script-to-srt.sh <章節稿檔案> <輸出名>
+       （薄封裝，預設 edge-tts、VOICE 可換；輸出 <name>.mp3 + <name>.vtt）
      → agent 讀 SRT 的真實停頓長度，對照 §3.1 的判斷校準切點（判準見 §3.3）
 
-> **SRT 產生工具於 phase 2 重建**：React 版薄封裝 `scripts/script-to-srt.sh`
-> 尚未移植到 Slidev 棧。目前想用 SRT 校準需手動跑 edge-tts 產字幕；但這只是
-> 可選增強——**§3.1 的純語義判斷就是底線，不跑 SRT 完全可以照做**。
+工具在專案的 `scripts/script-to-srt.sh`（框架無關的純 bash + edge-tts，**今日
+可用**；刻意未掛 npm scripts，直接 bash 執行。edge-tts 安裝與工具現況見
+`scripts/README.md`）。環境跑不了 edge-tts（無網路等）時，退回 §3.1 的純語義
+判斷即可——**那本來就是底線，不跑 SRT 完全可以照做**。
 
 **不跑 SRT 也完全可以——§3.1 的判斷就是底線；跑了 SRT，就多一層真實停頓的
 客觀依據。** 決策記錄：spec §C.5 原採「Option Y／SRT 必產」，實測 agent 純判斷
@@ -216,7 +218,8 @@ slide 結尾的 **notes 口播註解**（`<!-- -->`），拍點用 `[click]` 標
 - **上游**：`SCRIPT.md`（文稿心法，提供收斂後的 `script.md` ＋ 密度分級
   ＋ `topic_definition`，本文件直接沿用不重複定義）。
 - **下游**：各章 md 的 per-slide notes（拍數真相源，本文件切 step 流程的
-  最終產出，`[click]` 對齊 v-click 拍點）；SRT 校準工具（§3.2）於 phase 2 重建。
+  最終產出，`[click]` 對齊 v-click 拍點）與 `scripts/script-to-srt.sh`
+  （§3.2 的 SRT 校準工具，今日可用）。
 - **平行**：`GUIDE.md`（章節開發鐵則、視覺／動畫規範、投影字級階
   `--t-*` token）——本文件只管「切在哪一屏」，不管「那一屏長什麼樣子」。
 

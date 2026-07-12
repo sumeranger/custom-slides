@@ -168,10 +168,12 @@ SNAP_PAGE=4 SNAP_CLICKS=2 SNAP_TERM_IDX=0 npm run snap-hover -- out.png  # 單�
 （並行時每個 subagent 給：本指南路徑 + outline 對應章 + article 路徑 + 第 1 章
 代碼當風格參考 + 各自的 CSS 前綴）。全部完成後跑 §4 全套驗證。
 
-> **音頻／影片產線於 phase 2 重建**：React 版的逐步音頻合成（`extract-narrations`
-> → TTS provider）與 SRT 字幕產生（`script-to-srt.sh`）尚未移植到 Slidev 棧，
-> 對應的 `npm` scripts 未掛。要有聲版本目前需手動處理；per-slide notes 已是
-> 口播稿真相源，重建產線時直接餵它即可。
+> **音頻**：SRT/TTS 工具隨模板保留在 `scripts/`（框架無關、未掛 npm scripts，
+> 現況見 `scripts/README.md`）。`script-to-srt.sh` **今日可用**（OUTLINE §3.2 的
+> SRT 校準）；逐段**合成**產線（`synthesize-audio.sh` + tts-providers）phase 2
+> 再接——它的輸入 `audio-segments.json` 過去由已退役的 React 版 extractor 產出，
+> phase 2 會重建一支讀 per-slide notes 的 extractor 接上它。notes 已是口播稿
+> 真相源，直接餵它即可。
 
 ## 6. 實戰教訓（必讀）
 

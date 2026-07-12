@@ -41,3 +41,4 @@ npm install && npm run dev        # Slidev dev server → http://localhost:3030
 | `template/presentation/setup/main.ts` | FloatingVue term 主題註冊（mutate options，不 `app.use`） |
 | `template/presentation/global-top.vue` · `global-bottom.vue` | 點擊推進閘 / 章節進度條 |
 | `template/presentation/*.mjs` | playwright 驗證腳本（`snap-sweep` tooltip 超界掃描 / `snap-hover` 單點 / `lint-notes` 旁白覆蓋） |
+| `template/presentation/scripts/` | SRT/TTS 工具（`script-to-srt.sh` 今日可用於切 step；`synthesize-audio.sh` + tts-providers 等 phase 2 notes 版 extractor，見該目錄 README） |
