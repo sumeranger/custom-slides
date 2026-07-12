@@ -1,0 +1,89 @@
+/* ── Term — hover tooltip primitive（paper-grid 風格，floating-vue 版）──── */
+
+.term {
+  cursor: help;
+  outline: none;
+}
+
+/* 簡寫：磚紅虛線底 */
+.term-abbr {
+  border-bottom: 2px dotted var(--accent);
+  padding-bottom: 1px;
+}
+
+/* 原文出處：右上角小引號角標 */
+.term-quote {
+  border-bottom: 2px dotted var(--text-faint);
+  padding-bottom: 1px;
+}
+.term-quote::after {
+  content: "”";
+  font-family: var(--font-display-en);
+  font-size: 0.7em;
+  color: var(--accent);
+  vertical-align: super;
+  margin-left: 2px;
+}
+
+/* tooltip 本體（floating-vue 接管定位/顯隱/翻轉，這裡只管視覺） */
+.v-popper--theme-term .v-popper__inner {
+  width: max-content;
+  max-width: 560px;
+  padding: 16px 22px;
+  background: var(--surface-2);
+  border: 1.5px solid var(--rule);
+  border-radius: 8px;
+  box-shadow:
+    0 1px 0 var(--rule),
+    0 14px 36px rgba(60, 40, 20, 0.18);
+  font-family: var(--font-body);
+  font-style: normal;
+  font-weight: 400;
+  font-size: 19px;
+  line-height: 1.55;
+  letter-spacing: 0;
+  text-align: left;
+  text-transform: none;
+  white-space: normal;
+  color: var(--text-2);
+}
+
+/* 箭頭 */
+.v-popper--theme-term .v-popper__arrow-outer {
+  border-color: var(--rule);
+}
+.v-popper--theme-term .v-popper__arrow-inner {
+  border-color: var(--surface-2);
+}
+
+/* 行內化，避免 popper wrapper 打斷內文行距 */
+.v-popper--theme-term.v-popper {
+  display: inline;
+}
+
+/* tooltip 內的小標（全稱行） */
+.v-popper--theme-term .term-tip-t {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--accent);
+  margin-bottom: 6px;
+}
+/* tooltip 內的原文引文 */
+.v-popper--theme-term .term-tip-q {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 17px;
+  color: var(--text);
+  margin-bottom: 6px;
+}
+/* tooltip 內的出處行 */
+.v-popper--theme-term .term-tip-src {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 15px;
+  color: var(--text-mute);
+  margin-top: 4px;
+}

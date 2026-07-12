@@ -4,5 +4,6 @@
 import "./fonts.css";
 import "./tokens.css";
 import "./base.css";
+import "./term.css";
 import "./animations.css";
 import "./extras.css";
