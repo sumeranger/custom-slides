@@ -1,7 +1,15 @@
 {
-  "files": [],
-  "references": [
-    { "path": "./tsconfig.app.json" },
-    { "path": "./tsconfig.node.json" }
-  ]
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "lib": ["ESNext", "DOM"],
+    "strict": true,
+    "noEmit": true,
+    "skipLibCheck": true,
+    "jsx": "preserve",
+    "types": ["@slidev/types", "vite/client"]
+  },
+  "include": ["components/**/*", "layouts/**/*", "setup/**/*", "*.vue", "shims.d.ts"],
+  "exclude": ["node_modules", "dist", "scripts"]
 }
