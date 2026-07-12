@@ -54,6 +54,10 @@
   --font-body:       ui-sans-serif, -apple-system, system-ui, sans-serif;
   --font-mono:       ui-monospace, "SF Mono", "JetBrains Mono", monospace;
   --font-features:   "tnum";
+  /* .v-serif-bold headline weight — DBX titles are heavy black sans. Safe in
+   * tokens.css (base.css consumes it as var(--headline-weight,800) with NO
+   * :root default of its own, so no "理由二" collision — same as --font-features). */
+  --headline-weight: 900;
 
   /* ─── design identity ───
    * NOTE: --r-card, --rule-w, --rule-style, --hero-num-*, --stage-pad-x/-y,

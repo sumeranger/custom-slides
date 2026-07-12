@@ -27,6 +27,9 @@
  * margin 一律歸零——與下方 html/body 的 margin:0 reset 同一哲學。
  * ──────────────────────────────────────────────────────────────────── */
 h1, blockquote, dl, dd, hr, figure, p, pre { margin: 0; }
+/* preflight 另把 heading 的 font-weight 設為 inherit（→ 繼承 body 400），
+ * 舊 React 時代靠瀏覽器 UA 的 h1:bold 當地板；這裡補回粗體地板。 */
+h1, h2, h3, h4, h5, h6 { font-weight: 700; }
 
 /* Slidev 把 letterbox（#slide-container）的底色開放為這顆官方變數
  * （play.vue inline style: var(--slidev-slide-container-background, black)）。
@@ -230,6 +233,21 @@ body {
   letter-spacing: var(--track-tight);
   text-shadow: var(--text-shadow, none);
 }
+/* heavy-headline primitive — the canonical headline pattern (see GUIDE §2).
+ * base provides a theme-agnostic baseline so every theme's headlines read
+ * heavy; a theme dials the weight with --headline-weight in its tokens.css
+ * (fallback 800 here — NOT declared in base :root, so a theme's tokens.css
+ * value wins, same as --font-features). paper-grid's extras.css overrides
+ * this whole rule (serif family + weight 900 + its own tracking/color) and,
+ * loading last, continues to win. */
+.v-serif-bold {
+  font-family: var(--font-display-cn);
+  font-weight: var(--headline-weight, 800);
+  font-style: normal;          /* prevent inherited italic on CJK */
+  letter-spacing: var(--track-tight);
+  text-shadow: var(--text-shadow, none);
+}
+.v-serif-bold .v-em { color: var(--accent); font-weight: inherit; }
 .display-en {
   font-family: var(--font-display-en);
   font-weight: 700;

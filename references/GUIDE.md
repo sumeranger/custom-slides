@@ -89,7 +89,7 @@ CSS 放 `styles/`（獨立前綴），在 `index.ts` 的 base 之後、animation
 | 扉頁 frontmatter 契約 | 每章第一張 slide 一律 `layout: chapter-open`，frontmatter 帶 `chapter`（`"01"` 段落編號）、`chapterTitle`（進度條把手，**≤8 全形字，全 deck 必須唯一**——重複會撞進度條的 Vue `:key`，見 §6.17）、`eyebrow`（眉題，可省） |
 | 逐步揭示 | 口播逐項唸的清單 = 一項一拍亮起（`<v-clicks>` 包住 `<li>`），禁一次全上 |
 | 顏色字體走 token | 只用 `var(--accent/--text/--surface…)` 與 `var(--font-*)`；唯一例外：深色終端/代碼窗可用主題既定三色 `#2a2018 / #4a3a2e / #f4ecd8` |
-| primitives | `.v-pill`（膠囊標）`.v-corners`（角括號卡）`.v-strike`（劃掉）`.v-serif-bold` + `.v-em`（強調；**v-em 上色只在 v-serif-bold 內生效**，其他地方自己補 `.xx-scene .v-em { color: var(--accent) }`）；base 另有 `.hero-num .kicker .mono .label-mono .serif-cn .serif-it .display-en` |
+| primitives | `.v-pill`（膠囊標）`.v-corners`（角括號卡）`.v-strike`（劃掉）為 paper-grid extras 專屬；`.v-serif-bold` + `.v-em`（標題主 pattern：`base.css` 給每個主題一個粗體襯線基線，主題用 `--headline-weight` 調字重、paper-grid extras 再美化成 serif-900；**v-em 上色只在 v-serif-bold 內生效**，其他地方自己補 `.xx-scene .v-em { color: var(--accent) }`）；base 另有 `.hero-num .kicker .mono .label-mono .serif-cn .serif-it .display-en` |
 | CSS 前綴隔離 | 每章獨立前綴（`.sf-` `.bk-`…），不跨章共用；章節 css 放 `styles/`、在 `index.ts` base 之後 animations 之前 import |
 | 視覺演示 | 每章至少 1–2 處「動起來的演示」（長條生長/格子點亮/連線自繪/數字對撞/打字機 steps()）；每步主導動作要不同；整章純文字 = 重做 |
 | 畫面 > 口播 | 回 article 抽口播沒唸的細節掛成角標/副標/出處行（右下出處行 ≥20px） |

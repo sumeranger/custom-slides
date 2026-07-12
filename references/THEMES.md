@@ -24,8 +24,11 @@ token。純 CSS 的 cascade 規則是：**同一個選擇器（或同一個 `:ro
   覆寫具體屬性值（不是透過 token），這條規則必須放進 `extras.css`——
   它載入在 `base.css` **之後**，才會贏過 `base.css` 自己的同選擇器規
   則。`paper-grid` 主題的 `.stage-frame` 紙張邊緣陰影、`.v-corners`/
-  `.v-pill`/`.v-breadcrumb`/`.v-strike`/`.v-serif-bold` 這些新增
-  primitive，都屬於這一類。
+  `.v-pill`/`.v-breadcrumb`/`.v-strike` 這些**新增** primitive（`base.css`
+  完全沒有），都屬於這一類。`.v-serif-bold` 稍有不同：`base.css` 已提供
+  一個 theme-agnostic 基線（襯線家族＋`var(--headline-weight, 800)`），
+  讓每個主題的標題都有粗體地板；`paper-grid` 的 `extras.css` 只是**覆寫**
+  這條規則成自己的 serif-900 樣式，靠載入在後而續贏。
 
 - **理由二（容易漏掉）：`base.css` 自己的 `:root` 區塊，也對一批「性
   格旋鈕」自訂屬性宣告了 fallback 預設值。** 目前兩個主題實際踩過、
@@ -177,6 +180,7 @@ bash <skill-root>/scripts/scaffold.sh <新專案>/presentation --theme=dbx-style
 | token | base 默認 | 作用 |
 |---|---|---|
 | `--font-features` | `"tnum","ss01"` | body 上的 OpenType 特性 |
+| `--headline-weight` | `800`（僅 fallback） | `.v-serif-bold` 標題字重。**寫 `tokens.css` 安全**——`base.css` 只用行內 `var(--headline-weight, 800)` 引用、**未**在自己的 `:root` 另宣告一次，所以沒有下面「理由二」的碰撞問題（跟 `--font-features` 同一類對照組，不是標 † 的那批） |
 | `--r-card` † | `--r-md`（16px） | 卡片圓角 |
 | `--r-stage` | `0` | 舞台本身圓角 |
 | `--rule-w` † | `1px` | rule 粗細 |
@@ -203,10 +207,13 @@ bash <skill-root>/scripts/scaffold.sh <新專案>/presentation --theme=dbx-style
 **這些屬性的覆寫必須放進 `extras.css` 的 `:root` 區塊，不能放
 `tokens.css`。**
 
-對照組：`--font-features` 雖然也在這張表裡，但**沒有**這個問題——
-`base.css` 只在具體規則裡用 `var(--font-features, "tnum","ss01")` 這
-種行內 fallback 語法引用它，並沒有在自己的 `:root` 區塊另外宣告一次
-`--font-features`，所以在 `tokens.css` 裡設定完全安全。這個對比是為
+對照組：`--font-features` 與 `--headline-weight` 雖然也在這張表裡，但
+**沒有**這個問題——`base.css` 只在具體規則裡用
+`var(--font-features, "tnum","ss01")` /
+`var(--headline-weight, 800)` 這種行內 fallback 語法引用它們，並沒有
+在自己的 `:root` 區塊另外宣告一次同名屬性，所以在 `tokens.css` 裡設
+定完全安全（`dbx-style` 的 `--headline-weight: 900` 就直接寫在
+`tokens.css`）。這個對比是為
 了說明：這條規則是**逐屬性判斷**的，不是「所有可選 token 都有這個
 問題」——判斷標準永遠是「`base.css` 的 `:root` 區塊有沒有再宣告同名
 屬性」，不是這張表的分類。
