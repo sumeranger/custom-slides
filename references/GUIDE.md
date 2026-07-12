@@ -439,6 +439,67 @@ Slidev 用 UnoCSS，其 preflight 會對 `h1`/`p`/`blockquote`… 套 `margin:0`
 `base.css` 也必須自帶完整 reset（別假設「沒設就是瀏覽器預設」）。動過主題或樣式
 後，用 THEMES.md 的「grep 建出來的 css」方法驗證順序仍正確。
 
+### 6.24 `backdrop-filter` 在 headless export 下會不定時整頁白屏——改半透明底色＋hairline border
+
+headless chromium（`slidev export`）對「單頁多顆大面積 `backdrop-filter`」的合成結果
+不穩定：實測同一頁兩次 export，分別在不同 clicks 狀態整片白屏，其他頁正常、
+dev 模式肉眼也看不出問題（合成路徑不同）。只要某頁有多顆玻璃感卡片、又要跑
+export，就先假設會踩到。**修法**：整章關掉 blur，`card-glass` 類元件改用
+半透明底色（`background: rgba(…)`）＋ 1px hairline border 撐視覺近似，玻璃感
+只靠底色透明度與框線，肉眼幾乎無差；`backdrop-filter`/`-webkit-backdrop-filter`
+一律設 `none`，不要留著賭它不白屏。
+
+### 6.25 出處行要跟著內容走 flex 流，不要 absolute 貼底——進度條佔了舞台底部 ~70px
+
+底部章節進度條（`global-bottom.vue`）`fixed` 貼在 viewport 下緣，佔掉舞台底部
+一條約 70px 高的帶狀空間。若某頁的右下出處行用 `position: absolute` +
+`bottom: 0` 直接貼舞台下緣，會被進度條 pill 蓋住（見 §6.17 的進度條、實測
+踩過）。**修法**：出處行放進該頁本來的 flex 版面裡跟著內容走（例如當卡片
+流的最後一個 flex 子項），不要獨立 `absolute` 貼死底部；密度較高的頁也可
+把上方內容收緊一級，讓出處行有位置自然排進去（見 §6.1 字級鐵則挑相鄰
+token，不要硬塞新數字）。
+
+### 6.26 md 縮排 HTML 前不要留空行——會被 markdown-it 當成縮排 code block
+
+Markdown 規則：一個空行之後、緊接著 ≥4 個空格縮排的內容，markdown-it 會判成
+「縮排式 code block」，原樣輸出成 `<pre><code>` 純文字，不會被解析成
+HTML/Vue 樣板。章節 md 裡若某段 HTML 前面留了空行、那段 HTML 本身又剛好縮排
+到 ≥4 格，Vue 編譯直接壞掉（拿到一串逸出的純文字而非模板，畫面整頁不對）。
+**修法**：縮排 HTML 前不要留空行；或乾脆貼齊左邊界、不縮排。§6.22 的
+` ``` ` 圍欄坑是「假 slide」，這條是「假 code block」，兩種都是 markdown-it
+解析順序踩到的地雷，遇到「怎麼這段整個沒渲染」先想到這兩條。
+
+### 6.27 code fence 的 shiki 主題要顯式設定——`colorSchema: light` 會讓 shiki 選到 light 變體
+
+`colorSchema: light` 是 paper-grid headmatter 的既定慣例（§7），但一旦章節
+用到 code fence（含下面 §7 的 ` ```md magic-move ``` `），Slidev 會依
+`colorSchema` 幫 shiki 挑 `{ light, dark }` 主題對裡的 `light` 那顆——若想要
+固定的深色終端風 code 窗（貼合 §2「深色代碼窗可用主題既定三色」的例外），
+會被 `colorSchema` 蓋過去、選錯邊。**修法**：`setup/shiki.ts` 用**單一字串
+主題**（如 `"github-dark"`），而不是 `themes: { light, dark }` 物件——單一
+字串會讓 shiki 把顏色直接 inline 進 token、背景固定，不受 `colorSchema`
+影響：
+
+```ts
+import { defineShikiSetup } from "@slidev/types";
+
+export default defineShikiSetup(() => ({
+  theme: "github-dark",
+  langs: ["sql"], // 依實際用到的語言增減
+}));
+```
+
+### 6.28 開了 `transition:` 之後 export 要加 `--wait`，避免抓到轉場中間幀
+
+headmatter 開了頁面轉場（如 `transition: fade`）之後，`npm run export` 偶爾會
+在轉場動畫進行到一半時截圖，拍到「上一頁淡出、下一頁淡入都不完整」疊在一起
+的 ghost frame，且不是每次都重現（合成時機的競態）。**保險做法**：轉場相關
+的 export 額外帶 `--wait`，多留時間給轉場落定再截圖：
+
+```bash
+npx slidev export --wait 1200
+```
+
 ## 7. Slidev 慣例速查
 
 模板已把 Slidev 接成 paper-grid 的樣子，日常寫章節只會用到這幾組慣例：
@@ -452,8 +513,14 @@ Slidev 用 UnoCSS，其 preflight 會對 `h1`/`p`/`blockquote`… 套 `margin:0`
 | `<div v-click="2">` / `v-click.at="2"` | 指定在第 2 拍出現（絕對）；`v-click="'+1'"` 相對前一拍 |
 | `<div v-click.hide="3">` | 反向：第 3 拍時**隱藏** |
 | `$clicks` | 當前 click 數（可寫在模板表達式裡，如 `:class="{ on: $clicks >= 2 }"`） |
+| `v-mark="{ at, type, color, strokeWidth, padding }"` | 手繪圈選標記（rough-notation），`color` 走 `var(--accent)`；**實戰已驗證可用**（見 example 章節） |
 
 一頁的「拍數」= 該頁所有 v-click beat 的總數；notes 裡的 `[click]` 標記數要對齊它。
+
+` ```md magic-move ``` `：markdown code fence 內包多個 ` ```<lang> ``` ` 區塊，
+逐版形變成程式碼變化動畫（shiki-magic-move）；**markdown-only，無法嵌進
+`.vue`**，一旦頁面需要 magic-move 就得整頁走 MD 骨架。**實戰已驗證可用**，
+用了記得處理 shiki 主題（§6.27），不然深色/淺色主題會打架。
 
 ### 常用 frontmatter 欄位
 
