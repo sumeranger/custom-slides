@@ -1,7 +1,7 @@
 ---
 date: 2026-07-12
 topic: paper-grid-slides — 簡報引擎遷移到 Slidev（Vue 化）
-status: draft
+status: done
 ---
 
 # paper-grid-slides：簡報引擎遷移到 Slidev（Vue 化）
