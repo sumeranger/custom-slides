@@ -44,7 +44,7 @@
 }
 .ex-h {
   margin: 0;
-  font-size: 110px;
+  font-size: var(--t-display-2);
   line-height: 1.08;
 }
 .ex-card {
@@ -54,16 +54,16 @@
   padding: 30px 44px;
 }
 .ex-card-k {
-  font-size: 16px;
+  font-size: var(--t-micro);
   color: var(--accent);
 }
 .ex-card-num {
-  font-size: 92px;
+  font-size: var(--t-h1);
   line-height: 1;
   color: var(--text);
 }
 .ex-card-d {
-  font-size: 21px;
+  font-size: var(--t-label);
   color: var(--text-2);
 }
 
@@ -75,7 +75,7 @@
 }
 .ex-h2 {
   margin: 0;
-  font-size: 72px;
+  font-size: var(--t-h1);
   line-height: 1.1;
 }
 .ex-list {
@@ -91,7 +91,7 @@
   align-items: baseline;
   gap: 22px;
   font-family: var(--font-display-cn);
-  font-size: 38px;
+  font-size: var(--t-h3);
   font-weight: 700;
   color: var(--text);
   transition: opacity 500ms ease, transform 500ms ease;
@@ -102,13 +102,13 @@
   transform: translateY(14px);
 }
 .ex-item-idx {
-  font-size: 20px;
+  font-size: var(--t-micro);
   color: var(--accent);
 }
 .ex-src {
   position: absolute;
   bottom: 38px;
   right: 130px;
-  font-size: 16px;
+  font-size: var(--t-micro);
   color: var(--text-faint);
 }

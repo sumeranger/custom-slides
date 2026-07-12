@@ -448,7 +448,8 @@ body {
  *
  * `.no-advance` / `[data-no-advance]` — interactive elements inside a
  * chapter mark themselves with this so a click on them does NOT advance
- * the global step. The marker is consumed by Stage.tsx; no styles needed.
+ * the global step. The marker is consumed by global-top.vue's click gate;
+ * no styles needed.
  * ───────────────────────────────────────────────────────────────────── */
 .fade-in { animation: fade-in var(--dur-base) var(--ease-quart) both; }
 @keyframes fade-in {

@@ -68,7 +68,7 @@ PROVIDER_FILE="$PROVIDERS_DIR/$PROVIDER.sh"
 
 # ── Pre-flight ────────────────────────────────────────────────────────
 if [[ ! -f "$SEGMENTS" ]]; then
-  echo "✗ $SEGMENTS not found. Run: npm run extract-narrations" >&2
+  echo "✗ $SEGMENTS not found. audio-segments.json 尚無產生器：notes 版 extractor 於 phase 2 重建，見 scripts/README.md" >&2
   exit 1
 fi
 if ! command -v jq >/dev/null; then

@@ -38,7 +38,7 @@ layout: canvas
       <li class="ex-item"><span class="mono ex-item-idx">03</span>最後這個</li>
     </v-clicks>
   </ul>
-  <span class="ex-src label-mono">出處行慣例 · 右下角 · 16px 起</span>
+  <span class="ex-src label-mono">出處行慣例 · 右下角 · --t-micro 起（≥20px）</span>
 </div>
 
 <!--
