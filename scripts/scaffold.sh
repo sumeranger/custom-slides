@@ -12,7 +12,7 @@
 #   bash <skill-root>/scripts/scaffold.sh ./dbx-talk --theme=dbx-style
 #
 # Copies themes/<id>/tokens.css + themes/<id>/extras.css into
-# <target>/src/styles/, and writes <target>/.theme so later sessions
+# <target>/styles/, and writes <target>/.theme so later sessions
 # can tell which theme a project started from.
 #
 # Default theme (no --theme flag): paper-grid — the only theme this
@@ -65,8 +65,8 @@ if [[ -z "$TARGET" ]]; then
   echo "✗ 缺少目標目錄。用法: scaffold.sh <target-presentation-dir> [--theme=<id>]" >&2
   exit 1
 fi
-if [[ ! -d "$TARGET/src/styles" ]]; then
-  echo "✗ '$TARGET/src/styles' 不存在。先 cp -r template/presentation <target>，" >&2
+if [[ ! -d "$TARGET/styles" ]]; then
+  echo "✗ '$TARGET/styles' 不存在。先 cp -r template/presentation <target>，" >&2
   echo "  再對已存在的專案套主題。" >&2
   exit 1
 fi
@@ -81,17 +81,17 @@ if [[ ! -f "$THEME_DIR/tokens.css" ]]; then
   exit 1
 fi
 
-cp "$THEME_DIR/tokens.css" "$TARGET/src/styles/tokens.css"
+cp "$THEME_DIR/tokens.css" "$TARGET/styles/tokens.css"
 
 if [[ -f "$THEME_DIR/extras.css" ]]; then
-  cp "$THEME_DIR/extras.css" "$TARGET/src/styles/extras.css"
+  cp "$THEME_DIR/extras.css" "$TARGET/styles/extras.css"
 else
   echo "/* theme '$THEME' has no selector-level overrides. */" \
-    > "$TARGET/src/styles/extras.css"
+    > "$TARGET/styles/extras.css"
 fi
 
 echo "$THEME" > "$TARGET/.theme"
 
 echo "✓ 已套用主題：$THEME"
-echo "  改了 $TARGET/src/styles/tokens.css、$TARGET/src/styles/extras.css、$TARGET/.theme"
+echo "  改了 $TARGET/styles/tokens.css、$TARGET/styles/extras.css、$TARGET/.theme"
 echo "  重新整理 dev server 即可看到效果，章節程式碼一行沒動。"
