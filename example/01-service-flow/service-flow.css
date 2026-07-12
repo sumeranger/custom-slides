@@ -1,26 +1,53 @@
-/* ── 示範章節：文件 AI 服務微服務化 — prefix .da- ─────────────────────────── */
+/* ── 參考章節：文件 AI 服務微服務化 — prefix .sf- ──────────────────────────
+ *
+ * 使用方式：把本檔複製進目標專案的 styles/，並在 styles/index.ts 於 base.css
+ * 之後、animations.css 之前 `import "./service-flow.css";`（每章一個前綴，物理隔離）。
+ *
+ * 動畫策略（與 React 版的差異，見 .md 檔頂部切分表）：
+ *   React 版靠 @keyframes + animation-delay 做「時間節拍」的進場。移植到 Slidev 後
+ *   一律改成兩種：
+ *     (1) 敘事拍點 → v-click：隱藏態用 Slidev 的 .slidev-vclick-hidden（opacity:0
+ *         !important），本檔只補「顯示態的 transition + 位移」，讓揭示有動勢。
+ *     (2) 純背景 / 不需拍點 → 靜態：直接顯示，不做進場動畫。
+ *   本章沒有「環境迴圈動畫」，故整檔不保留任何 @keyframes——避免延遲型 @keyframes
+ *   在 PNG 匯出（--with-clicks）時被拍到「還沒進場」的 opacity:0 空畫面。
+ * ──────────────────────────────────────────────────────────────────────── */
 
-.da-scene {
+.sf-scene {
   position: absolute;
   inset: 0;
 }
-.da-center {
+.sf-center {
   display: grid;
   place-items: center;
 }
-.da-pad {
+.sf-pad {
   display: flex;
   flex-direction: column;
   justify-content: center;
   gap: 44px;
   padding: 95px 130px 80px;
 }
-.da-scene .v-em {
+/* v-em 上色在 .v-serif-bold 內已由 extras.css 處理；章節內其他位置補一層 */
+.sf-scene .v-em {
   color: var(--accent);
 }
 
-/* ── Step 0 — 標題卡 ── */
-.da-title-inner {
+/* ── 通用章節開場 head（靜態）── */
+.sf-head {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 20px;
+}
+.sf-h2 {
+  margin: 0;
+  font-size: var(--t-h2);
+  line-height: 1.15;
+}
+
+/* ── Slide 2 / step 0 — 標題卡（整頁 Vue：SfTitle.vue）── */
+.sf-title-inner {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -28,78 +55,54 @@
   gap: 40px;
   max-width: 1400px;
 }
-.da-pill {
-  opacity: 0;
-  animation: da-rise 700ms var(--ease-quart) 100ms both;
-}
-.da-h1 {
+.sf-h1 {
   margin: 0;
   font-size: var(--t-h1);
   line-height: 1.15;
 }
-.da-roadmap {
+.sf-roadmap {
   display: flex;
   gap: 36px;
   margin-top: 8px;
 }
-.da-roadmap-dot {
+.sf-roadmap-dot {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 10px;
-  opacity: 0;
-  animation: da-rise 600ms var(--ease-quart) both;
   color: var(--text-faint);
 }
-.da-roadmap-dot.is-active {
+.sf-roadmap-dot.is-active {
   color: var(--text);
 }
-.da-roadmap-idx {
+.sf-roadmap-idx {
   font-size: var(--t-label);
   color: var(--text-faint);
 }
-.da-roadmap-dot.is-active .da-roadmap-idx {
+.sf-roadmap-dot.is-active .sf-roadmap-idx {
   color: var(--accent);
 }
-.da-roadmap-label {
+.sf-roadmap-label {
   font-size: var(--t-label);
   font-family: var(--font-body);
   white-space: nowrap;
 }
-.da-deck {
+.sf-deck {
   margin: 8px 0 0;
   font-size: var(--t-lead);
   color: var(--text-2);
-  opacity: 0;
-  animation: da-rise 700ms var(--ease-quart) 1500ms both;
 }
 
-/* ── 通用章節開場 head ── */
-.da-head {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 20px;
-  opacity: 0;
-  animation: da-rise 650ms var(--ease-quart) 80ms both;
-}
-.da-h2 {
-  margin: 0;
-  font-size: var(--t-h2);
-  line-height: 1.15;
-}
-
-/* ── Step 1 — 抽離動畫母題 ── */
-.da-extract-stage {
+/* ── Slide 3 / step 1 — 抽離母題（整頁 Vue：SfExtract.vue，1 拍）──
+ * 箭頭 + 「現在」卡是 v-click（v-click="1"）；「以前」卡與空殼靜態常駐。 */
+.sf-extract-stage {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 34px;
   flex: 1;
-  opacity: 0;
-  animation: da-fade 500ms ease 500ms both;
 }
-.da-extract-box {
+.sf-extract-box {
   width: 460px;
   min-height: 260px;
   border-radius: var(--r-card);
@@ -108,21 +111,25 @@
   flex-direction: column;
   gap: 24px;
 }
-.da-extract-before {
+.sf-extract-before {
   background: var(--surface-2);
   border: 1.5px solid var(--rule);
 }
-.da-extract-after {
+.sf-extract-after {
   background: var(--surface-2);
   border: 1.5px solid var(--accent);
+  transition: opacity 600ms var(--ease-quart), transform 600ms var(--ease-quart);
 }
-.da-extract-tag {
+.sf-extract-after.slidev-vclick-hidden {
+  transform: translateX(-60px) scale(0.94);
+}
+.sf-extract-tag {
   color: var(--text-mute);
 }
-.da-extract-after .da-extract-tag {
+.sf-extract-after .sf-extract-tag {
   color: var(--accent);
 }
-.da-extract-ghost {
+.sf-extract-ghost {
   flex: 1;
   border: 1.5px dashed var(--text-faint);
   border-radius: 6px;
@@ -130,9 +137,8 @@
   place-items: center;
   color: var(--text-faint);
   font-size: var(--t-body);
-  animation: da-ghost-empty 900ms var(--ease-quart) 1400ms both;
 }
-.da-extract-chip {
+.sf-extract-chip {
   border: 1.5px solid var(--accent);
   background: var(--accent-soft);
   border-radius: 6px;
@@ -140,42 +146,29 @@
   text-align: center;
   color: var(--text);
   font-size: var(--t-body);
-  opacity: 0;
-  transform: translateX(-90px) scale(0.9);
-  animation: da-chip-land 900ms var(--ease-overshoot) 1400ms both;
 }
-.da-extract-meta {
+.sf-extract-meta {
   display: flex;
   flex-direction: column;
   gap: 8px;
   font-size: var(--t-label);
   color: var(--text-2);
   font-family: var(--font-body);
-  opacity: 0;
-  animation: da-rise 600ms var(--ease-quart) 2300ms both;
 }
-.da-extract-arrow {
+.sf-extract-arrow {
   width: 160px;
   height: 32px;
   flex-shrink: 0;
-  opacity: 0;
-  animation: da-fade 400ms ease 900ms both;
+  transition: opacity 500ms var(--ease-quart);
 }
-.da-extract-path,
-.da-extract-head {
+.sf-extract-path,
+.sf-extract-head {
   stroke: var(--text-faint);
 }
 
-.da-punch {
-  text-align: center;
-  font-size: var(--t-h3);
-  margin: 0 auto;
-  opacity: 0;
-  animation: da-rise 600ms var(--ease-quart) 2100ms both;
-}
-
-/* ── Step 2 — 轉場鉤子：具體按鈕點擊 ── */
-.da-hook {
+/* ── Slide 4 / step 2 — 轉場鉤子（整頁 Vue：SfHook.vue，1 拍）──
+ * 檔名列 + 按鈕 + 游標靜態；問句 v-click。 */
+.sf-hook {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -183,7 +176,7 @@
   text-align: center;
   max-width: 1300px;
 }
-.da-hook-row {
+.sf-hook-row {
   display: flex;
   align-items: center;
   gap: 28px;
@@ -191,14 +184,12 @@
   border-radius: var(--r-card);
   background: var(--surface-2);
   border: 1.5px solid var(--rule);
-  opacity: 0;
-  animation: da-rise 600ms var(--ease-quart) 100ms both;
 }
-.da-hook-file {
+.sf-hook-file {
   font-size: var(--t-body);
   color: var(--text-mute);
 }
-.da-hook-btn {
+.sf-hook-btn {
   position: relative;
   display: inline-flex;
   align-items: center;
@@ -210,36 +201,35 @@
   font-family: var(--font-body);
   font-weight: 700;
   font-size: var(--t-body);
-  animation: da-btn-press 400ms var(--ease-quart) 1400ms both;
 }
-.da-hook-cursor {
+.sf-hook-cursor {
   position: absolute;
   right: -18px;
   bottom: -14px;
-  opacity: 0;
-  animation: da-cursor-arrive 700ms var(--ease-quart) 800ms both;
 }
-.da-hook-t {
+.sf-hook-t {
   font-size: var(--t-h1);
   margin: 0;
   line-height: 1.2;
-  opacity: 0;
-  animation: da-rise 700ms var(--ease-quart) 1900ms both;
+  transition: opacity 600ms var(--ease-quart), transform 600ms var(--ease-quart);
+}
+.sf-hook-t.slidev-vclick-hidden {
+  transform: translateY(24px);
 }
 
-/* ── 泳道列（step 3~7 共用）── */
-.da-lanes-wrap {
+/* ── 泳道列（step 3~6 共用，Vue：SfLanes.vue，靜態背景）──
+ * 連線走上方弧線繞過泳道列，不穿過中間格子（跨格連線才不會被誤讀成經過中間）。
+ * 弧線高度刻意拉高（見 SfLanes 的 peakY），太扁的弧看起來會像兩段斷開的短線。 */
+.sf-lanes-wrap {
   position: relative;
 }
-.da-lanes {
+.sf-lanes {
   position: relative;
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 16px;
-  opacity: 0;
-  animation: da-fade 500ms ease 100ms both;
 }
-.da-lane {
+.sf-lane {
   text-align: center;
   padding: 18px 10px;
   border-radius: 8px;
@@ -247,15 +237,13 @@
   background: var(--surface-2);
   color: var(--text-faint);
   font-size: var(--t-label);
-  transition: none;
 }
-.da-lane.is-active {
+.sf-lane.is-active {
   border-color: var(--accent);
   background: var(--accent-soft);
   color: var(--accent);
 }
-/* 連線走上方弧線繞過泳道列，不穿過中間格子（跨格連線才不會被誤讀成經過中間） */
-.da-lane-arc {
+.sf-lane-arc {
   position: absolute;
   left: 0;
   right: 0;
@@ -263,18 +251,14 @@
   width: 100%;
   height: 64px;
   margin-bottom: 4px;
-  opacity: 0;
-  animation: da-fade 300ms ease 500ms both;
 }
-.da-lane-arc path {
+.sf-lane-arc path {
   stroke: var(--accent);
-  stroke-dasharray: 140;
-  stroke-dashoffset: 140;
-  animation: da-draw 650ms var(--ease-quart) 550ms both;
+  fill: none;
 }
 
-/* ── Step 3 — 要票 detail card ── */
-.da-detail-card {
+/* ── Slide 5 / step 3 — 要票 detail card（MD 骨架 + SfLanes，1 拍）── */
+.sf-detail-card {
   display: flex;
   flex-direction: column;
   gap: 14px;
@@ -283,41 +267,44 @@
   background: var(--surface-2);
   border: 1.5px solid var(--rule);
   margin-top: 20px;
-  opacity: 0;
-  animation: da-rise 600ms var(--ease-quart) 1000ms both;
+  transition: opacity 600ms var(--ease-quart), transform 600ms var(--ease-quart);
 }
-.da-detail-endpoint {
+.sf-detail-card.slidev-vclick-hidden {
+  transform: translateY(24px);
+}
+.sf-detail-endpoint {
   font-size: var(--t-lead);
   color: var(--accent);
 }
-.da-detail-d {
+.sf-detail-d {
   font-size: var(--t-body);
   color: var(--text-2);
   font-family: var(--font-body);
 }
 
-/* ── Step 4 — 三道檢查 + 票 ── */
-.da-checklist {
+/* ── Slide 6 / step 4 — 三道檢查 + 票（MD 骨架 + SfLanes，0 拍 / 靜態）──
+ * 這頁帶 Term tooltip（attachmentId / sub）。刻意「靜態、0 拍」：v-click 隱藏態
+ * 是 pointer-events:none !important，若把含 Term 的票藏在 click 後，snap-sweep
+ * 在未揭示的 click 狀態 hover 不到 → 誤報 no-box。故本頁全部常駐可 hover。 */
+.sf-checklist {
   display: flex;
   flex-direction: column;
   gap: 18px;
   margin-top: 16px;
 }
-.da-checklist-item {
+.sf-checklist-item {
   display: flex;
   align-items: center;
   gap: 18px;
   font-size: var(--t-lead);
   color: var(--text);
   font-family: var(--font-body);
-  opacity: 0;
-  animation: da-rise 500ms var(--ease-quart) both;
 }
-.da-checklist-mark {
+.sf-checklist-mark {
   color: var(--accent);
   font-size: var(--t-h3);
 }
-.da-ticket {
+.sf-ticket {
   display: flex;
   align-items: center;
   gap: 26px;
@@ -326,34 +313,31 @@
   border-radius: var(--r-card);
   border: 1.5px solid var(--accent);
   background: var(--accent-soft);
-  opacity: 0;
-  animation: da-stamp 550ms var(--ease-overshoot) 1400ms both;
 }
-.da-ticket .label-mono {
+.sf-ticket .label-mono {
   color: var(--accent);
 }
-.da-ticket-t {
+.sf-ticket-t {
   font-size: var(--t-body);
   color: var(--text-2);
   font-family: var(--font-body);
   flex: 1;
 }
-.da-ticket-num {
+.sf-ticket-num {
   font-size: var(--t-display-2);
   color: var(--text);
 }
 
-/* ── Step 5 — 換 session ── */
-.da-swap {
+/* ── Slide 7 / step 5 — 換 session（MD 骨架 + SfLanes，1 拍）──
+ * 舊票→新 session 靜態；「票就作廢了」punch v-click。 */
+.sf-swap {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 28px;
   margin-top: 24px;
-  opacity: 0;
-  animation: da-fade 500ms ease 900ms both;
 }
-.da-swap-old {
+.sf-swap-old {
   padding: 24px 32px;
   border-radius: var(--r-card);
   border: 1.5px dashed var(--text-faint);
@@ -361,14 +345,15 @@
   font-size: var(--t-body);
   text-decoration: line-through;
 }
-.da-swap-arrow {
+.sf-swap-arrow {
   width: 130px;
   height: 26px;
 }
-.da-swap-arrow path {
+.sf-swap-arrow path {
   stroke: var(--accent);
+  fill: none;
 }
-.da-swap-new {
+.sf-swap-new {
   padding: 24px 32px;
   border-radius: var(--r-card);
   border: 1.5px solid var(--accent);
@@ -376,15 +361,24 @@
   color: var(--text);
   font-size: var(--t-body);
 }
+.sf-punch {
+  text-align: center;
+  font-size: var(--t-h3);
+  margin: 0 auto;
+  transition: opacity 600ms var(--ease-quart), transform 600ms var(--ease-quart);
+}
+.sf-punch.slidev-vclick-hidden {
+  transform: translateY(20px);
+}
 
-/* ── Step 6 — 文件 AI 服務自己來 ── */
-.da-self {
+/* ── Slide 8 / step 6 — 文件 AI 服務自己來（MD 骨架 + SfLanes，3 拍）── */
+.sf-self {
   display: flex;
   gap: 34px;
   margin-top: 24px;
   justify-content: center;
 }
-.da-self-item {
+.sf-self-item {
   display: flex;
   flex-direction: column;
   gap: 14px;
@@ -396,31 +390,31 @@
   color: var(--text);
   font-family: var(--font-body);
   min-width: 260px;
-  opacity: 0;
-  animation: da-stamp 500ms var(--ease-overshoot) both;
+  transition: opacity 500ms var(--ease-overshoot), transform 500ms var(--ease-overshoot);
 }
-.da-self-idx {
+.sf-self-item.slidev-vclick-hidden {
+  transform: scale(0.9);
+}
+.sf-self-idx {
   color: var(--accent);
   font-size: var(--t-label);
 }
 
-/* ── Step 7 — 核心結論 ── */
-.da-thesis {
+/* ── Slide 9 / step 7 — 核心結論（MD 骨架，0 拍 / 靜態）── */
+.sf-thesis {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 30px;
   padding: 56px 80px;
   text-align: center;
-  opacity: 0;
-  animation: da-stamp 550ms var(--ease-overshoot) 200ms both;
 }
-.da-thesis-lanes {
+.sf-thesis-lanes {
   display: flex;
   align-items: center;
   gap: 24px;
 }
-.da-thesis-box {
+.sf-thesis-box {
   padding: 18px 28px;
   border-radius: 8px;
   border: 1.5px solid var(--rule);
@@ -429,29 +423,29 @@
   font-size: var(--t-body);
   color: var(--text);
 }
-.da-thesis-x {
+.sf-thesis-x {
   font-size: var(--t-h2);
   color: var(--accent);
 }
-.da-thesis-t {
+.sf-thesis-t {
   font-size: var(--t-h2);
   margin: 0;
 }
-.da-thesis-d {
+.sf-thesis-d {
   font-size: var(--t-lead);
   color: var(--text-2);
   margin: 0;
 }
 
-/* ── 系統 C 對比 ── */
-.da-compare {
+/* ── Slide 10 / step 8 — 系統 C 對比（MD 骨架，2 拍）── */
+.sf-compare {
   display: flex;
   align-items: stretch;
   justify-content: center;
   gap: 0;
   margin-top: 20px;
 }
-.da-compare-col {
+.sf-compare-col {
   width: 420px;
   padding: 34px;
   display: flex;
@@ -460,116 +454,99 @@
   border-radius: var(--r-card);
   background: var(--surface-2);
   border: 1.5px solid var(--rule);
-  opacity: 0;
-  animation: da-rise 600ms var(--ease-quart) both;
+  transition: opacity 600ms var(--ease-quart), transform 600ms var(--ease-quart);
 }
-.da-compare-col:first-child {
-  animation-delay: 300ms;
+.sf-compare-col.slidev-vclick-hidden {
+  transform: translateY(20px);
 }
-.da-compare-col:last-child {
-  animation-delay: 900ms;
-}
-.da-compare-accent {
+.sf-compare-accent {
   border-color: var(--accent);
   background: var(--accent-soft);
 }
-.da-compare-row {
+.sf-compare-row {
   padding: 14px 18px;
   background: var(--surface-3);
   border-radius: 6px;
 }
-.da-compare-accent .da-compare-row {
+.sf-compare-accent .sf-compare-row {
   background: var(--surface);
 }
-.da-compare-row .mono {
+.sf-compare-row .mono {
   font-size: var(--t-body);
   color: var(--text);
 }
-.da-compare-d {
+.sf-compare-d {
   font-size: var(--t-label);
   color: var(--text-mute);
   font-family: var(--font-body);
 }
-.da-compare-accent .da-compare-d {
+.sf-compare-accent .sf-compare-d {
   color: var(--accent);
 }
-.da-compare-rule {
+.sf-compare-rule {
   width: 1.5px;
   background: var(--rule);
   margin: 0 40px;
 }
 
-/* ── Step 9 — 交付數字 + 瘦身 ── */
-.da-numbers {
+/* ── Slide 11 / step 9 — 交付數字 + 瘦身（MD 骨架，1 拍）──
+ * 數字區靜態（含 TDD Term，需常駐可 hover）；瘦身區 v-click。 */
+.sf-numbers {
   display: flex;
   align-items: center;
   gap: 64px;
 }
-.da-numbers-compact {
+.sf-numbers-compact {
   margin-top: 8px;
 }
-.da-num-block {
+.sf-num-block {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 14px;
-  opacity: 0;
-  animation: da-stamp 600ms var(--ease-overshoot) both;
 }
-.da-num-block:first-child {
-  animation-delay: 200ms;
-}
-.da-num-block:last-child {
-  animation-delay: 600ms;
-}
-.da-num {
-  font-size: var(--t-display-1);
-  color: var(--text);
-  line-height: 1;
-}
-.da-num-sm {
+.sf-num-sm {
   font-size: var(--t-display-2);
   color: var(--text);
   line-height: 1;
 }
-.da-num-label {
+.sf-num-label {
   font-size: var(--t-label);
   color: var(--text-2);
   font-family: var(--font-body);
 }
-.da-num-rule {
+.sf-num-rule {
   width: 1.5px;
   height: 100px;
   background: var(--rule);
 }
-.da-slim {
+.sf-slim {
   display: flex;
   gap: 90px;
   flex: 1;
   align-items: flex-start;
   margin-top: 30px;
-  opacity: 0;
-  animation: da-fade 500ms ease 1200ms both;
+  transition: opacity 500ms var(--ease-quart);
 }
-.da-slim-col {
+.sf-slim-col {
   display: flex;
   flex-direction: column;
   gap: 22px;
 }
-.da-slim-k {
+.sf-slim-k {
   color: var(--text-mute);
 }
-.da-slim-summary {
+.sf-slim-summary {
   margin: 0;
   font-size: var(--t-lead);
   color: var(--text-mute);
   font-family: var(--font-body);
 }
-.da-slim-col-new {
+.sf-slim-col-new {
   padding-left: 60px;
   border-left: 1.5px solid var(--rule);
 }
-.da-slim-new {
+.sf-slim-new {
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -578,155 +555,66 @@
   border: 1.5px solid var(--accent);
   background: var(--accent-soft);
 }
-.da-slim-new-d {
+.sf-slim-new-d {
   font-size: var(--t-body);
   color: var(--text);
   font-family: var(--font-body);
 }
 
-/* ── Step 10 — 誠實揭露 + 收束 ── */
-.da-close-wrap {
+/* ── Slide 12 / step 10 — 誠實揭露 + 收束（MD 骨架，1 拍）──
+ * caveat（含 PhaseTag）靜態；「一個功能 → 產品」收束 v-click。 */
+.sf-close-wrap {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 56px;
 }
-.da-caveat {
+.sf-caveat {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 22px;
   padding: 46px 64px;
   text-align: center;
-  opacity: 0;
-  animation: da-stamp 550ms var(--ease-overshoot) 200ms both;
 }
-.da-caveat-t {
+.sf-caveat-t {
   font-size: var(--t-h3);
   margin: 0;
 }
-.da-caveat-list {
+.sf-caveat-list {
   display: flex;
   gap: 30px;
   font-size: var(--t-body);
   color: var(--text-2);
   font-family: var(--font-mono);
 }
-.da-caveat-list span {
+.sf-caveat-list span {
   padding: 12px 20px;
   background: var(--surface-2);
   border-radius: 6px;
 }
-.da-close {
+.sf-close {
   display: flex;
   align-items: center;
   gap: 40px;
-  opacity: 0;
-  animation: da-fade 500ms ease 1400ms both;
+  transition: opacity 500ms var(--ease-quart), transform 500ms var(--ease-quart);
 }
-.da-close-from {
+.sf-close.slidev-vclick-hidden {
+  transform: translateY(16px);
+}
+.sf-close-from {
   font-size: var(--t-h2);
   color: var(--text-mute);
   font-family: var(--font-body);
 }
-.da-close-arrow {
+.sf-close-arrow {
   width: 120px;
   height: 24px;
 }
-.da-close-arrow path {
+.sf-close-arrow path {
   stroke: var(--accent);
-  stroke-dasharray: 160;
-  stroke-dashoffset: 160;
-  animation: da-draw 550ms var(--ease-quart) 1600ms both;
+  fill: none;
 }
-.da-close-to {
+.sf-close-to {
   font-size: var(--t-h1);
-}
-
-/* ── keyframes ── */
-@keyframes da-rise {
-  from {
-    opacity: 0;
-    transform: translateY(24px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-@keyframes da-fade {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-@keyframes da-stamp {
-  0% {
-    opacity: 0;
-    transform: scale(1.4);
-  }
-  70% {
-    opacity: 1;
-    transform: scale(0.97);
-  }
-  100% {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-@keyframes da-draw {
-  to {
-    stroke-dashoffset: 0;
-  }
-}
-@keyframes da-ghost-empty {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-@keyframes da-chip-land {
-  0% {
-    opacity: 0;
-    transform: translateX(-90px) scale(0.9);
-  }
-  70% {
-    opacity: 1;
-    transform: translateX(6px) scale(1.03);
-  }
-  100% {
-    opacity: 1;
-    transform: translateX(0) scale(1);
-  }
-}
-@keyframes da-cursor-arrive {
-  0% {
-    opacity: 0;
-    transform: translate(46px, 34px) scale(1.2);
-  }
-  70% {
-    opacity: 1;
-    transform: translate(0, 0) scale(1);
-  }
-  100% {
-    opacity: 1;
-    transform: translate(0, 0) scale(1);
-  }
-}
-@keyframes da-btn-press {
-  0% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(0.92);
-    background: var(--accent);
-    color: var(--surface);
-  }
-  100% {
-    transform: scale(1);
-  }
 }
