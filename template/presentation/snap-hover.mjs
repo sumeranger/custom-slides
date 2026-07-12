@@ -9,11 +9,15 @@ const idx = Number(process.env.SNAP_TERM_IDX ?? 0);
 const out = process.argv[2] ?? "hover.png";
 
 const browser = await chromium.launch();
-const page = await browser.newPage({ viewport: { width: 1920, height: 1080 } });
-await page.goto(`${URL}/${no}?clicks=${clicks}`);
-await page.waitForTimeout(1500);
-await page.locator(".term").nth(idx).hover();
-await page.waitForTimeout(400);
-await page.screenshot({ path: out });
-await browser.close();
-console.log(`saved ${out}`);
+// try/finally：確保就算 goto/hover/screenshot 中途拋錯，browser 仍會被關閉。
+try {
+  const page = await browser.newPage({ viewport: { width: 1920, height: 1080 } });
+  await page.goto(`${URL}/${no}?clicks=${clicks}`);
+  await page.waitForTimeout(1500);
+  await page.locator(".term").nth(idx).hover();
+  await page.waitForTimeout(400);
+  await page.screenshot({ path: out });
+  console.log(`saved ${out}`);
+} finally {
+  await browser.close();
+}
