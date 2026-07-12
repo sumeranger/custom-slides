@@ -28,6 +28,28 @@
  * ──────────────────────────────────────────────────────────────────── */
 h1, blockquote, dl, dd, hr, figure, p, pre { margin: 0; }
 
+/* Slidev 把 letterbox（#slide-container）的底色開放為這顆官方變數
+ * （play.vue inline style: var(--slidev-slide-container-background, black)）。
+ * 指到主題的 --shell，舞台外圍才是主題殼色而非黑/白。 */
+:root { --slidev-slide-container-background: var(--shell); }
+
+/* Slidev 的 #slide-content（1920×1080 縮放畫布）自帶 overflow:hidden +
+ * bg-main（白）。白底會蓋掉主題紙面之外的視覺（圓角舞台的角落）、
+ * overflow:hidden 會把 .stage-frame 的舞台陰影整個裁掉——舊 React 版
+ * .stage-frame 本就 overflow: visible。改為透明 + visible，讓紙面、
+ * 格線與 --shadow-stage 在 letterbox 上真正可見。 */
+#slide-content { overflow: visible; background: transparent; }
+
+/* layouts-base.css 給 .slidev-layout 硬塞 px-14 py-10；本 skill 的排版
+ * 由 .scene-pad / 明確間距接管（見上），layout 根一律歸零。 */
+.slidev-layout.stage-frame { padding: 0; }
+
+/* Slidev index.css 對 html/body/#app/#page-root 都套 `--uno: font-sans`。
+ * body 被下方第 1 節的 font-family 蓋回主題字體，但 #app / #page-root 是
+ * body 的「後代」，sans 會蓋掉繼承鏈，讓沒掛 .serif-cn 等 class 的文字
+ * 全部變無襯線——改回 inherit，讓主題 body 字體一路傳下去。 */
+#app, #page-root { font-family: inherit; }
+
 /* ─── 0. Reset ─── */
 *, *::before, *::after { box-sizing: border-box; }
 html, body, #root { margin: 0; padding: 0; height: 100%; }

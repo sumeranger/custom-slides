@@ -8,7 +8,11 @@
     "noEmit": true,
     "skipLibCheck": true,
     "jsx": "preserve",
-    "types": ["@slidev/types", "vite/client"]
+    "types": ["@slidev/types", "vite/client"],
+    // @slidev/client 以原始 .ts 發佈，型別解析改指本地替身（見該檔頭註解）
+    "paths": {
+      "@slidev/client": ["./shims-slidev-client.d.ts"]
+    }
   },
   "include": ["components/**/*", "layouts/**/*", "setup/**/*", "*.vue", "shims.d.ts"],
   "exclude": ["node_modules", "dist", "scripts"]
