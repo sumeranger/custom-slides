@@ -8,7 +8,10 @@
     "build": "slidev build",
     "typecheck": "vue-tsc --noEmit",
     "export": "slidev export --format png --with-clicks --output snaps",
-    "export-pdf": "slidev export --output presentation.pdf"
+    "export-pdf": "slidev export --output presentation.pdf",
+    "snap-sweep": "node snap-sweep.mjs",
+    "snap-hover": "node snap-hover.mjs",
+    "lint-notes": "node lint-notes.mjs"
   },
   "dependencies": {
     "@slidev/cli": "^52.17.0",
