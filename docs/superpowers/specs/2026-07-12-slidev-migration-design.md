@@ -150,3 +150,23 @@ snap-sweep 在 floating-vue 化之後降級為**回歸保險**（自動避邊後
 4. **表現力回退**：混合式寫法下，過往「絕對定位 + per-step CSS 狀態」
    的編輯級構圖仍由整頁 Vue 畫布元件承接，不應回退；example 移植
    即為驗收基準。
+
+## Phase 0 Findings（addendum，2026-07-12）
+
+Spike 環境：`.spike-slidev/`（Slidev v52.17.0，`theme: none`，`css engine unocss`），Task 1／Task 2 兩份報告的實測結果彙整如下。結論：**四項 Phase 0 驗證項目全部通過，spec 原有假設成立，可進 Phase 1**；但過程中發現三項 brief 未預期、對後續 task 有直接影響的地雷，一併記錄於表格與下方補充說明。
+
+| 驗證項 | 結論 |
+|---|---|
+| `theme:` 設定 | `theme: none` 在 v52.17.0 被直接接受，dev server banner 印出 `theme none`／`css engine unocss`，無報錯、無 warning。不需要 fallback 成 `theme: default` 覆寫。 |
+| UnoCSS preflight 干擾 | 有干擾但可控：UnoCSS preflight 對 `h1`（及 `blockquote,dl,dd,hr,figure,p,pre`）套用 `margin: 0`；我方 `probe.css` 的 `h1 { font-size: 88px; font-weight: 700 }` 仍勝出（實測 `h1FontSize` = `88px`、`h1FontWeight` = `700`），原因是 cascade **載入順序**晚於 preflight，不是靠 specificity。`base.css` 遷移時必須自帶完整 margin/reset（涵蓋上述元素全集），不可假設「沒設就是瀏覽器預設值」。 |
+| canvasWidth 1920 字級/縮放 | 1920×1080 viewport 下探針 `probeBodyFontSize` = `26px`（對應 spec 的 body 26px 假設）、`probeBodyRectHeight` = `39px`；1280×720 viewport 同探針 `getBoundingClientRect().height` = `26px`。縮放比 `26/39 = 0.6667`，與 `1280/1920 = 0.6667` 完全吻合（誤差 0%）。`canvasWidth: 1920` 的舞台縮放機制可完全取代舊架構 `useStageScale`，無需額外縮放邏輯。 |
+| `?clicks=N` URL | 可用，不需 fallback 成鍵盤（ArrowRight）推進。`/2?clicks=2`（3 項 `<v-clicks>`）正確渲染 `total:3, hidden:1`，且以 DOM 逐項核對 `slidev-vclick-prior`/`slidev-vclick-current`/`slidev-vclick-hidden` 三種 class 對應第 1/2/3 項。Task 11 的 sweep 腳本可直接用 `?clicks=N` URL 驅動，不必改鍵盤模擬。 |
+| export CJK | `npx slidev export --format png --with-clicks` 產出 5 個 PNG（page 1 一張、page 2 四張對應 0–3 clicks），目測全部 CJK 字形清晰、無豆腐字，磚紅色 accent（`#b4552d`）正確套用，四張 click-state 圖彼此可見差異、逐步新增一行。**但此次 spike 未使用 Google Fonts／自訂 `@font-face`**，故「webfont 是否需預載才能在 export headless 環境正常顯示」這個問題未被驗證（見下方補充 4）。 |
+| floating-vue container | `el.value.closest("#slide-content, .slidev-page")` 實測命中 `.slidev-page.slidev-page-1`（`.slidev-page` 是較近的祖先，先於 `#slide-content` 被 `closest()` 選中）。Popper 掛載後 `popperParentClass === "slidev-page slidev-page-1"`，位置 `{x:747, y:233, w:427}`（1920×1080 viewport），`data-popper-placement="top"`，因掛在 `.slidev-page` 內而非 `<body>` 下，會自動繼承舞台的 CSS transform 縮放——對 `canvasWidth` 縮放的簡報是期望行為。 |
+
+### 補充說明（四項表格之外，Task 5/6/10 需直接依賴的地雷）
+
+1. **FloatingVue 全域安裝地雷（Task 6 必讀）**：Slidev 透過 `@shikijs/vitepress-twoslash` 已經在 `@slidev/client/setup/main.ts` 內呼叫過 `app.use(TwoslashFloatingVue, { container: '#twoslash-container' })`，其 `install()` 內部又呼叫了 `app.use(FloatingVue, { strategy: 'fixed', themes: {...} })`——也就是說 **FloatingVue 已被 Slidev 全域安裝過一次**。Vue 的 `app.use()` 用物件身分（`installedPlugins.has(plugin)`）去重，我方 `setup/main.ts` 裡再寫一次 `app.use(FloatingVue, { themes: { term: {...} } })` 會被**靜默去重、完全不生效**——`"term"` 主題從未被註冊。此時若元件寫 `<VTooltip theme="term">`，`Popper.init()` 會因為讀不到該主題設定而丟出 `TypeError: Cannot read properties of undefined (reading 'length')`，發生在 `mounted` hook 內；由於 Slidev SPA 會同時掛載相鄰投影片，這個未捕捉例外會**打斷整個 app 的 reactivity flush**，導致其他頁面（例如另一頁的 `<v-clicks>`）也一併渲染失敗（實測 `total:0` 而非預期的 `3`）。**Task 6 的方向**：不要用 `app.use(FloatingVue, {...})` 註冊自訂主題，改成直接 mutate 已安裝實例的設定——`FloatingVue.options.themes.term = {...}`（寫在 `setup/main.ts`，不呼叫 `app.use`）。若此法仍有相容性問題，**fallback 方案**是放棄自訂主題名稱，改用內建 `theme="tooltip"` 搭配 `popper-class` 做外觀客製（本次 spike 為了量出可用數據，即採用此 fallback：`theme="tooltip"` + `:distance="14"` + `:triggers="['hover','focus']"` 直接寫在 `<VTooltip>` props 上，繞過自訂主題註冊）。
+2. **UnoCSS 勝出靠載入順序，非 specificity（Task 5 必讀）**：本次驗證只在 **dev server**（Vite dev mode，所有 CSS 皆以 inline `<style>` 注入，`document.styleSheets` 33 個、全部 `href` 為 `inline`）下進行，證實我方 CSS 贏是因為 Slidev 對 `styles/index.ts` 的自動載入順序天然晚於 UnoCSS preflight 注入。**Task 5 必須在正式 production build 下重新驗證這個順序**（例如 `grep` `dist/assets/*.css` 檢查我方規則是否仍排在 UnoCSS preflight 之後），不能只憑 dev 模式的觀察外推到 build 產物；production 打包（如 CSS chunk 合併/tree-shake/plugin 順序）有可能改變注入順序。
+3. **`playwright-chromium` postinstall 在全新機器可能不會執行**：兩次 spike（`npm install` 與 `npx slidev export`）都因為系統快取 `~/.cache/ms-playwright/` 已有 `chromium-1223`/`chromium-1228`/`chromium_headless_shell-1228`，所以即使 npm 印出 postinstall script 未執行的 warning，export 仍順利跑通，**未真正驗證過從零開始（無快取）的機器**。之後寫 `GUIDE.md` 的 export 章節時，建議加一行提醒：若 export 時找不到瀏覽器執行檔，先手動跑 `npx playwright install chromium` 再重試。
+4. **Webfont export 未驗（Task 10 必讀）**：本次 spike 全程沒有使用 Google Fonts 或任何 `@font-face`，export 出的 PNG 之所以 CJK 清晰無豆腐字，測的是「export pipeline 本身可用」而非「自訂字型在 headless export 環境下會正確載入」。正式模板一旦接上 `fonts.css`（真正的中文襯線字），**Task 10 的 export 步驟必須肉眼覆核襯線體 CJK 字形品質**，才能排除「headless 瀏覽器來不及載入 webfont 就截圖，退回系統預設字型（甚至豆腐字）」的風險——這是本次 spike 唯一沒有覆蓋到的 export 面向。
