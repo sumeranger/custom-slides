@@ -1,0 +1,34 @@
+/* ── Problem(Q) / Solution(A) role tag — see PhaseTag.tsx ── */
+.phase-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  padding: 5px 17px;
+  border-radius: var(--r-pill, 999px);
+  font-family: var(--font-mono);
+  font-size: var(--t-label);
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  white-space: nowrap;
+}
+.phase-tag-mark {
+  font-size: 0.85em;
+  line-height: 1;
+}
+.phase-tag-label {
+  letter-spacing: 0.14em;
+}
+
+/* 問題 — solid accent, dark/paper text */
+.phase-tag-q {
+  background: var(--accent);
+  color: var(--shell);
+  border: 1.5px solid var(--accent);
+}
+
+/* 解法 — outline accent */
+.phase-tag-a {
+  background: transparent;
+  color: var(--accent);
+  border: 1.5px solid var(--accent);
+}
