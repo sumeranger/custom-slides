@@ -1,0 +1,620 @@
+/* ── 參考章節：文件 AI 服務微服務化 — prefix .sf- ──────────────────────────
+ *
+ * 使用方式：把本檔複製進目標專案的 styles/，並在 styles/index.ts 於 base.css
+ * 之後、animations.css 之前 `import "./service-flow.css";`（每章一個前綴，物理隔離）。
+ *
+ * 動畫策略（與 React 版的差異，見 .md 檔頂部切分表）：
+ *   React 版靠 @keyframes + animation-delay 做「時間節拍」的進場。移植到 Slidev 後
+ *   一律改成兩種：
+ *     (1) 敘事拍點 → v-click：隱藏態用 Slidev 的 .slidev-vclick-hidden（opacity:0
+ *         !important），本檔只補「顯示態的 transition + 位移」，讓揭示有動勢。
+ *     (2) 純背景 / 不需拍點 → 靜態：直接顯示，不做進場動畫。
+ *   本章沒有「環境迴圈動畫」，故整檔不保留任何 @keyframes——避免延遲型 @keyframes
+ *   在 PNG 匯出（--with-clicks）時被拍到「還沒進場」的 opacity:0 空畫面。
+ * ──────────────────────────────────────────────────────────────────────── */
+
+.sf-scene {
+  position: absolute;
+  inset: 0;
+}
+.sf-center {
+  display: grid;
+  place-items: center;
+}
+.sf-pad {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 44px;
+  padding: 95px 130px 80px;
+}
+/* v-em 上色在 .v-serif-bold 內已由 extras.css 處理；章節內其他位置補一層 */
+.sf-scene .v-em {
+  color: var(--accent);
+}
+
+/* ── 通用章節開場 head（靜態）── */
+.sf-head {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 20px;
+}
+.sf-h2 {
+  margin: 0;
+  font-size: var(--t-h2);
+  line-height: 1.15;
+}
+
+/* ── Slide 2 / step 0 — 標題卡（整頁 Vue：SfTitle.vue）── */
+.sf-title-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 40px;
+  max-width: 1400px;
+}
+.sf-h1 {
+  margin: 0;
+  font-size: var(--t-h1);
+  line-height: 1.15;
+}
+.sf-roadmap {
+  display: flex;
+  gap: 36px;
+  margin-top: 8px;
+}
+.sf-roadmap-dot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  color: var(--text-faint);
+}
+.sf-roadmap-dot.is-active {
+  color: var(--text);
+}
+.sf-roadmap-idx {
+  font-size: var(--t-label);
+  color: var(--text-faint);
+}
+.sf-roadmap-dot.is-active .sf-roadmap-idx {
+  color: var(--accent);
+}
+.sf-roadmap-label {
+  font-size: var(--t-label);
+  font-family: var(--font-body);
+  white-space: nowrap;
+}
+.sf-deck {
+  margin: 8px 0 0;
+  font-size: var(--t-lead);
+  color: var(--text-2);
+}
+
+/* ── Slide 3 / step 1 — 抽離母題（整頁 Vue：SfExtract.vue，1 拍）──
+ * 箭頭 + 「現在」卡是 v-click（v-click="1"）；「以前」卡與空殼靜態常駐。 */
+.sf-extract-stage {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 34px;
+  flex: 1;
+}
+.sf-extract-box {
+  width: 460px;
+  min-height: 260px;
+  border-radius: var(--r-card);
+  padding: 32px 36px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+.sf-extract-before {
+  background: var(--surface-2);
+  border: 1.5px solid var(--rule);
+}
+.sf-extract-after {
+  background: var(--surface-2);
+  border: 1.5px solid var(--accent);
+  transition: opacity 600ms var(--ease-quart), transform 600ms var(--ease-quart);
+}
+.sf-extract-after.slidev-vclick-hidden {
+  transform: translateX(-60px) scale(0.94);
+}
+.sf-extract-tag {
+  color: var(--text-mute);
+}
+.sf-extract-after .sf-extract-tag {
+  color: var(--accent);
+}
+.sf-extract-ghost {
+  flex: 1;
+  border: 1.5px dashed var(--text-faint);
+  border-radius: 6px;
+  display: grid;
+  place-items: center;
+  color: var(--text-faint);
+  font-size: var(--t-body);
+}
+.sf-extract-chip {
+  border: 1.5px solid var(--accent);
+  background: var(--accent-soft);
+  border-radius: 6px;
+  padding: 22px;
+  text-align: center;
+  color: var(--text);
+  font-size: var(--t-body);
+}
+.sf-extract-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: var(--t-label);
+  color: var(--text-2);
+  font-family: var(--font-body);
+}
+.sf-extract-arrow {
+  width: 160px;
+  height: 32px;
+  flex-shrink: 0;
+  transition: opacity 500ms var(--ease-quart);
+}
+.sf-extract-path,
+.sf-extract-head {
+  stroke: var(--text-faint);
+}
+
+/* ── Slide 4 / step 2 — 轉場鉤子（整頁 Vue：SfHook.vue，1 拍）──
+ * 檔名列 + 按鈕 + 游標靜態；問句 v-click。 */
+.sf-hook {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 46px;
+  text-align: center;
+  max-width: 1300px;
+}
+.sf-hook-row {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  padding: 26px 34px;
+  border-radius: var(--r-card);
+  background: var(--surface-2);
+  border: 1.5px solid var(--rule);
+}
+.sf-hook-file {
+  font-size: var(--t-body);
+  color: var(--text-mute);
+}
+.sf-hook-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  padding: 14px 28px;
+  border-radius: 999px;
+  border: 1.5px solid var(--accent);
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: var(--t-body);
+}
+.sf-hook-cursor {
+  position: absolute;
+  right: -18px;
+  bottom: -14px;
+}
+.sf-hook-t {
+  font-size: var(--t-h1);
+  margin: 0;
+  line-height: 1.2;
+  transition: opacity 600ms var(--ease-quart), transform 600ms var(--ease-quart);
+}
+.sf-hook-t.slidev-vclick-hidden {
+  transform: translateY(24px);
+}
+
+/* ── 泳道列（step 3~6 共用，Vue：SfLanes.vue，靜態背景）──
+ * 連線走上方弧線繞過泳道列，不穿過中間格子（跨格連線才不會被誤讀成經過中間）。
+ * 弧線高度刻意拉高（見 SfLanes 的 peakY），太扁的弧看起來會像兩段斷開的短線。 */
+.sf-lanes-wrap {
+  position: relative;
+}
+.sf-lanes {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+.sf-lane {
+  text-align: center;
+  padding: 18px 10px;
+  border-radius: 8px;
+  border: 1.5px solid var(--rule);
+  background: var(--surface-2);
+  color: var(--text-faint);
+  font-size: var(--t-label);
+}
+.sf-lane.is-active {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+.sf-lane-arc {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 100%;
+  width: 100%;
+  height: 64px;
+  margin-bottom: 4px;
+}
+.sf-lane-arc path {
+  stroke: var(--accent);
+  fill: none;
+}
+
+/* ── Slide 5 / step 3 — 要票 detail card（MD 骨架 + SfLanes，1 拍）── */
+.sf-detail-card {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 30px 36px;
+  border-radius: var(--r-card);
+  background: var(--surface-2);
+  border: 1.5px solid var(--rule);
+  margin-top: 20px;
+  transition: opacity 600ms var(--ease-quart), transform 600ms var(--ease-quart);
+}
+.sf-detail-card.slidev-vclick-hidden {
+  transform: translateY(24px);
+}
+.sf-detail-endpoint {
+  font-size: var(--t-lead);
+  color: var(--accent);
+}
+.sf-detail-d {
+  font-size: var(--t-body);
+  color: var(--text-2);
+  font-family: var(--font-body);
+}
+
+/* ── Slide 6 / step 4 — 三道檢查 + 票（MD 骨架 + SfLanes，0 拍 / 靜態）──
+ * 這頁帶 Term tooltip（attachmentId / sub）。刻意「靜態、0 拍」：v-click 隱藏態
+ * 是 pointer-events:none !important，若把含 Term 的票藏在 click 後，snap-sweep
+ * 在未揭示的 click 狀態 hover 不到 → 誤報 no-box。故本頁全部常駐可 hover。 */
+.sf-checklist {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  margin-top: 16px;
+}
+.sf-checklist-item {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  font-size: var(--t-lead);
+  color: var(--text);
+  font-family: var(--font-body);
+}
+.sf-checklist-mark {
+  color: var(--accent);
+  font-size: var(--t-h3);
+}
+.sf-ticket {
+  display: flex;
+  align-items: center;
+  gap: 26px;
+  margin-top: 22px;
+  padding: 26px 32px;
+  border-radius: var(--r-card);
+  border: 1.5px solid var(--accent);
+  background: var(--accent-soft);
+}
+.sf-ticket .label-mono {
+  color: var(--accent);
+}
+.sf-ticket-t {
+  font-size: var(--t-body);
+  color: var(--text-2);
+  font-family: var(--font-body);
+  flex: 1;
+}
+.sf-ticket-num {
+  font-size: var(--t-display-2);
+  color: var(--text);
+}
+
+/* ── Slide 7 / step 5 — 換 session（MD 骨架 + SfLanes，1 拍）──
+ * 舊票→新 session 靜態；「票就作廢了」punch v-click。 */
+.sf-swap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 28px;
+  margin-top: 24px;
+}
+.sf-swap-old {
+  padding: 24px 32px;
+  border-radius: var(--r-card);
+  border: 1.5px dashed var(--text-faint);
+  color: var(--text-faint);
+  font-size: var(--t-body);
+  text-decoration: line-through;
+}
+.sf-swap-arrow {
+  width: 130px;
+  height: 26px;
+}
+.sf-swap-arrow path {
+  stroke: var(--accent);
+  fill: none;
+}
+.sf-swap-new {
+  padding: 24px 32px;
+  border-radius: var(--r-card);
+  border: 1.5px solid var(--accent);
+  background: var(--accent-soft);
+  color: var(--text);
+  font-size: var(--t-body);
+}
+.sf-punch {
+  text-align: center;
+  font-size: var(--t-h3);
+  margin: 0 auto;
+  transition: opacity 600ms var(--ease-quart), transform 600ms var(--ease-quart);
+}
+.sf-punch.slidev-vclick-hidden {
+  transform: translateY(20px);
+}
+
+/* ── Slide 8 / step 6 — 文件 AI 服務自己來（MD 骨架 + SfLanes，3 拍）── */
+.sf-self {
+  display: flex;
+  gap: 34px;
+  margin-top: 24px;
+  justify-content: center;
+}
+.sf-self-item {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 32px 30px;
+  border-radius: var(--r-card);
+  background: var(--surface-2);
+  border: 1.5px solid var(--rule);
+  font-size: var(--t-lead);
+  color: var(--text);
+  font-family: var(--font-body);
+  min-width: 260px;
+  transition: opacity 500ms var(--ease-overshoot), transform 500ms var(--ease-overshoot);
+}
+.sf-self-item.slidev-vclick-hidden {
+  transform: scale(0.9);
+}
+.sf-self-idx {
+  color: var(--accent);
+  font-size: var(--t-label);
+}
+
+/* ── Slide 9 / step 7 — 核心結論（MD 骨架，0 拍 / 靜態）── */
+.sf-thesis {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 30px;
+  padding: 56px 80px;
+  text-align: center;
+}
+.sf-thesis-lanes {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+.sf-thesis-box {
+  padding: 18px 28px;
+  border-radius: 8px;
+  border: 1.5px solid var(--rule);
+  background: var(--surface-2);
+  font-family: var(--font-mono);
+  font-size: var(--t-body);
+  color: var(--text);
+}
+.sf-thesis-x {
+  font-size: var(--t-h2);
+  color: var(--accent);
+}
+.sf-thesis-t {
+  font-size: var(--t-h2);
+  margin: 0;
+}
+.sf-thesis-d {
+  font-size: var(--t-lead);
+  color: var(--text-2);
+  margin: 0;
+}
+
+/* ── Slide 10 / step 8 — 系統 C 對比（MD 骨架，2 拍）── */
+.sf-compare {
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  gap: 0;
+  margin-top: 20px;
+}
+.sf-compare-col {
+  width: 420px;
+  padding: 34px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  border-radius: var(--r-card);
+  background: var(--surface-2);
+  border: 1.5px solid var(--rule);
+  transition: opacity 600ms var(--ease-quart), transform 600ms var(--ease-quart);
+}
+.sf-compare-col.slidev-vclick-hidden {
+  transform: translateY(20px);
+}
+.sf-compare-accent {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+.sf-compare-row {
+  padding: 14px 18px;
+  background: var(--surface-3);
+  border-radius: 6px;
+}
+.sf-compare-accent .sf-compare-row {
+  background: var(--surface);
+}
+.sf-compare-row .mono {
+  font-size: var(--t-body);
+  color: var(--text);
+}
+.sf-compare-d {
+  font-size: var(--t-label);
+  color: var(--text-mute);
+  font-family: var(--font-body);
+}
+.sf-compare-accent .sf-compare-d {
+  color: var(--accent);
+}
+.sf-compare-rule {
+  width: 1.5px;
+  background: var(--rule);
+  margin: 0 40px;
+}
+
+/* ── Slide 11 / step 9 — 交付數字 + 瘦身（MD 骨架，1 拍）──
+ * 數字區靜態（含 TDD Term，需常駐可 hover）；瘦身區 v-click。 */
+.sf-numbers {
+  display: flex;
+  align-items: center;
+  gap: 64px;
+}
+.sf-numbers-compact {
+  margin-top: 8px;
+}
+.sf-num-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+.sf-num-sm {
+  font-size: var(--t-display-2);
+  color: var(--text);
+  line-height: 1;
+}
+.sf-num-label {
+  font-size: var(--t-label);
+  color: var(--text-2);
+  font-family: var(--font-body);
+}
+.sf-num-rule {
+  width: 1.5px;
+  height: 100px;
+  background: var(--rule);
+}
+.sf-slim {
+  display: flex;
+  gap: 90px;
+  flex: 1;
+  align-items: flex-start;
+  margin-top: 30px;
+  transition: opacity 500ms var(--ease-quart);
+}
+.sf-slim-col {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+.sf-slim-k {
+  color: var(--text-mute);
+}
+.sf-slim-summary {
+  margin: 0;
+  font-size: var(--t-lead);
+  color: var(--text-mute);
+  font-family: var(--font-body);
+}
+.sf-slim-col-new {
+  padding-left: 60px;
+  border-left: 1.5px solid var(--rule);
+}
+.sf-slim-new {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 22px 28px;
+  border-radius: var(--r-card);
+  border: 1.5px solid var(--accent);
+  background: var(--accent-soft);
+}
+.sf-slim-new-d {
+  font-size: var(--t-body);
+  color: var(--text);
+  font-family: var(--font-body);
+}
+
+/* ── Slide 12 / step 10 — 誠實揭露 + 收束（MD 骨架，1 拍）──
+ * caveat（含 PhaseTag）靜態；「一個功能 → 產品」收束 v-click。 */
+.sf-close-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 56px;
+}
+.sf-caveat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 22px;
+  padding: 46px 64px;
+  text-align: center;
+}
+.sf-caveat-t {
+  font-size: var(--t-h3);
+  margin: 0;
+}
+.sf-caveat-list {
+  display: flex;
+  gap: 30px;
+  font-size: var(--t-body);
+  color: var(--text-2);
+  font-family: var(--font-mono);
+}
+.sf-caveat-list span {
+  padding: 12px 20px;
+  background: var(--surface-2);
+  border-radius: 6px;
+}
+.sf-close {
+  display: flex;
+  align-items: center;
+  gap: 40px;
+  transition: opacity 500ms var(--ease-quart), transform 500ms var(--ease-quart);
+}
+.sf-close.slidev-vclick-hidden {
+  transform: translateY(16px);
+}
+.sf-close-from {
+  font-size: var(--t-h2);
+  color: var(--text-mute);
+  font-family: var(--font-body);
+}
+.sf-close-arrow {
+  width: 120px;
+  height: 24px;
+}
+.sf-close-arrow path {
+  stroke: var(--accent);
+  fill: none;
+}
+.sf-close-to {
+  font-size: var(--t-h1);
+}

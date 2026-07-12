@@ -1,0 +1,154 @@
+/* 章節 pill 進度條（global-bottom.vue）。react 版 ProgressBar.css 移植——
+   原版用 --stage-half-h（useStageScale 內聯）把 footer 錨定在舞台卡片的
+   下緣、微幅重疊圓角接成一體。Slidev 版無等效的「舞台半高」內聯變數，
+   改為單純釘在 viewport 下緣（fixed + bottom），寬度仍以 --stage-w
+   （global-bottom.vue 用 ResizeObserver 量 #slide-container 實寬）對齊
+   舞台，並置中。其餘視覺宣告照抄舊版。 */
+.pb-hover {
+  position: fixed;
+  left: 50%;
+  bottom: 16px;
+  transform: translateX(-50%);
+  /* fallback 用 100%（= viewport 寬度，會被 max-width 收斂）而非 auto——
+     這是 fixed 定位、只給了 left 沒給 right 的盒子，auto 會走
+     shrink-to-fit 演算法，對內部 flex:1 1 0 的 pill 群幾乎必然算出
+     趨近 0 的寬度（就是本檔案要修的「細線」bug 本身）。 */
+  width: var(--stage-w, 100%);
+  max-width: calc(100vw - 32px);
+  z-index: 10;
+  pointer-events: none;
+}
+
+/* 條帶 = 與舞台同寬 + 同紙面，讀作卡片的 footer，而非獨立浮動面板 */
+.pb-chapters {
+  position: relative;
+  width: 100%;
+  background: var(--surface);
+  border-top: 1px solid rgba(60, 40, 20, 0.15);
+  border-radius: 0 0 var(--r-stage, 0) var(--r-stage, 0);
+  /* small side padding so the outermost pills reach (touch) the card edges */
+  padding: 12px 10px;
+  display: flex;
+  align-items: stretch;
+  gap: 8px;
+  overflow: hidden;
+  /* continue the stage's 1px edge on the 3 open sides + share its soft drop
+     shadow so the whole [stage + footer] casts one shadow */
+  box-shadow:
+    inset 1px 0 0 rgba(60, 40, 20, 0.15),
+    inset -1px 0 0 rgba(60, 40, 20, 0.15),
+    inset 0 -1px 0 rgba(60, 40, 20, 0.15),
+    0 40px 100px rgba(60, 40, 20, 0.22);
+  pointer-events: auto;
+}
+
+/* continue the stage's blueprint grid into the footer so the surface reads
+   as one card. Cell size = --pb-grid (48px × stage scale) to match the
+   stage's on-screen grid. */
+.pb-chapters::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background-image: var(--surface-pattern, none);
+  background-size: var(--pb-grid, 48px) var(--pb-grid, 48px);
+  mix-blend-mode: var(--surface-pattern-blend, multiply);
+  opacity: var(--surface-pattern-opacity, 1);
+  pointer-events: none;
+}
+.pb-chapters::-webkit-scrollbar {
+  height: 4px;
+}
+.pb-chapters::-webkit-scrollbar-track {
+  background: transparent;
+}
+.pb-chapters::-webkit-scrollbar-thumb {
+  background: var(--text-faint);
+  border-radius: 2px;
+}
+
+/* every chapter is a pill; the current one is highlighted with a filled
+   accent pill (a different colour), the rest stay quiet */
+.pb-chapter {
+  position: relative;
+  z-index: 1;
+  /* equal-width segments that fill the footer edge-to-edge with even, tight
+     gaps (bilibili-style). Long titles ellipsize rather than wrap. */
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: var(--surface-2);
+  border: 1px solid var(--surface-3);
+  color: var(--text-2);
+  font-family: var(--font-mono);
+  font-size: var(--t-label);
+  cursor: pointer;
+  transition: color var(--dur-quick), background var(--dur-quick),
+    border-color var(--dur-quick);
+}
+.pb-num {
+  flex-shrink: 0;
+  color: var(--accent);
+  font-weight: 600;
+}
+.pb-title {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.pb-chapter:hover {
+  border-color: var(--accent);
+}
+
+/* current — filled accent pill (the "different colour" highlight). It keeps
+   the same equal-width share as the others (so a SHORT title doesn't make it
+   shrink), but `min-width: max-content` lets it grow past that share to fit a
+   LONG title in full — in which case the others shrink/ellipsize to make room.
+   Prominence comes from the accent colour, not from being bigger. */
+.pb-current {
+  min-width: max-content;
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--surface);
+}
+.pb-current .pb-num {
+  color: var(--surface);
+}
+.pb-current .pb-title {
+  overflow: visible;
+  text-overflow: clip;
+  font-weight: 700;
+}
+
+/* step dots — only on the current (accent) pill, so they read light;
+   filled up to the current step, each click-to-jump */
+.pb-pips {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-left: 8px;
+}
+.pb-pip {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: transparent;
+  border: 1.5px solid currentColor;
+  opacity: 0.45;
+  cursor: pointer;
+  transition: opacity var(--dur-quick), background var(--dur-quick);
+}
+.pb-pip:hover {
+  opacity: 0.8;
+}
+.pb-pip-on {
+  background: currentColor;
+  opacity: 1;
+}
