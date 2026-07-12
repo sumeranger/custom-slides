@@ -12,7 +12,19 @@
  *   useNav        → client/composables/useNav.ts（next / isPresenter /
  *                   isPrintMode / slides / currentPage / go 均在
  *                   SlidevContextNav(+State) 介面上，逐欄核對簽名照抄）
- *   useSlideContext → client/context.ts（$frontmatter = injectLocal(...)）
+ *   useSlideContext → client/context.ts（$frontmatter = injectLocal(...)；
+ *                   $nav = toRef(injectLocal($$slidev-context), 'nav')）。
+ *   $nav 的型別故意宣告成「currentPage: number；go: 同 useNav().go」而非
+ *   ComputedRef<number>：外層 root.ts 用 reactive({ nav: useNav(), ... })
+ *   包了一層，reactive() 對巢狀欄位做 ref-unwrap（UnwrapNestedRefs），取過
+ *   一次 $nav.value 之後，內部欄位已是拆封的原始值，不必再取第二層
+ *   .value——這與 @slidev/client 官方寫法一致（見 client/logic/slides.ts
+ *   的 `$nav.value.currentSlideNo`，同一個 unwrap 規則，只取一次 .value）。
+ *   用 $nav 而非 useNav() 是因為 internals/PrintSlideClick.vue 在
+ *   print/export 模式下用 provideLocal 逐頁重新提供 useFixedNav()，使
+ *   $nav 變成 per-page；而 useNav() 是 createSharedComposable 全域單例，
+ *   export 同時掛載多頁時全部共用同一顆（永遠停在扉頁），dev 模式下兩者
+ *   退化成同一顆、行為不變。
  * SlideRoute（slides 的元素型別）→ @slidev/types dist/index.d.mts：
  *   { no: number; meta: RouteMeta & Required<Pick<RouteMeta,'slide'>>; ... }。
  * RouteMeta.slide 型別 → client/shim-vue.d.ts：
@@ -55,4 +67,15 @@ export declare function useNav(): {
 export declare function useSlideContext(): {
   /** 當前 slide 的 frontmatter（layout 讀 chapter / eyebrow 用） */
   $frontmatter: Record<string, any>;
+  /**
+   * per-instance nav（見上方檔頭說明）：print/export 模式下逐頁不同，
+   * dev 模式下退化為 useNav() 的同一顆單例。取過 .value 之後欄位已拆封，
+   * 不需要對 currentPage 再取一次 .value。
+   */
+  $nav: Ref<{
+    /** 目前頁碼（1-based），this 份實例對應的那一頁 */
+    currentPage: number;
+    /** 跳到指定頁（可選 clicks / force）；print/export 模式下為 no-op */
+    go: (no: number | string, clicks?: number, force?: boolean) => Promise<void>;
+  }>;
 };
