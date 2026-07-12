@@ -57,11 +57,18 @@ token。純 CSS 的 cascade 規則是：**同一個選擇器（或同一個 `:ro
   搬到 `extras.css` 頂部的 `:root {}` 區塊——`extras.css` 載入在
   `base.css` 之後，`:root` 規則的 cascade 順序就反過來贏了。
 
-App.tsx 的載入順序（已接好，不要改）：
+`styles/index.ts` 的載入順序（已接好，不要改）：
 
 ```
-fonts.css → tokens.css（主題 token） → base.css → animations.css → extras.css（主題選擇器層 + 上面理由二那批性格旋鈕 :root 覆寫，可選）
+fonts.css → tokens.css（主題 token） → base.css → 元件 css（term / phase-tag / progress-bar…） → animations.css → extras.css（主題選擇器層 + 上面理由二那批性格旋鈕 :root 覆寫，可選）
 ```
+
+元件層 css（`term.css`、`phase-tag.css`、`progress-bar.css`，以及每章自己的
+章節 css）固定插在 **`base.css` 之後、`animations.css` 之前**——這樣它們能用
+`base.css` 定好的 token/primitive、又不會蓋掉入場動畫；`extras.css` 則**永遠
+排最後**，才能贏過前面一切同 specificity 的規則。這個順序是 cascade 契約，
+不是隨意排列（見下方「唯一可靠的驗證方式」與 `GUIDE.md` §6.23：贏過 UnoCSS
+preflight 靠的是**載入順序**、不是 specificity，所以絕不能重排 import）。
 
 ## `extras.css` 反模式（讀完再動手）
 
@@ -228,7 +235,7 @@ bash <skill-root>/scripts/scaffold.sh <新專案>/presentation --theme=dbx-style
    `npm run build`，grep 建出來的 `dist/assets/*.css` 確認該屬性最後
    一次出現的值就是你要的值，這一步做完才算新主題完成。
 4. 改 `theme.json`：`id` 必須等於目錄名。
-5. 用 `scripts/scaffold.sh <暫存目錄> --theme=my-theme` 套用，`npm run dev` 過一遍所有章節，用 `snap.mjs`/`snap-sweep.mjs` 截圖檢查。
+5. 用 `scripts/scaffold.sh <暫存目錄> --theme=my-theme` 套用，`npm run dev` 過一遍所有章節，用 `npm run export`（逐頁逐拍 PNG）＋ `npm run snap-sweep` 截圖檢查。
 6. 在本文件「內建主題」表格加一行。
 
 ## 反模式

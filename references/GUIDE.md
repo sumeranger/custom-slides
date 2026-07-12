@@ -2,7 +2,8 @@
 
 > 給 AI agent 的操作手冊。目標：用這個模板，對任何主題快速產出與
 > `2026-06-monthly-report` 同款（唯一視覺/互動基準）的「點擊驅動網頁簡報」——
-> 暖紙編輯風 + 逐步揭示 + hover tooltip。
+> 暖紙編輯風 + 逐步揭示 + hover tooltip。技術棧：**Slidev**（Markdown 骨架 +
+> Vue 元件），舞台 `canvasWidth: 1920`（Slidev 內建 `transform: scale()` 自動縮放）。
 >
 > 成功範例（卡住時去翻實際代碼）：`example/`（本 skill 內建的去識別化參考章節）
 
@@ -43,13 +44,27 @@ SRT-informed 切 step）。實際跑起來的步驟：
 
 ```bash
 cp -r "<skill 根>/template/presentation" <新專案>/presentation
-cd <新專案>/presentation && npm install && npm run dev
-# 確認 example 章節跑得起來後，做真實章節時刪掉它：
-# rm -rf src/chapters/01-example （並更新 registry/chapters.ts）
+cd <新專案>/presentation
+npm install
+# 換視覺主題才需要（預設就是 paper-grid，可跳過）：
+bash "<skill 根>/scripts/scaffold.sh" . --theme=<id>
+npm run dev            # Slidev dev server，port 3030
 ```
 
-樣式層疊順序（App.tsx，已接好勿動）：
-`fonts → tokens(主題 token) → base → animations → extras(主題選擇器層 + 性格旋鈕 :root 覆寫，可選，詳見 THEMES.md)`
+`npm run dev` 起在 **http://localhost:3030**（`slidev --open=false`，不自動開瀏覽器）。
+確認 example 章節跑得起來後，做真實內容時**完整刪掉示範章節**——三個檔案 + 兩處接線：
+
+```bash
+rm chapters/01-example.md          # 示範章節本體
+rm components/ExampleTitle.vue     # 示範標題卡元件
+rm styles/example.css              # 示範章節樣式
+```
+
+- `styles/index.ts`：刪掉 `import "./example.css";` 那一行。
+- `slides.md`：刪掉指向示範章節的 `--- src: ./chapters/01-example.md ---` 區塊。
+
+樣式層疊順序（`styles/index.ts`，已接好勿動——見 §6.23 與 THEMES.md）：
+`fonts → tokens(主題 token) → base → 元件 css(term/phase-tag/progress-bar…) → animations → extras(主題選擇器層 + 性格旋鈕 :root 覆寫，可選)`
 
 模板預設就是 `paper-grid` 主題（暖紙視覺）。**不要改
 `base.css`/`animations.css`/`fonts.css`**——那是所有主題共用的骨架。
@@ -60,79 +75,103 @@ cd <新專案>/presentation && npm install && npm run dev
 
 ## 2. 章節開發鐵則
 
-每章一個資料夾 `src/chapters/0N-<id>/`，三個檔案：`<Name>.tsx`、`<Name>.css`、
-`narrations.ts`。參考 `01-example/`（已示範全部慣例）。
+每章一份 Markdown：`chapters/0N-<id>.md`，在 `slides.md` 用
+`--- src: ./chapters/0N-<id>.md ---` 掛進去。整頁 Vue 畫布元件放 `components/`
+（Slidev 自動全域註冊，md 內直接 `<MyScene />`，**不需 import**）；章節專用
+CSS 放 `styles/`（獨立前綴），在 `index.ts` 的 base 之後、animations 之前加
+一行 import。參考 `example/01-service-flow/`（已示範全部慣例，含頂部「切分表」）。
 
 | 鐵則 | 說明 |
 |---|---|
-| step 純函數 | `if (step === N) return <FullScene />`；無 setTimeout / setInterval，動畫全 CSS keyframes + animationDelay |
-| narrations = 真相源 | `narrations.length` === 最大 step+1；每條文字與 script.md 對應段語義一致（音頻合成用它） |
-| 逐步揭示 | 口播逐項唸的清單 = 一項一拍亮起（stagger delay），禁一次全上 |
-| 動畫 ≤ 口播 | 每步 max(delay+duration) ≤ 該步口播秒數（字數 ÷ 4） |
+| 混合式 MD/Vue | **預設寫 MD 骨架**（靜態 HTML + `<v-click>`，好讀好改）；只有需要**動態計算 / 置中疊放 / MaskReveal 擦入等絕對定位構圖**、或**複雜逐拍狀態機**時，才把該頁拆成整頁（或可重用）Vue 元件。判斷準則見 `example/README.md` 的切分表 |
+| 拍點靠 v-click 不靠時間 | 敘事拍點 = 一個 `<v-click>`/`<v-clicks>` 項；**禁 setTimeout/setInterval**；避免延遲型 `@keyframes`（PNG 匯出會拍到「還沒進場」的空畫面）。環境迴圈動畫（無限 loop）才用 CSS keyframes |
+| notes = 口播真相源 | 每張 slide 結尾一段 `<!-- … -->` HTML 註解 = 該頁口播稿；裡面的 `[click]` 標記數 **= 該頁 `v-click` 拍數**。`npm run lint-notes` 檢查每頁都有 notes，並印出各頁 `[click]` 計數表供對照（advisory，不強制相等） |
+| 扉頁 frontmatter 契約 | 每章第一張 slide 一律 `layout: chapter-open`，frontmatter 帶 `chapter`（`"01"` 段落編號）、`chapterTitle`（進度條把手，**≤8 全形字，全 deck 必須唯一**——重複會撞進度條的 Vue `:key`，見 §6.17）、`eyebrow`（眉題，可省） |
+| 逐步揭示 | 口播逐項唸的清單 = 一項一拍亮起（`<v-clicks>` 包住 `<li>`），禁一次全上 |
 | 顏色字體走 token | 只用 `var(--accent/--text/--surface…)` 與 `var(--font-*)`；唯一例外：深色終端/代碼窗可用主題既定三色 `#2a2018 / #4a3a2e / #f4ecd8` |
 | primitives | `.v-pill`（膠囊標）`.v-corners`（角括號卡）`.v-strike`（劃掉）`.v-serif-bold` + `.v-em`（強調；**v-em 上色只在 v-serif-bold 內生效**，其他地方自己補 `.xx-scene .v-em { color: var(--accent) }`）；base 另有 `.hero-num .kicker .mono .label-mono .serif-cn .serif-it .display-en` |
-| CSS 前綴隔離 | 每章獨立前綴（`.bk-` `.sb-`…），不跨章 import |
+| CSS 前綴隔離 | 每章獨立前綴（`.sf-` `.bk-`…），不跨章共用；章節 css 放 `styles/`、在 `index.ts` base 之後 animations 之前 import |
 | 視覺演示 | 每章至少 1–2 處「動起來的演示」（長條生長/格子點亮/連線自繪/數字對撞/打字機 steps()）；每步主導動作要不同；整章純文字 = 重做 |
 | 畫面 > 口播 | 回 article 抽口播沒唸的細節掛成角標/副標/出處行（右下出處行 ≥20px） |
 | 反 AI 味 | 禁紫粉漸變、emoji 當圖標、假 logo、假數據、頁眉頁腳；缺素材用 placeholder 卡不要 fake |
+| 內容待在舞台內 | 所有內容留在 1920×1080 舞台範圍內——`#slide-content` 是 `overflow: visible`（見 §6.16），超界內容會溢到 letterbox，export PNG 會現形 |
 | 字號（投影優先） | **一律從 `base.css` 的投影字級階挑**（`--t-display-1/2` `--t-h1/2/3` `--t-lead` `--t-body` `--t-label` `--t-micro`），**禁自創隨意 px**——散落 px 是讓 deck 階層糊掉、最大的可讀性殺手。硬地板（投影到大螢幕的最低）：最小字／出處行 ≥20px、body/描述 ≥26px、label/kicker/pill/眉題 ≥22px、頁面主標 ≥48px、hero/開場大標 ≥90px。白底灰字 contrast ≥4.5:1；左上 breadcrumb/眉題顏色要夠深，不能「一眼看不到」。詳見 §6.1 |
-| 結構變更 bump key | 改章節數/步數後，`src/hooks/useStepper.ts` 的 STORAGE_KEY v1→v2→… |
 
 ## 3. Term hover tooltip（本模板招牌互動）
 
-元件：`src/components/Term.tsx`（內建 `data-no-advance`，點擊不翻頁）。
+元件：`components/Term.vue`（floating-vue 包裝，內建 `data-no-advance`，點擊不翻頁；
+Slidev 自動註冊，md 內直接用不需 import）。
 
-```tsx
-import { Term } from "../../components/Term";
+```html
+<!-- 簡寫/術語（kind 預設 abbr）：磚紅虛線底，hover 顯示全稱 + 一句話概念。
+     短內容用 tip prop： -->
+<Term tip="CCR — Compress-Cache-Retrieve。可逆壓縮：原文存本地，LLM 隨時取回。">CCR</Term>
 
-// 簡寫/術語：磚紅虛線底，hover 顯示全稱 + 一句話概念
-<Term tip={<><span className="term-tip-t">CCR — Compress-Cache-Retrieve</span>
-  可逆壓縮：原文存本地，LLM 隨時取回。</>}>CCR</Term>
+<!-- 需要富排版（分行、上出處）時用 #tip slot： -->
+<Term><template #tip>
+  <span class="term-tip-t">CCR — Compress-Cache-Retrieve</span>可逆壓縮：原文存本地。
+</template>CCR</Term>
 
-// 原文出處：灰虛線底 + 引號角標，hover 顯示逐字原文 + 出處
-<Term kind="quote" tip={<><span className="term-tip-q">"verbatim original…"</span>
-  <span className="term-tip-src">媒體 · 2026.01.05</span></>}>中文轉述句</Term>
+<!-- 原文出處：kind="quote"，灰虛線底 + 引號角標，hover 顯示逐字原文 + 出處 -->
+<Term kind="quote"><template #tip>
+  <span class="term-tip-q">"verbatim original…"</span>
+  <span class="term-tip-src">媒體 · 2026.01.05</span>
+</template>中文轉述句</Term>
 ```
+
+API：`tip` prop（純文字，短內容用）或 `#tip` slot（富排版，二選一）；`kind="abbr"`
+（預設，術語）或 `kind="quote"`（引言原文）。
 
 **何時加**：(a) 所有非常識縮寫（CCR/AST/RAG/MCP/SRE/KV cache/benchmark 名）
 → 全稱 + 概念；(b) 畫面上是中文轉述、但查證過逐字原文的引言 → 原文 + 出處。
 **原文必須逐字查證過才能放**，查不到就不要加 quote 型。
 
-**防截斷（必遵守）**：tooltip 預設置中展開，觸發字靠舞台**左 1/3 加
-`align="start"`**、靠**右 1/3 加 `align="end"`**、靠**頂部加 `pos="bottom"`**。
-完成後必跑 sweep 驗證（見下）。
+**避邊免手動設定**：floating-vue 會自動翻轉、避開視窗邊緣（popper 掛進 slide
+容器、繼承舞台縮放；`overflowPadding: 64` 留邊），舊 React 版的 `pos`/`align`
+手動防截斷已退役、不再需要。完成後仍必跑 `snap-sweep`（§4）當回歸保險。
+
+> **Term 不要藏在還沒揭示的 `v-click` 拍後面**：Slidev 隱藏態是
+> `pointer-events: none`，hover 不到、snap-sweep 會誤報 no-box——含 Term 的
+> 內容要放在該頁的靜態部分（或該拍先揭示再掃）。見 §6.19 與 example 章節
+> slide 6/11 的實作理由。
+
+> 歷史：React 版 Term 為了穿透 stacking context、手動算 `pos`/`align` 防截斷，
+> 有兩段專門的地雷說明；Slidev + floating-vue 把這兩類問題整批殲滅，故本節
+> 刪去。要考古舊實作，看 git tag `react-final`。
 
 ## 4. 驗證（每章完成後必跑）
 
-dev server 跑著（假設 port 5173，不同就帶 `SNAP_URL`）：
+dev server 跑著（`npm run dev`，port 3030；不同 port 就帶 `SNAP_URL`）：
 
 ```bash
-npx tsc --noEmit                      # 必須 0 錯誤
-node snap.mjs                         # 從頭逐步截圖（SNAP_STEPS=總步數 SNAP_SETTLE=5200）
-node snap-one.mjs                     # 跳到單步截圖（SNAP_CH=章idx SNAP_ST=步idx SNAP_SETTLE=ms）
-node snap-hover.mjs                   # hover 指定字截圖（SNAP_TEXT=文字 …）
-SNAP_STEPS_JSON='[[0,5],[1,4]]' node snap-sweep.mjs   # 全 tooltip 超界掃描，要 ALL TOOLTIPS OK
+npm run typecheck        # vue-tsc --noEmit，必須 0 錯誤
+npm run export           # slidev export --format png --with-clicks --output snaps
+npm run lint-notes       # 每頁有 notes + 印 [click] 計數表對照 v-click 拍數
+SNAP_STEPS_JSON='[[2,0],[4,3]]' npm run snap-sweep   # 全 tooltip 超界掃描，要 ALL TOOLTIPS OK
+SNAP_PAGE=4 SNAP_CLICKS=2 SNAP_TERM_IDX=0 npm run snap-hover -- out.png  # 單點 hover 目測
 ```
 
-截圖逐張目測：版面平衡、無破版、字夠大、動畫完成態正確（SETTLE 要大於該步
-最晚動畫結束時間）。
-
-**`npx tsc --noEmit` 不夠嚴格，不能只跑這個就當作型別驗證完成。** 它是單檔快速
-檢查模式，某些型別問題（例如 React 19 環境下的 `Cannot find namespace 'JSX'`）
-只有 `npm run build`（跑的是 `tsc -b`，project reference 的嚴格 build 模式）才
-會抓到。**每完成 2–3 章就跑一次 `npm run build`**，不要留到全部章節做完才第一次
-跑——章數一多，一次抓到多個錯誤會拖慢定位。`JSX.Element` 這個型別名在嚴格
-build 下常找不到命名空間，一律改用從 `react` import 的 `ReactElement`。
+- **`npm run export`**：對每頁、每個 click 狀態各出一張 PNG 到 `snaps/`。**逐張
+  目測**：版面平衡、無破版、字夠大、無內容溢出舞台、動畫完成態正確、CJK 襯線
+  字形清晰（headless 若來不及載 webfont 會退回系統字甚至豆腐字，一定要肉眼覆核）。
+  export 靠 playwright chromium——若報錯找不到瀏覽器執行檔，先跑
+  `npx playwright install chromium` 再重試（見 §6.18）。
+- **`npm run snap-sweep`**：`SNAP_STEPS_JSON='[[頁碼, clicks總數], …]'`（clicks 總數 =
+  該頁 `[click]` 拍數，0 表無揭示）。腳本逐頁逐拍 hover 每個 `.term`，量 tooltip
+  是否超出 60px 安全邊界，全過印 `ALL TOOLTIPS OK`。
+- **`npm run snap-hover`**：`SNAP_PAGE` / `SNAP_CLICKS` / `SNAP_TERM_IDX` 指定頁、
+  拍、第幾個 Term，hover 後截一張圖（預設 `hover.png`，或用位置參數指定檔名）目測。
 
 ## 5. 交付節奏
 
 第 1 章先做完 → 給用戶驗收（風格錨點）→ 其餘章節依用戶選擇逐章 / 並行
 （並行時每個 subagent 給：本指南路徑 + outline 對應章 + article 路徑 + 第 1 章
-代碼當風格參考 + 各自的 CSS 前綴）。全部完成後問是否合成音頻
-（`npm run extract-narrations` → `npm run synthesize-audio`；provider 見
-`scripts/tts-providers/README.md`，本 skill 建議預設用 `edge-tts`——免費、
-免 API key，`PRESENTATION_TTS=edge` 或 `--provider=edge`；合成後 `?auto=1`
-可自動播放錄屏）。
+代碼當風格參考 + 各自的 CSS 前綴）。全部完成後跑 §4 全套驗證。
+
+> **音頻／影片產線於 phase 2 重建**：React 版的逐步音頻合成（`extract-narrations`
+> → TTS provider）與 SRT 字幕產生（`script-to-srt.sh`）尚未移植到 Slidev 棧，
+> 對應的 `npm` scripts 未掛。要有聲版本目前需手動處理；per-slide notes 已是
+> 口播稿真相源，重建產線時直接餵它即可。
 
 ## 6. 實戰教訓（必讀）
 
@@ -156,9 +195,10 @@ build 下常找不到命名空間，一律改用從 `react` import 的 `ReactEle
 | `--t-label` | 眉題 / kicker / pill / mono 標籤 | 22 |
 | `--t-micro` | 最小字 / 出處行（**硬地板**） | 20 |
 
-> 為什麼是**固定 px** 不是 vw-clamp：舞台是固定 1920×1080 畫布、用
-> `transform: scale()` 縮放到視窗（`Stage.tsx`），畫布內的 `vw` 會對到視窗寬而非
-> 1920，clamp(vw) 會讓每個標題尺寸跑掉。一律用固定 px（縮放交給 transform）。
+> 為什麼是**固定 px** 不是 vw-clamp：舞台是固定 1920×1080 畫布、由 Slidev
+> `canvasWidth: 1920` 用 `transform: scale()` 縮放到視窗，畫布內的 `vw` 會對到
+> 視窗寬而非 1920，clamp(vw) 會讓每個標題尺寸跑掉。一律用固定 px（縮放交給
+> transform）。
 
 **鐵則：章節 CSS 一律從這套階挑（`font-size: var(--t-xxx)`），不要自己寫 px。**
 散落的隨意 px（本模板曾出現一份 deck 用到 ~38 種不同 px）是讓階層糊掉、
@@ -217,18 +257,20 @@ pytest / SQLAlchemy / Pydantic，CH1 藍圖就必須先亮相，否則觀眾
 - ✗「不需 migration」→ ✓「加新欄位不用動資料庫」
 - 非常識術語一律加 `<Term>` tooltip
 
-### 6.8 Tooltip 溢出設定
+### 6.9 連結不翻頁 = global-top 的點擊豁免清單
 
-模板預設 `.stage-frame { overflow: hidden }` 會裁掉所有溢出舞台的
-tooltip。**建議改為 `overflow: visible`**，讓 tooltip 可以延伸到
-舞台外圍的留白區域。同時 `.term-tip` 的 `z-index` 要夠高（建議
-9999），確保蓋住所有同層元素。
+點擊推進由 `global-top.vue` 統一處理：只有點在 `#slide-content`（1920×1080
+畫布本體）上才推進，且會**豁免**這些選擇器——
+`button, a, input, textarea, select, [data-no-advance], .v-popper__popper`。
+所以：
 
-### 6.9 連結不翻頁
-
-頁面上的外部連結（如 YouTube demo）必須加 `data-no-advance` 屬性，
-否則點連結會同時觸發翻頁。用 `<a>` 標籤搭配
-`target="_blank" rel="noopener noreferrer" data-no-advance`。
+- 外部連結（YouTube demo 等）用 `<a>` 就自動不翻頁；仍建議
+  `target="_blank" rel="noopener noreferrer"`。
+- 自訂的可互動元素（不在上面清單裡的），自己補 `data-no-advance` 屬性。
+- `Term` 的觸發字與 popper 已內建豁免（`data-no-advance` + `.v-popper__popper`），
+  不必額外處理。
+- presenter / print·export 模式下 global-top 直接 return，不攔點擊（交給
+  Slidev 原生的左右半頁 pointerdown）。
 
 ### 6.10 冗餘檢查
 
@@ -240,29 +282,28 @@ tooltip。**建議改為 `overflow: visible`**，讓 tooltip 可以延伸到
 
 ### 6.11 章節開場 = 段落扉頁（主題當主標，別把主題藏在小眉題）
 
-每章第一步（step 0）是**段落分隔頁**，要讓觀眾一眼知道「現在進到第幾段、
-這段在講什麼」。階層由大到小固定為：
+每章第一張 slide 用 `layout: chapter-open`（`layouts/chapter-open.vue`）：它讀
+frontmatter 的 `chapter`/`eyebrow` 渲染眉題，`#` H1 就是主題大標。這是**段落
+分隔頁**，要讓觀眾一眼知道「現在進到第幾段、這段在講什麼」。階層由大到小：
 
-1. **眉題**（accent 色）：段落軸標記，如 `坑 1` / `第 2 章` / `Part 3`。
-   是報告的骨架，要醒目——用 `--t-h3`（44px，大於 `--t-label`、小於 `--t-h1` 主題大標）。
-2. **主題大標**（最大，`--t-h1`）：這段的**主題名**（如「base 的預設」），
+1. **眉題**（accent 色，`chapter` + `eyebrow`）：段落軸標記，如 `01 · 資料流`。
+   是報告的骨架，要醒目。
+2. **主題大標**（最大，H1）：這段的**主題名**（如「base 的預設」），
    關鍵字包 `.v-em`。這是主角。
 3. **副標 deck**（`--t-lead`，`--text-2` 弱化）：一句生動鉤子/痛點。
 4. （可選）小註 + 該頁內容。
 
-**反例（別做）**：把主題名塞進 `~19px` 小眉題、卻讓一句金句當 96px 主標——
-主副顛倒，觀眾不知道這段叫什麼。**眉題是標籤、主題才是標題。**
+**反例（別做）**：把主題名塞進小眉題、卻讓一句金句當巨大主標——主副顛倒，
+觀眾不知道這段叫什麼。**眉題是標籤、主題才是標題。**
 
 ### 6.12 問題(Q) / 解法(A) 標記（報告骨架是「痛點 → 解法」時必用）
 
 若簡報骨架是「N 個坑 / 痛點，各配一個解法」，**每一步要讓人掃過去就知道
-這拍是問題還是解法**。用共用元件 `src/components/PhaseTag.tsx`：
+這拍是問題還是解法**。用共用元件 `components/PhaseTag.vue`（自動註冊，直接用）：
 
-```tsx
-import { PhaseTag } from "../../components/PhaseTag";
-
-<PhaseTag kind="q">★ 根因</PhaseTag>      {/* 問題：紅實心 ✕ */}
-<PhaseTag kind="a">解法 · 寫進 prompt</PhaseTag>  {/* 解法：橘外框 ✓ */}
+```html
+<PhaseTag kind="q">★ 根因</PhaseTag>            <!-- 問題：紅實心 ✕ -->
+<PhaseTag kind="a">解法 · 寫進 prompt</PhaseTag>  <!-- 解法：橘外框 ✓ -->
 ```
 
 - 問題側（痛點 / 根因 / 後果 / 症狀 / 成本）= `kind="q"`，純背景鋪陳或收尾
@@ -306,7 +347,7 @@ import { PhaseTag } from "../../components/PhaseTag";
   （例如卡片內的 body 說明文字）才適合放心交給自動換行——因為斷點多、
   單一斷點斷壞的風險被稀釋掉了。
 - 寫完之後仍要截圖檢查：換一個舞台縮放比例或字級微調，斷點位置可能跟著
-  移動，尤其是視窗尺寸與 Playwright 截圖預設不同的情況下（見 §6.15 也是
+  移動，尤其是視窗尺寸與 export 截圖預設不同的情況下（見 §6.15 也是
   同類「渲染環境差異」的坑）。
 
 ### 6.15 MaskReveal 的 `clip-path` 動畫會裁掉斜體字尾，加安全緩衝
@@ -334,3 +375,98 @@ italic）時，斜體字母的筆畫會向右傾斜、視覺邊界超出 inline-
 任何靠 `clip-path` 或 `overflow: hidden` 做左右向動畫的容器，只要內容可能是
 斜體或帶連字（ligature）的字型，都該抓一點安全邊界，不要讓終值裁切框完全
 貼齊文字視覺邊界。
+
+### 6.16 `#slide-content` 是 `overflow: visible`——內容要自律待在舞台內
+
+模板刻意把 `#slide-content` 設成 `overflow: visible`（不是 `hidden`），這樣
+`Term` 的 tooltip 才能延伸到舞台邊緣外的留白。代價是：**超大或絕對定位的內容
+會直接溢出 1920×1080 舞台、爬進 letterbox 黑邊**，dev 模式下常看不出來（視窗剛好
+夠大），但 `npm run export` 出來的 PNG 會把違規現形。所以構圖時要主動守住舞台
+邊界，別依賴容器裁切——這是為了 tooltip 換來的 tradeoff，不是 bug。
+
+### 6.17 `chapterTitle` + `chapter` 全 deck 必須唯一
+
+進度條（`global-bottom.vue`）用每章的 `chapterTitle`+`chapter` 當 Vue `:key`。
+兩章給了相同的 `chapterTitle`+`chapter` 值 → `:key` 撞在一起 → 進度條膠囊
+渲染錯亂。章節把手（handle）務必各章唯一；完整描述性標題放該頁自己的主標，
+把手只要短而不撞（見 OUTLINE §1.3）。
+
+### 6.18 `slidev export` 需要 playwright chromium
+
+export 走 headless chromium。全新機器若 `playwright-chromium` 的 postinstall
+沒跑到（例如快取缺失），`npm run export` 會報找不到瀏覽器執行檔。修法：手動
+`npx playwright install chromium` 後重試。
+
+### 6.19 藏在 `v-click` 後的內容 hover 不到——Term 要放靜態區
+
+Slidev 未揭示的 `v-click` 內容是 `pointer-events: none`（`.slidev-vclick-hidden`）。
+含 `<Term>` 的元素若還在「尚未揭示的拍」裡，就 hover 不到，`snap-sweep` 會誤報
+`no-box`。做法：把帶 Term 的內容放在該頁**靜態**部分（不包 v-click），或確保
+sweep 時該拍已揭示（`SNAP_STEPS_JSON` 的 clicks 數要涵蓋到）。見 example 章節
+slide 6（全靜態）與 slide 11（只把不含 Term 的區塊設 v-click）的處理理由。
+
+### 6.20 `FloatingVue` 由 Slidev 預裝——絕不再 `app.use`
+
+Slidev 內部（shiki twoslash）已 `app.use(FloatingVue)`；Vue 的 `app.use` 用物件
+身分去重，`setup/main.ts` 再 `app.use(FloatingVue, …)` 會被**靜默去重、完全不
+生效**——自訂 `term` 主題從未註冊，`<VTooltip theme="term">` mount 時丟
+`TypeError`，還會打斷整個 SPA 的 reactivity flush（相鄰頁的 `<v-clicks>` 一起掛）。
+**正解：直接 mutate 已裝實例的設定** `FloatingVue.options.themes.term = {…}`
+（模板 `setup/main.ts` 已這樣做），不要呼叫 `app.use`。
+
+### 6.21 升級 Slidev 要重新核對 `shims-slidev-client.d.ts`
+
+`@slidev/client` 以原始 `.ts` 發佈，一 import 就把整包原始碼拉進 vue-tsc 檢查
+範圍、在本專案 flags 下必炸；模板用 tsconfig `paths` 指到手寫的
+`shims-slidev-client.d.ts` 替身隔離。這份替身只鏡射用到的 API 面（`useNav` /
+`useSlideContext` 等），**逐欄對照 v52.17.0 原始碼核實**。升級 Slidev 時型別可能
+悄悄漂移（stub 不會自己更新），務必重新核對簽名再信任 typecheck 的綠燈。
+
+### 6.22 `lint-notes` 的 slide 切分只認 ``` 圍欄，不認 ~~~ / 縮排圍欄
+
+`lint-notes.mjs` 會把 ` ``` ` 圍欄內的內容中和掉，避免裡面的裸 `---` 被誤判成
+slide 分隔線。但它**不認** `~~~` 圍欄或縮排式 code block——這些奇葩圍欄裡若出現
+裸 `---` 行，會被切出不存在的假 slide、報缺 notes。避免在章節 md 的 `~~~`/縮排
+圍欄裡放裸 `---`（它會 fail loud，不是靜默出錯，看到假 slide 報錯先想到這條）。
+
+### 6.23 樣式層疊靠「載入順序」贏過 UnoCSS preflight，不是靠 specificity
+
+Slidev 用 UnoCSS，其 preflight 會對 `h1`/`p`/`blockquote`… 套 `margin:0` 等 reset。
+模板的 CSS 能贏，是因為 `styles/index.ts` 的自動載入順序**晚於** UnoCSS preflight，
+**不是靠 specificity**。所以：**永遠不要重排 `styles/index.ts` 的 import 順序**，
+`base.css` 也必須自帶完整 reset（別假設「沒設就是瀏覽器預設」）。動過主題或樣式
+後，用 THEMES.md 的「grep 建出來的 css」方法驗證順序仍正確。
+
+## 7. Slidev 慣例速查
+
+模板已把 Slidev 接成 paper-grid 的樣子，日常寫章節只會用到這幾組慣例：
+
+### clicks 系統（逐步揭示的核心）
+
+| 寫法 | 作用 |
+|---|---|
+| `<v-click>…</v-click>` | 包一段內容，成為「下一拍才出現」的一個 beat |
+| `<v-clicks><li>…</li>…</v-clicks>` | 包一個清單，每個子項各佔一拍逐項揭示 |
+| `<div v-click="2">` / `v-click.at="2"` | 指定在第 2 拍出現（絕對）；`v-click="'+1'"` 相對前一拍 |
+| `<div v-click.hide="3">` | 反向：第 3 拍時**隱藏** |
+| `$clicks` | 當前 click 數（可寫在模板表達式裡，如 `:class="{ on: $clicks >= 2 }"`） |
+
+一頁的「拍數」= 該頁所有 v-click beat 的總數；notes 裡的 `[click]` 標記數要對齊它。
+
+### 常用 frontmatter 欄位
+
+| 欄位 | 位置 | 作用 |
+|---|---|---|
+| `theme: none` / `canvasWidth: 1920` / `aspectRatio: 16/9` / `colorSchema: light` | headmatter（`slides.md` 第一段） | 全 deck 設定，已設好勿動 |
+| `layout` | 每頁 | `chapter-open`（扉頁）/ `canvas`（自由畫布，掛 `.stage-frame`）/ `default` |
+| `chapter` / `chapterTitle` / `eyebrow` | 章首頁 | 進度條與扉頁資料源（見 §2、§6.17） |
+| `src: ./chapters/0N-x.md` | `slides.md` 分隔區塊 | 掛入外部章節檔 |
+
+### presenter / export
+
+- **presenter mode**：`http://localhost:3030/presenter`——講者視窗，notes 會隨 click
+  高亮對應段落（`[click]` 標記讓 notes 逐拍走）。
+- **`?clicks=N` URL**：直達某頁某拍，如 `/4?clicks=2`（第 4 頁、揭示到第 2 拍）。
+  snap 腳本就是靠這個驅動，不需鍵盤模擬。
+- **export**：`npm run export`（PNG，每頁每拍一張 → `snaps/`）、`npm run export-pdf`
+  （單一 PDF）。兩者都走 playwright chromium（見 §6.18）。

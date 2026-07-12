@@ -15,20 +15,21 @@ description: Use when asked to make a slide deck / presentation / 簡報 / slide
    點頭後才往下走——不要跳過這步直接展開成長文件，事後修正成本高很多。
 2. **內容流程**：`article.md`（素材/出處）→ `references/SCRIPT.md`（寫稿心法 +
    對抗式 critic 迴圈，收斂出 `script.md`）→ `references/OUTLINE.md`（敘事職責
-   切章、SRT-informed 切 step，產出各章 `narrations.ts`）→ 停下來給用戶
-   checkpoint 對齊（標題／稿子／outline／素材／開發模式）→ 逐章開發（GUIDE
-   §1 起，本 skill 自足，不依賴任何外部 plugin）。
+   切章、SRT-informed 切 step，寫進各章 md 的 per-slide notes，`[click]` 對齊
+   拍點）→ 停下來給用戶 checkpoint 對齊（標題／稿子／outline／素材／開發模式）
+   → 逐章開發（GUIDE §1 起，本 skill 自足，不依賴任何外部 plugin）。
 3. **讀完整手冊**：`references/GUIDE.md` —— 章節鐵則、Term tooltip 規範、
    驗證腳本，全部在那裡。
-4. **起專案**：複製 `template/presentation/` 到新 repo（GUIDE §1），
-   `npm install && npm run dev`。不要重新 scaffold、不要改 `styles/`。
+4. **起專案**：`cp -r template/presentation <新專案>/presentation` → `npm install`
+   →（換主題才需要）`bash scripts/scaffold.sh . --theme=<id>` → `npm run dev`
+   （Slidev dev server，port 3030）。細節見 GUIDE §1；不要改 `styles/`（cascade
+   契約）。做真實內容前刪掉示範章節：`chapters/01-example.md`、
+   `components/ExampleTitle.vue`、`styles/example.css`，並拿掉 `styles/index.ts`
+   的 `import "./example.css";` 與 `slides.md` 指向它的 `src` 區塊。
 5. **參考範例**：`example/`（去識別化的實作章節，示範全部慣例，卡住時去翻）。
-6. **音頻**（可選，全部章節完成後）：`npm run extract-narrations` →
-   `npm run synthesize-audio`。本 skill 建議把 `edge-tts` 當預設 provider
-   （免費、免 API key）：`PRESENTATION_TTS=edge npm run synthesize-audio`
-   或 `npm run synthesize-audio -- --provider=edge`；`OUTLINE.md` §3 的
-   SRT-informed 切 step 也是靠 `scripts/script-to-srt.sh`（同樣預設
-   edge-tts）先產字幕時間戳。
+6. **音頻／影片產線於 phase 2 重建**：React 版的逐步音頻合成與 SRT 字幕產生
+   尚未移植到 Slidev 棧，對應 `npm` scripts 未掛。per-slide notes 已是口播稿
+   真相源，重建產線時直接餵它即可。
 
 ## 硬性提醒
 
@@ -37,6 +38,7 @@ description: Use when asked to make a slide deck / presentation / 簡報 / slide
   body ≥26px、label/pill/眉題 ≥22px。章節開場用「段落編號眉題 + 主題大標」。
   痛點→解法型簡報用 `PhaseTag`（問題✕/解法✓）。詳見 GUIDE §6.1/6.11/6.12。
 - 畫面上每個數字都要有 `article.md` 出處，禁捏造；引言原文須逐字查證。
-- 非常識縮寫與查證過的原文一律加 `<Term>` hover tooltip；靠舞台邊緣記得
-  `align="start"/"end"`，完成後跑 `snap-sweep.mjs` 要 ALL TOOLTIPS OK。
-- 第 1 章先做完給使用者驗收再繼續；每章完成跑 `tsc --noEmit` + 逐步截圖目測。
+- 非常識縮寫與查證過的原文一律加 `<Term>` hover tooltip（floating-vue 自動避邊，
+  不需再手動設 `pos`/`align`）；完成後跑 `npm run snap-sweep` 要 ALL TOOLTIPS OK。
+- 第 1 章先做完給使用者驗收再繼續；每章完成跑 `npm run typecheck` +
+  `npm run export` 逐頁逐拍截圖目測 + `npm run lint-notes`。
