@@ -1,0 +1,114 @@
+/* 示範用，做真實內容時整檔刪除並從 styles/index.ts 移除。 */
+
+/* ── 示範章節 — prefix .ex-（每章自己一個前綴，物理隔離）──────────── */
+
+.ex-scene {
+  position: absolute;
+  inset: 0;
+}
+.ex-center {
+  display: grid;
+  place-items: center;
+}
+.ex-pad {
+  display: flex;
+  flex-direction: column;
+  gap: 48px;
+  padding: 95px 130px 75px;
+  position: relative;
+}
+
+/* v-em 上色只在 .v-serif-bold 內生效，章節內其他位置自己補 */
+.ex-scene .v-em {
+  color: var(--accent);
+}
+
+.ex-title-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 44px;
+}
+.ex-pill {
+  /* position+z-index (not just the animation) makes this its own stacking
+     context explicitly, so the nested <Term> tooltip's z-index:9999 can
+     actually win against later siblings like .ex-h — an element with a
+     running/filled CSS animation on opacity/transform becomes a stacking
+     context too, but relies on browser-internal compositing rather than an
+     explicit z-index, so it doesn't out-rank a later same-level sibling
+     that has no position/z-index of its own (paint order falls back to
+     DOM order in that case, which put .ex-h on top). */
+  position: relative;
+  z-index: 1;
+}
+.ex-h {
+  margin: 0;
+  font-size: 110px;
+  line-height: 1.08;
+}
+.ex-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 30px 44px;
+}
+.ex-card-k {
+  font-size: 16px;
+  color: var(--accent);
+}
+.ex-card-num {
+  font-size: 92px;
+  line-height: 1;
+  color: var(--text);
+}
+.ex-card-d {
+  font-size: 21px;
+  color: var(--text-2);
+}
+
+.ex-head {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 22px;
+}
+.ex-h2 {
+  margin: 0;
+  font-size: 72px;
+  line-height: 1.1;
+}
+.ex-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 26px;
+}
+.ex-item {
+  display: flex;
+  align-items: baseline;
+  gap: 22px;
+  font-family: var(--font-display-cn);
+  font-size: 38px;
+  font-weight: 700;
+  color: var(--text);
+  transition: opacity 500ms ease, transform 500ms ease;
+}
+/* v-click 銜接：隱藏態下沉、顯示態升起（取代原 animationDelay 節拍） */
+.ex-item.slidev-vclick-hidden {
+  opacity: 0;
+  transform: translateY(14px);
+}
+.ex-item-idx {
+  font-size: 20px;
+  color: var(--accent);
+}
+.ex-src {
+  position: absolute;
+  bottom: 38px;
+  right: 130px;
+  font-size: 16px;
+  color: var(--text-faint);
+}

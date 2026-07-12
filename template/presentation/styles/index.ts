@@ -7,5 +7,7 @@ import "./base.css";
 import "./term.css";
 import "./phase-tag.css";
 import "./progress-bar.css";
+// 示範章節專用樣式：做真實內容時整行刪除（連同 styles/example.css 一併刪）。
+import "./example.css";
 import "./animations.css";
 import "./extras.css";
