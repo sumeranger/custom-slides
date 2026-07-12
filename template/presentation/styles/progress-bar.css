@@ -9,7 +9,11 @@
   left: 50%;
   bottom: 16px;
   transform: translateX(-50%);
-  width: var(--stage-w, auto);
+  /* fallback 用 100%（= viewport 寬度，會被 max-width 收斂）而非 auto——
+     這是 fixed 定位、只給了 left 沒給 right 的盒子，auto 會走
+     shrink-to-fit 演算法，對內部 flex:1 1 0 的 pill 群幾乎必然算出
+     趨近 0 的寬度（就是本檔案要修的「細線」bug 本身）。 */
+  width: var(--stage-w, 100%);
   max-width: calc(100vw - 32px);
   z-index: 10;
   pointer-events: none;

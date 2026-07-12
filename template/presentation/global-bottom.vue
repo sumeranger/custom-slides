@@ -44,13 +44,27 @@ onMounted(() => {
   ro = new ResizeObserver(() => (stageW.value = el.clientWidth));
   ro.observe(el);
   stageW.value = el.clientWidth;
+  // 保險重試：mount 當下量到 0（尚未 layout 完成）就再等一輪 rAF 補量，
+  // 讓 export 截圖有機會拿到真實寬度；量不到也無妨，CSS fallback 兜底。
+  if (!stageW.value) {
+    requestAnimationFrame(() => (stageW.value = el.clientWidth));
+  }
 });
 onUnmounted(() => ro?.disconnect());
 
-const barStyle = computed(() => ({
-  "--stage-w": `${stageW.value}px`,
-  "--pb-grid": `${(48 * stageW.value) / 1920}px`,
-}));
+// stageW 尚未量到（例如 slidev export 截圖搶在 ResizeObserver 首次觸發前
+// 執行）時是 0——這種情況下絕不能送出 --stage-w: 0px 把 bar 壓成細線，
+// 改成整組變數都不設，讓 CSS 端 var(--stage-w, 100%) 的 fallback 頂住
+// （見 progress-bar.css），bar 仍佔滿舞台寬度。真的量到值時（含 dev 全部
+// 情境）行為與原本一致，--pb-grid 的格線比例也不受影響。
+const barStyle = computed(() =>
+  stageW.value
+    ? {
+        "--stage-w": `${stageW.value}px`,
+        "--pb-grid": `${(48 * stageW.value) / 1920}px`,
+      }
+    : {},
+);
 
 const activeRef = ref<HTMLElement[]>([]);
 watch(activeGroup, () =>
