@@ -500,6 +500,18 @@ headmatter 開了頁面轉場（如 `transition: fade`）之後，`npm run expor
 npx slidev export --wait 1200
 ```
 
+### 6.29 export 出現「內容擠進單一象限」時，帶 `--scale 1`
+
+首份實戰 deck（dbx-slides-v2，Slidev v52.17）實測：`slidev export` 在某些
+deck 組合下（該 deck 有 `transition:` + `canvasWidth: 1920`）以預設 scale
+匯出會把整頁內容擠進畫面的一個象限、其餘留黑，全數頁面壞版。帶
+`--scale 1` 即恢復正常。模板 demo 章節未重現此問題，成因尚未定位——
+所以不動 `npm run export` 的預設；規則是**看到象限擠壓就加 `--scale 1`**：
+
+```bash
+npx slidev export --scale 1 --wait 1200
+```
+
 ## 7. Slidev 慣例速查
 
 模板已把 Slidev 接成 paper-grid 的樣子，日常寫章節只會用到這幾組慣例：
