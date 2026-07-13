@@ -512,6 +512,53 @@ deck 組合下（該 deck 有 `transition:` + `canvasWidth: 1920`）以預設 sc
 npx slidev export --scale 1 --wait 1200
 ```
 
+### 6.30 深色主題必須 `colorSchema: dark`——否則 Slidev chrome 白底白 icon
+
+`colorSchema` 是 Slidev headmatter（per-deck），主題檔只帶 CSS，兩者互不相通。
+深色主題（`dbx-style` / `midnight-press`，`theme.json` 的 `mood` 含 `dark`）若
+沿用 paper-grid base 的 `colorSchema: light`，Slidev 內建 chrome（左下工具列、
+overview 總覽、goto 框、presenter）會用**淺色變體＝白底**；而工具列 icon 用
+`currentColor`、繼承深色舞台的近白文字色——**白 icon 疊白底幾乎全隱形**（只有
+「啟用中」狀態的 icon 因有明確高亮色而看得到）。首份實戰 deck（dbx-slides-v2）
+就是這樣中招的。
+
+- **修法**：深色 deck 的 headmatter 設 `colorSchema: dark`。
+- **已自動化**：`scripts/scaffold.sh` 套用主題時，會依 `theme.json` 的
+  `colorSchema` 欄位自動 patch `slides.md` 的 `colorSchema:` 行（light 主題→light、
+  dark 主題→dark）。用 scaffold 換主題就不必手動改；只有手刻 headmatter 或
+  自訂主題漏填 `theme.json.colorSchema` 時要自己留意。
+- **與 §6.27 的關係**：翻 `colorSchema` 也會牽動 shiki 選主題——深色 deck 的 code
+  窗請照 §6.27 用單一字串主題（如 `github-dark`）固定，不受 `colorSchema` 影響。
+
+### 6.31 Slidev 原生導覽列與章節進度條在左下角重疊——base 已把工具列上抬
+
+Slidev 的 dev/放映工具列固定在 `#slide-container` 左下角；章節進度條
+（`global-bottom.vue` 的 `.pb-hover`）橫跨舞台底部、`z-index: 10`。兩者在左下角
+**實體重疊**，章節列膠囊 z-index 較高，會蓋住工具列最左那幾顆（全螢幕/翻頁）
+吃掉點擊。`progress-bar.css`（base）已用 `:has()` 結構選擇器把工具列整條抬到
+章節列正上方（`bottom: 88px`），兩者不再重疊、皆可點；不動 z-index 免反過來蓋
+住膠囊。此規則 theme-agnostic，放 base（非 per-theme 的 `extras.css`）。工具列
+僅 hover 浮現、且不進 export 產出，純現場操作用。
+
+### 6.32 舞台底部覆蓋層在 `#slide-content` 縮放層內——量寬度要用畫布單位，不要量視窗
+
+**這是 `.pb-hover` 章節列寬度 bug 的通則。** `#slide-content` 帶
+`transform: scale(--slidev-slide-scale)`，把 16:9 畫布縮放進視窗；任何掛在它
+**之內**的 `position: fixed` 覆蓋層（章節列就是），其 containing block 會變成這個
+縮放層、座標與寬度單位都是**畫布（`canvasWidth` 1920）**，且整個元素會**被一起
+縮放**。所以：
+
+- `width: 100%` = 畫布寬 1920 → 被父層自動縮到螢幕實寬、**永遠貼齊內容**，任何
+  視窗比例皆然，**無需 JS 量測**。
+- **反例（舊 bug）**：用 `ResizeObserver` 量 `#slide-container`（= 未縮放的
+  viewport）餵給 `--stage-w`，等於在縮放座標系內又乘一次視窗寬——非 16:9 視窗
+  下 bar 就比內容寬。同理 `max-width: 100vw` 也錯（`vw` 永遠是視窗、不隨縮放）。
+- **驗證**：非 16:9 視窗下開 dev，量 `.pb-hover` 與 `#slide-content` 的
+  `getBoundingClientRect()` 左右緣應完全一致。
+
+要新增類似的舞台底部/角落覆蓋層時，記得：尺寸用畫布 px（1920 座標系）表達，
+別去量 viewport。
+
 ## 7. Slidev 慣例速查
 
 模板已把 Slidev 接成 paper-grid 的樣子，日常寫章節只會用到這幾組慣例：
@@ -538,7 +585,8 @@ npx slidev export --scale 1 --wait 1200
 
 | 欄位 | 位置 | 作用 |
 |---|---|---|
-| `theme: none` / `canvasWidth: 1920` / `aspectRatio: 16/9` / `colorSchema: light` | headmatter（`slides.md` 第一段） | 全 deck 設定，已設好勿動 |
+| `theme: none` / `canvasWidth: 1920` / `aspectRatio: 16/9` | headmatter（`slides.md` 第一段） | 全 deck 設定，已設好勿動 |
+| `colorSchema` | headmatter | 淺色主題 `light`、深色主題 `dark`（scaffold 換主題時自動 patch，見 §6.30）。手刻 headmatter 時：深色 deck 一定要 `dark`，否則 Slidev chrome 白底白 icon |
 | `layout` | 每頁 | `chapter-open`（扉頁）/ `canvas`（自由畫布，掛 `.stage-frame`）/ `default` |
 | `chapter` / `chapterTitle` / `eyebrow` | 章首頁 | 進度條與扉頁資料源（見 §2、§6.17） |
 | `src: ./chapters/0N-x.md` | `slides.md` 分隔區塊 | 掛入外部章節檔 |

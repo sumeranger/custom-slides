@@ -121,7 +121,9 @@ cp -r <skill-root>/template/presentation <新專案>/presentation
 bash <skill-root>/scripts/scaffold.sh <新專案>/presentation --theme=dbx-style
 ```
 
-之後切換主題 = 重跑上面第 2 步（會覆蓋 `tokens.css`/`extras.css`/`.theme`）。
+之後切換主題 = 重跑上面第 2 步（會覆蓋 `tokens.css`/`extras.css`/`.theme`，並依
+`theme.json` 的 `colorSchema` 欄位 patch `slides.md` headmatter 的 `colorSchema:`
+——深色主題自動設 `dark`，免得 Slidev 內建工具列白底白 icon，見 GUIDE §6.30）。
 刷新 dev server，完成，章節程式碼一行沒動。
 
 如果切換後某章節看起來有問題，那是該章節在某處硬編碼了顏色/字體/尺寸，

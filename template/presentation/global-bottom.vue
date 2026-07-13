@@ -2,9 +2,15 @@
 /**
  * 章節 pill 進度條（react 版 ProgressBar 的 Slidev 移植）。
  * 資料來源：slides 的 frontmatter（chapter / chapterTitle 慣例見 OUTLINE.md §1.3）。
- * 寬度對齊舞台：ResizeObserver 量 #slide-container 實寬（取代 useStageScale）。
+ * 寬度對齊舞台：無需 JS 量測。.pb-hover 掛在 Slidev 的 #slide-content
+ * （帶 transform: scale 的縮放層）之內，其 containing block 就是畫布
+ * （canvasWidth 1920），故 CSS 端 width: 100% 直接 = 畫布寬，再由父層的
+ * --slidev-slide-scale 自動縮到螢幕實寬、永遠貼齊內容（見 progress-bar.css）。
+ * 舊版曾用 ResizeObserver 量 #slide-container（= viewport）餵 --stage-w，
+ * 那是把「已在縮放座標系內」的盒子又乘了一次視窗寬 → 非 16:9 視窗下 bar
+ * 比內容寬。已移除；export 本來就靠這個 100% fallback，兩路統一。
  */
-import { computed, onMounted, onUnmounted, ref, watch, nextTick } from "vue";
+import { computed, ref, watch, nextTick } from "vue";
 import { useNav, useSlideContext } from "@slidev/client";
 
 const nav = useNav();
@@ -50,43 +56,6 @@ const activeGroup = computed(() =>
   groups.value.findIndex((g) => g.pages.includes($nav.value.currentPage)),
 );
 
-// 舞台實寬 → pill bar 寬度與格線尺寸
-const stageW = ref(0);
-let ro: ResizeObserver | null = null;
-let rafId: number | null = null;
-onMounted(() => {
-  const el = document.getElementById("slide-container");
-  if (!el) return;
-  ro = new ResizeObserver(() => (stageW.value = el.clientWidth));
-  ro.observe(el);
-  stageW.value = el.clientWidth;
-  // 保險重試：mount 當下量到 0（尚未 layout 完成）就再等一輪 rAF 補量，
-  // 讓 export 截圖有機會拿到真實寬度；量不到也無妨，CSS fallback 兜底。
-  if (!stageW.value) {
-    rafId = requestAnimationFrame(() => (stageW.value = el.clientWidth));
-  }
-});
-onUnmounted(() => {
-  ro?.disconnect();
-  // 一次性 rAF：元件若在 callback 觸發前就卸載（例如 export 快速換頁），
-  // 要取消排定的 callback，避免卸載後才對已丟棄的 ref 賦值。
-  if (rafId !== null) cancelAnimationFrame(rafId);
-});
-
-// stageW 尚未量到（例如 slidev export 截圖搶在 ResizeObserver 首次觸發前
-// 執行）時是 0——這種情況下絕不能送出 --stage-w: 0px 把 bar 壓成細線，
-// 改成整組變數都不設，讓 CSS 端 var(--stage-w, 100%) 的 fallback 頂住
-// （見 progress-bar.css），bar 仍佔滿舞台寬度。真的量到值時（含 dev 全部
-// 情境）行為與原本一致，--pb-grid 的格線比例也不受影響。
-const barStyle = computed(() =>
-  stageW.value
-    ? {
-        "--stage-w": `${stageW.value}px`,
-        "--pb-grid": `${(48 * stageW.value) / 1920}px`,
-      }
-    : {},
-);
-
 const activeRef = ref<HTMLElement[]>([]);
 watch(activeGroup, () =>
   nextTick(() =>
@@ -100,7 +69,7 @@ watch(activeGroup, () =>
 </script>
 
 <template>
-  <div v-if="groups.length" class="pb-hover" :style="barStyle" data-no-advance>
+  <div v-if="groups.length" class="pb-hover" data-no-advance>
     <div class="pb-chapters">
       <button
         v-for="(g, i) in groups"

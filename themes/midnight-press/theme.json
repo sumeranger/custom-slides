@@ -5,6 +5,7 @@
   "description": "Cinematic editorial dark. Warm espresso, not pure black, single hot-orange accent.",
   "descriptionZh": "電影感編輯級深色，暖色 espresso 底、單一火熱橙 accent。此 skill 的舊主題，保留原樣不修改視覺。",
   "mood": ["dark", "editorial", "cinematic", "warm"],
+  "colorSchema": "dark",
   "bestFor": ["備用舊主題（此 skill 目前實際使用與驗收的是 paper-grid）"],
   "preview": {
     "shell": "#0d0b09",

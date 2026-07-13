@@ -1,22 +1,39 @@
 /* 章節 pill 進度條（global-bottom.vue）。react 版 ProgressBar.css 移植——
    原版用 --stage-half-h（useStageScale 內聯）把 footer 錨定在舞台卡片的
-   下緣、微幅重疊圓角接成一體。Slidev 版無等效的「舞台半高」內聯變數，
-   改為單純釘在 viewport 下緣（fixed + bottom），寬度仍以 --stage-w
-   （global-bottom.vue 用 ResizeObserver 量 #slide-container 實寬）對齊
-   舞台，並置中。其餘視覺宣告照抄舊版。 */
+   下緣、微幅重疊圓角接成一體。Slidev 版改為 fixed + bottom 釘在舞台下緣。
+   關鍵：.pb-hover 位在 Slidev 的 #slide-content（transform: scale 縮放層）
+   之內，其 position:fixed 的 containing block 因而是那個縮放層、寬度單位
+   也是畫布（canvasWidth 1920）——所以 width:100% 直接 = 畫布寬，再被父層
+   自動縮到螢幕實寬、永遠貼齊內容，任何視窗比例皆然，無需 JS 量測。
+   其餘視覺宣告照抄舊版。 */
 .pb-hover {
   position: fixed;
   left: 50%;
   bottom: 16px;
   transform: translateX(-50%);
-  /* fallback 用 100%（= viewport 寬度，會被 max-width 收斂）而非 auto——
-     這是 fixed 定位、只給了 left 沒給 right 的盒子，auto 會走
-     shrink-to-fit 演算法，對內部 flex:1 1 0 的 pill 群幾乎必然算出
-     趨近 0 的寬度（就是本檔案要修的「細線」bug 本身）。 */
-  width: var(--stage-w, 100%);
-  max-width: calc(100vw - 32px);
+  /* width:100% = containing block(#slide-content) 寬 = 畫布 1920（非視窗！）。
+     用顯式 100% 而非 auto——auto 對只給 left 的 fixed 盒子會走 shrink-to-fit，
+     對內部 flex:1 1 0 的 pill 群算出趨近 0 的寬度（舊版的「細線」bug）。
+     不設 max-width：width 已等於 containing block 寬，本就無從溢出；舊版的
+     max-width: calc(100vw-32px) 是誤把單位當視窗（100vw 在縮放層裡也錯），
+     故移除。 */
+  width: 100%;
   z-index: 10;
   pointer-events: none;
+}
+
+/* Slidev 原生 dev/放映導覽列（左下角 icon 工具列）與本章節列在左下角
+   實體重疊——章節列膠囊 z-index 較高（見上 z-index:10），會蓋住工具列
+   最左那幾顆（全螢幕/翻頁）吃掉點擊。把工具列整條抬到章節列正上方
+   （bottom 88px ≈ 章節列頂緣 78px + 約 10px 空隙；章節列 bottom:16px、
+   高約 62px，各 theme 一致因 pill padding/字級都在本 base 檔），兩者不再
+   重疊、皆可點；不動 z-index，避免反過來蓋住膠囊。此規則 theme-agnostic，
+   故放 base（非 per-theme 的 extras.css）。
+   選擇器：Slidev 這條外框無穩定 class（只有 UnoCSS 工具類），用 :has()
+   結構鉤「#slide-container 底下、含 .slidev-icon-btn 的那層 nav 外框」。
+   工具列僅 hover 浮現、且不進 export 產出，純現場操作用。 */
+#slide-container > div:has(> nav .slidev-icon-btn) {
+  bottom: 88px !important;
 }
 
 /* 條帶 = 與舞台同寬 + 同紙面，讀作卡片的 footer，而非獨立浮動面板 */

@@ -12,8 +12,11 @@
 #   bash <skill-root>/scripts/scaffold.sh ./dbx-talk --theme=dbx-style
 #
 # Copies themes/<id>/tokens.css + themes/<id>/extras.css into
-# <target>/styles/, and writes <target>/.theme so later sessions
-# can tell which theme a project started from.
+# <target>/styles/, writes <target>/.theme so later sessions can tell
+# which theme a project started from, and patches <target>/slides.md
+# headmatter's `colorSchema:` to match the theme's "colorSchema" field
+# (light theme → light, dark theme → dark) so dark decks don't ship with
+# a light-mode white nav toolbar (field lesson, GUIDE §6.30).
 #
 # Default theme (no --theme flag): paper-grid — the only theme this
 # skill actively develops decks against today. midnight-press and
@@ -92,6 +95,32 @@ fi
 
 echo "$THEME" > "$TARGET/.theme"
 
+# ── colorSchema：依 theme.json 的 "colorSchema" 欄位 patch slides.md headmatter。
+# 為何：colorSchema 是 Slidev headmatter（per-deck），theme 只帶 CSS。深色 theme
+# 若沿用 light，Slidev 內建工具列/overview 等 chrome 會白底、又繼承深色舞台的
+# 淺文字色 → 白疊白幾乎全隱形（field lesson，見 GUIDE §6.30）。故套主題時一併
+# 把 headmatter 的 colorSchema 對齊 theme（light 主題設 light、dark 主題設 dark）。
+# theme.json 沒有此欄位（自訂主題可能漏填）就跳過、保留原值並提示。
+SCHEMA_PATCHED=""
+if [[ -f "$THEME_DIR/theme.json" && -f "$TARGET/slides.md" ]]; then
+  COLOR_SCHEMA=$(grep -E '"colorSchema"' "$THEME_DIR/theme.json" | head -n1 \
+    | sed -E 's/.*"colorSchema":[[:space:]]*"([^"]+)".*/\1/' || true)
+  if [[ -n "$COLOR_SCHEMA" ]] && grep -qE '^colorSchema:' "$TARGET/slides.md"; then
+    tmp=$(mktemp)
+    sed -E "s/^colorSchema:.*/colorSchema: ${COLOR_SCHEMA}/" "$TARGET/slides.md" > "$tmp" \
+      && mv "$tmp" "$TARGET/slides.md"
+    SCHEMA_PATCHED="$COLOR_SCHEMA"
+  elif [[ -z "$COLOR_SCHEMA" ]]; then
+    echo "⚠ theme '$THEME' 的 theme.json 沒有 colorSchema 欄位，未動 slides.md 的" >&2
+    echo "  colorSchema——深色主題請自行確認 headmatter 是 dark（見 GUIDE §6.30）。" >&2
+  fi
+fi
+
 echo "✓ 已套用主題：$THEME"
-echo "  改了 $TARGET/styles/tokens.css、$TARGET/styles/extras.css、$TARGET/.theme"
+if [[ -n "$SCHEMA_PATCHED" ]]; then
+  echo "  改了 $TARGET/styles/tokens.css、$TARGET/styles/extras.css、$TARGET/.theme"
+  echo "  headmatter colorSchema → ${SCHEMA_PATCHED}（依 theme.json，見 slides.md）"
+else
+  echo "  改了 $TARGET/styles/tokens.css、$TARGET/styles/extras.css、$TARGET/.theme"
+fi
 echo "  重新整理 dev server 即可看到效果，章節程式碼一行沒動。"
