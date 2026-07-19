@@ -1,0 +1,74 @@
+/* ─────────────────────────────────────────────────────────────────────
+ * Theme · modern-minimal
+ *   White-based editorial minimalism, built to the `minimalist-ui`
+ *   protocol: warm monochrome ground, muted pastel spot-accents used
+ *   sparingly (the 畫龍點睛), sans headlines, hairline rules, near-zero
+ *   shadows, generous whitespace, quiet micro-motion.
+ *
+ *   character knobs:
+ *     • headlines      — geometric sans (Manrope), heavy weight 800
+ *     • hero numbers   — sans, upright (NOT italic), 800, tight track
+ *     • rule           — 1px solid hairline
+ *     • card           — crisp 12px radius, near-zero diffuse shadow
+ *     • surface        — clean white, only a whisper of vignette
+ *     • motion         — base defaults (subtle/crisp fits minimalism)
+ *
+ *   Selector-level overrides: NONE needed (like dbx-style) — every effect
+ *   is expressed through tokens consumed by base.css primitives. The
+ *   personality knobs that base.css's own :root redeclares as defaults
+ *   (--r-card / --rule-w / --rule-style / --hero-num-* / --stage-pad-x/-y
+ *   / --shadow-stage) live in extras.css's :root instead (loads AFTER
+ *   base.css so it wins) — see extras.css and THEMES.md.
+ * ───────────────────────────────────────────────────────────────────── */
+:root {
+  /* ─── palette: warm-white editorial minimal ─── */
+  --shell:        #EBEAE5;             /* letterbox — warm light gray so the white stage floats */
+  --surface:      #FFFFFF;             /* the stage */
+  --surface-2:    #F9F9F8;             /* raised cards */
+  --surface-3:    #F3F2EF;             /* inset */
+  --text:         #2F3437;             /* warm charcoal — headings & primary (never pure black) */
+  --text-2:       #57534C;             /* secondary / body */
+  --text-mute:    #787774;             /* labels / meta */
+  --text-faint:   #A5A29B;             /* hints / disabled */
+  --rule:         #EAEAEA;             /* hairline */
+  --accent:       #1F6C9F;             /* single restrained lead accent (muted blue) */
+  --accent-soft:  rgba(31, 108, 159, 0.10);
+  --accent-glow:  rgba(31, 108, 159, 0.26);
+
+  /* ─── fonts: sans headline + humanist sans body + mono ─── */
+  --font-display-cn: "Noto Sans TC", "Noto Sans SC", "PingFang TC", "Microsoft JhengHei", sans-serif;
+  --font-display-en: "Manrope", "Switzer", "Inter", system-ui, -apple-system, sans-serif;
+  --font-body:       "Manrope", "Noto Sans TC", "PingFang TC", system-ui, -apple-system, sans-serif;
+  --font-mono:       "JetBrains Mono", "IBM Plex Mono", ui-monospace, "SF Mono", monospace;
+  --font-features:   "tnum", "ss01";
+  /* .v-serif-bold headline weight — heavy sans. Safe in tokens.css: base.css
+   * consumes it as var(--headline-weight,800) with NO :root default of its
+   * own, so this value wins (same class as --font-features). */
+  --headline-weight: 800;
+
+  /* ─── semantic / categorical spot-colours — the 畫龍點睛 ───
+   * NOT a second brand accent: muted pastels for status & candidate
+   * coding only (dark fg on pale bg). Icons/tags consume these via
+   * currentColor / var() so chapters never hardcode a hex. Extra tokens
+   * beyond the base contract — safe, no :root collision. */
+  --sem-blue:  #1F6C9F;  --sem-blue-bg:  #E1F3FE;
+  --sem-green: #346538;  --sem-green-bg: #EDF3EC;
+  --sem-amber: #956400;  --sem-amber-bg: #FBF3DB;
+  --sem-red:   #9F2F2D;  --sem-red-bg:   #FDEBEC;
+
+  /* ─── design identity (non-colliding — safe here) ───
+   * NOTE: --r-card, --rule-w, --rule-style, --hero-num-*, --stage-pad-x/-y
+   * and --shadow-stage are NOT declared here — base.css's :root redeclares
+   * them as fallback defaults and, loading AFTER tokens.css, would win.
+   * Those overrides live in the :root block at the top of extras.css. */
+  --r-stage:      14px;                /* soft floating-card corner on the live stage */
+  --card-shadow:
+    0 1px 2px rgba(47, 52, 55, 0.03),
+    0 10px 30px -16px rgba(47, 52, 55, 0.10);
+  --stage-border: 1px solid #EAEAEA;   /* crisp hairline frame around the white stage */
+
+  /* ─── decoration: near-none. No busy grid/pattern; just a whisper of
+   * vignette so the white stage isn't flatly empty (minimalist-ui §6). ─── */
+  --surface-vignette:
+    radial-gradient(130% 120% at 50% -10%, transparent 72%, rgba(47, 52, 55, 0.02) 100%);
+}

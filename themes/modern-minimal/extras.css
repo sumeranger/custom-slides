@@ -1,0 +1,33 @@
+/* ─────────────────────────────────────────────────────────────────────
+ * modern-minimal theme · extras.css
+ *
+ * :root block below: base.css-colliding personality-knob overrides.
+ * base.css's own :root redeclares --r-card / --rule-w / --rule-style /
+ * --hero-num-* / --stage-pad-x / --stage-pad-y / --shadow-stage as
+ * fallback defaults. tokens.css loads BEFORE base.css, so declaring these
+ * there would lose cascade to base.css's later :root block — they must
+ * live here instead (extras.css loads AFTER base.css). This theme has no
+ * --dur-* override, so base.css's motion defaults apply as-is (subtle/
+ * crisp fits the minimalist tone).
+ *
+ * No selector-level overrides needed — every visual effect is expressed
+ * purely through tokens.css custom properties, consumed by primitives
+ * base.css already defines (.stage-frame, .v-serif-bold, .hero-num,
+ * .rule, .card). Sans headlines come for free: base's .v-serif-bold uses
+ * var(--font-display-cn), which this theme sets to a sans family — no
+ * serif override (unlike paper-grid). See THEMES.md.
+ * ───────────────────────────────────────────────────────────────────── */
+:root {
+  --r-card:          12px;
+  --rule-w:          1px;
+  --rule-style:      solid;
+  --hero-num-font:   var(--font-display-en);
+  --hero-num-style:  normal;
+  --hero-num-weight: 800;
+  --hero-num-track:  -0.03em;
+  --stage-pad-x:     120px;
+  --stage-pad-y:     96px;
+  --shadow-stage:
+    0 1px 2px rgba(47, 52, 55, 0.03),
+    0 24px 60px -34px rgba(47, 52, 55, 0.16);
+}

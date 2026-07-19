@@ -1,0 +1,16 @@
+{
+  "id": "modern-minimal",
+  "name": "Modern Minimal",
+  "nameZh": "現代極簡",
+  "description": "White-based editorial minimalism: warm monochrome ground, muted pastel spot-accents, sans headlines, hairline rules, near-zero shadows, quiet micro-motion. Built to the minimalist-ui protocol.",
+  "descriptionZh": "白底編輯式極簡：暖 monochrome 底、霧面粉彩點綴、sans 大標、髮絲分隔線、趨近於零的陰影、安靜微互動。依 minimalist-ui 協定。",
+  "mood": ["light", "editorial", "minimal", "warm"],
+  "colorSchema": "light",
+  "bestFor": ["技術簡報", "選型報告", "產品評估"],
+  "preview": {
+    "shell": "#EBEAE5",
+    "surface": "#FFFFFF",
+    "text": "#2F3437",
+    "accent": "#1F6C9F"
+  }
+}
