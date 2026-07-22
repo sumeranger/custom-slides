@@ -5,15 +5,27 @@ blueprint 格線 + 逐步揭示 + hover tooltip。視覺與互動沿襲
 `2026-06-monthly-report`。技術棧：**Slidev**（Markdown 骨架 + Vue 元件 +
 UnoCSS），舞台 `canvasWidth: 1920` 自動縮放。
 
+## 安裝（給同事）
+
+用 [Skills CLI](https://github.com/vercel-labs/skills) 一行從 git 安裝，無需 clone：
+
+```bash
+npx skills add ssh://git@gitlab.webpat.co:2222/hank.hsueh/paper-grid-slides-template.git
+```
+
+技能自包含於 `skills/paper-grid-slides/`（SKILL.md + references/template/themes/scripts/example
+一起安裝）。更新：重跑同一行。
+
 ## 給 AI agent
 
-讀 **[references/GUIDE.md](references/GUIDE.md)** —— 從內容流程到章節鐵則到驗證腳本的完整手冊。
-skill 進入點見 **[SKILL.md](SKILL.md)**。
+讀 **[skills/paper-grid-slides/references/GUIDE.md](skills/paper-grid-slides/references/GUIDE.md)**
+—— 從內容流程到章節鐵則到驗證腳本的完整手冊。skill 進入點見
+**[skills/paper-grid-slides/SKILL.md](skills/paper-grid-slides/SKILL.md)**。
 
 ## 給人類
 
 ```bash
-cp -r template/presentation ~/repo/<my-slides>/presentation
+cp -r skills/paper-grid-slides/template/presentation ~/repo/<my-slides>/presentation
 cd ~/repo/<my-slides>/presentation
 npm install && npm run dev        # Slidev dev server → http://localhost:3030
 ```
@@ -24,6 +36,8 @@ npm install && npm run dev        # Slidev dev server → http://localhost:3030
 - `npm run export` 逐頁逐拍出 PNG；`/presenter` 進講者模式（notes 隨 click 高亮）
 
 ## 內含
+
+下表路徑相對於 `skills/paper-grid-slides/`（技能根）。
 
 | 路徑 | 內容 |
 |---|---|
