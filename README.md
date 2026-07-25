@@ -5,7 +5,7 @@ blueprint 格線 + 逐步揭示 + hover tooltip。視覺與互動沿襲
 `2026-06-monthly-report`。技術棧：**Slidev**（Markdown 骨架 + Vue 元件 +
 UnoCSS），舞台 `canvasWidth: 1920` 自動縮放。
 
-## 安裝（給同事）
+## 安裝
 
 用 [Skills CLI](https://github.com/vercel-labs/skills) 一行從 git 安裝，無需 clone：
 
