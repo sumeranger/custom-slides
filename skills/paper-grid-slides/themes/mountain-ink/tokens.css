@@ -1,6 +1,6 @@
 /* ─────────────────────────────────────────────────────────────────────
  * Theme · mountain-ink（水墨山水）
- *   宣紙米白底 + 墨綠 accent + 明體中文大標 + 自帶山水底圖。
+ *   白宣紙底 + 墨綠 accent + 明體中文大標 + 自帶山水底圖。
  *
  *   character knobs:
  *     • headlines      — Ming-style serif CJK (Noto Serif TC), weight 900
@@ -21,13 +21,22 @@
  *   base.css 會碰撞的那批性格旋鈕 :root 覆寫，都在 extras.css。
  * ───────────────────────────────────────────────────────────────────── */
 :root {
-  /* ─── palette：宣紙米白 + 墨綠 ───
-   * 對比度已核（相對 --surface #F7F3E7）：text 15.9:1、text-2 6.5:1、
-   * text-mute 4.7:1、accent 5.5:1，皆過 GUIDE §6.1 的 4.5:1 硬地板。 */
-  --shell:        #DCD6C0;             /* letterbox — 較舞台深一階的紙箱色 */
-  --surface:      #F7F3E7;             /* 宣紙 */
-  --surface-2:    #FCFAF3;             /* 凸起卡片 */
-  --surface-3:    #EFE8D5;             /* 內嵌 */
+  /* ─── palette：白宣紙 + 墨綠 ───
+   * 水墨的底是**白宣紙**，不是米黃牛皮紙——暖米底會讓墨綠偏土、失掉水墨該有
+   * 的清冷。#FBFAF6 是「帶一絲暖但讀作白」的宣紙白（純 #FFFFFF 在投影下會刺
+   * 眼、也少了紙的質地）。
+   * 對比度已核（相對 --surface #FBFAF6）：text 13.8:1、text-2 7.0:1、
+   * text-mute 5.0:1、accent 6.0:1，皆過 GUIDE §6.1 的 4.5:1 硬地板。
+   *
+   * --paper-rgb 是同一個紙色的 rgb 三元組，給下面所有需要「紙色半透明」的
+   * 地方組 rgba() 用（scrim / 飛白 / 霧靄 / 印章描邊——var() 帶不了 alpha，
+   * 所以必須有這個三元組）。**改紙色時這兩個要一起改**，否則 scrim 會跟舞台
+   * 底色對不上、露出一片色差。 */
+  --paper-rgb:    251, 250, 246;
+  --shell:        #E4E1D6;             /* letterbox — 較舞台深一階的冷灰紙箱色 */
+  --surface:      #FBFAF6;             /* 白宣紙 */
+  --surface-2:    #FFFFFF;             /* 凸起卡片 —— 比紙面更亮才浮得起來 */
+  --surface-3:    #F2F1EA;             /* 內嵌 */
   --text:         #1F2D24;             /* 濃墨（近黑但帶綠） */
   --text-2:       #4A5B47;             /* 次要 / 正文 */
   --text-mute:    #56745A;             /* 標籤 / 眉題 —— 見下方 --ink-moss 註 */
@@ -50,7 +59,7 @@
   /* ─── 非契約補充 token（比照 modern-minimal 的 --sem-*）───
    * --ink-seal 是「朱砂」，**只給 .v-seal 用**，不是第二個 accent：任何 UI
    * 狀態、強調、連結、圖表都不得使用它（THEMES.md 反模式「第二個飽和 accent」）。
-   * --ink-moss 是使用者原始色票的 #6D8F6D，對宣紙底只有 3.27:1、過不了
+   * --ink-moss 是使用者原始色票的 #6D8F6D，對白宣紙底只有 3.47:1、過不了
    * GUIDE §6.1 的 4.5:1 硬地板，所以**不能**當 --text-mute（那個壓深成
    * #56745A 了），降級為純裝飾用色。 */
   --ink-seal:      #B23A2E;            /* 朱砂 */
@@ -75,7 +84,7 @@
   /* 底部進度條 footer 借用的「舞台邊線 / 舞台落影」。這兩個 token 只在
    * styles/progress-bar.css 有行內 fallback、base.css 的 :root 沒宣告，
    * 所以寫 tokens.css 安全（同 --font-features 那一類）。不設的話 footer
-   * 會沿用 fallback 的 paper-grid 暖棕，配青綠宣紙會顯髒。 */
+   * 會沿用 fallback 的 paper-grid 暖棕，配青綠白宣紙會顯髒。 */
   --stage-edge:   rgba(31, 45, 36, 0.14);
   --stage-drop:   0 40px 100px rgba(31, 45, 36, 0.18);
 
@@ -93,9 +102,9 @@
   /* 預設氣壓 = 一般內容頁：極淡遠山（~0.12），左上大片留白給文字。
    * 濃淡不是靠 opacity（--surface-vignette 沒有配套的 opacity 插槽，那組
    * 綁在 --surface-pattern 上），而是**疊一層宣紙色 scrim 漸層在圖之上**：
-   * scrim 色 = --surface，在沒有圖的區域等於隱形，在有圖的區域等於降不透
-   * 明度，同時做出「左上實、右下透」的霧靄分佈。rgba 手寫是因為 var() 帶
-   * 不了 alpha。三段氣壓的另外兩段在 extras.css 的 .v-art-* / .chapter-open。
+   * scrim 色 = --paper-rgb（＝--surface 的 rgb），在沒有圖的區域等於隱形，
+   * 在有圖的區域等於降不透明度，同時做出「左上實、右下透」的霧靄分佈。
+   * 三段氣壓的另外兩段在 extras.css 的 .v-art-* / .chapter-open。
    *
    * 為什麼不用 --surface-pattern：那組 token 同時餵 progress-bar.css 的
    * .pb-chapters::before（讓 paper-grid 的藍圖網格延伸進 footer），而它用
@@ -104,9 +113,9 @@
    * 網格，順帶讓 footer 保持乾淨宣紙）。詳見 THEMES.md 裝飾層一節。 */
   --surface-vignette:
     linear-gradient(104deg,
-      rgba(247, 243, 231, 1.00)   0%,
-      rgba(247, 243, 231, 0.98)  34%,
-      rgba(247, 243, 231, 0.86)  62%,
-      rgba(247, 243, 231, 0.70) 100%),
+      rgba(var(--paper-rgb), 1.00)   0%,
+      rgba(var(--paper-rgb), 0.98)  34%,
+      rgba(var(--paper-rgb), 0.86)  62%,
+      rgba(var(--paper-rgb), 0.70) 100%),
     var(--mi-art-far) right bottom / cover no-repeat;
 }

@@ -84,10 +84,10 @@
 .stage-frame.v-art-chapter {
   --surface-vignette:
     linear-gradient(100deg,
-      rgba(247, 243, 231, 1.00)   0%,
-      rgba(247, 243, 231, 0.97)  30%,
-      rgba(247, 243, 231, 0.86)  58%,
-      rgba(247, 243, 231, 0.72) 100%),
+      rgba(var(--paper-rgb), 1.00)   0%,
+      rgba(var(--paper-rgb), 0.97)  30%,
+      rgba(var(--paper-rgb), 0.86)  58%,
+      rgba(var(--paper-rgb), 0.72) 100%),
     var(--mi-art-ridge) right center / cover no-repeat;
 }
 
@@ -96,10 +96,10 @@
 .stage-frame.v-art-full {
   --surface-vignette:
     linear-gradient(112deg,
-      rgba(247, 243, 231, 0.92)   0%,
-      rgba(247, 243, 231, 0.72)  34%,
-      rgba(247, 243, 231, 0.48)  62%,
-      rgba(247, 243, 231, 0.40) 100%),
+      rgba(var(--paper-rgb), 0.92)   0%,
+      rgba(var(--paper-rgb), 0.72)  34%,
+      rgba(var(--paper-rgb), 0.48)  62%,
+      rgba(var(--paper-rgb), 0.40) 100%),
     var(--mi-art-full) center / cover no-repeat;
 }
 
@@ -138,7 +138,7 @@
  * 感**，不是真篆刻。想要零風險就用 .is-blank 無字變體。
  *
  * 不用 mix-blend-mode: multiply——朱紅壓在宣紙上 multiply 幾乎不改變顏色
- * （紙是高亮度底），卻讓元素多一層合成風險。改用極輕的 inset 暗邊 + 外緣
+ * （白宣紙是極高亮度底，multiply 幾乎等於不變），卻讓元素多一層合成風險。改用極輕的 inset 暗邊 + 外緣
  * 淡朱色暈染，看起來就有印泥吃進紙的感覺。 */
 .v-seal {
   display: grid;
@@ -153,7 +153,7 @@
   background: var(--ink-seal);
   border-radius: 3px;
   box-shadow:
-    inset 0 0 0 3px rgba(247, 243, 231, 0.24),
+    inset 0 0 0 3px rgba(var(--paper-rgb), 0.24),
     inset 0 0 12px rgba(90, 20, 14, 0.35),        /* 印泥不均 */
     0 0 0 1px rgba(178, 58, 46, 0.30),
     0 0 14px 2px rgba(233, 161, 147, 0.35);       /* 外緣暈染 */
@@ -175,9 +175,9 @@
 /* 無字變體：純朱紅方塊 + 雙層內描邊，視覺風險為零（沒有字就沒有字體問題） */
 .v-seal.is-blank {
   box-shadow:
-    inset 0 0 0 3px  rgba(247, 243, 231, 0.24),
+    inset 0 0 0 3px  rgba(var(--paper-rgb), 0.24),
     inset 0 0 0 15px var(--ink-seal),
-    inset 0 0 0 18px rgba(247, 243, 231, 0.20),
+    inset 0 0 0 18px rgba(var(--paper-rgb), 0.20),
     inset 0 0 12px rgba(90, 20, 14, 0.35),
     0 0 0 1px rgba(178, 58, 46, 0.30),
     0 0 14px 2px rgba(233, 161, 147, 0.35);
@@ -246,14 +246,14 @@
        痕——位置用百分比、間距刻意不等距，所以任何寬度下都只有這幾道，密度不
        隨寬度失控。 */
     linear-gradient(97deg,
-      rgba(247, 243, 231, 0)    62%,   rgba(247, 243, 231, 0.75) 62.6%,
-      rgba(247, 243, 231, 0.75) 63.2%, rgba(247, 243, 231, 0)    63.8%,
-      rgba(247, 243, 231, 0)    71%,   rgba(247, 243, 231, 0.8)  71.5%,
-      rgba(247, 243, 231, 0.8)  72.4%, rgba(247, 243, 231, 0)    73%,
-      rgba(247, 243, 231, 0)    79%,   rgba(247, 243, 231, 0.85) 79.4%,
-      rgba(247, 243, 231, 0.85) 80.6%, rgba(247, 243, 231, 0)    81.2%,
-      rgba(247, 243, 231, 0)    86%,   rgba(247, 243, 231, 0.9)  86.4%,
-      rgba(247, 243, 231, 0.9)  88%,   rgba(247, 243, 231, 0)    88.6%),
+      rgba(var(--paper-rgb), 0)    62%,   rgba(var(--paper-rgb), 0.75) 62.6%,
+      rgba(var(--paper-rgb), 0.75) 63.2%, rgba(var(--paper-rgb), 0)    63.8%,
+      rgba(var(--paper-rgb), 0)    71%,   rgba(var(--paper-rgb), 0.8)  71.5%,
+      rgba(var(--paper-rgb), 0.8)  72.4%, rgba(var(--paper-rgb), 0)    73%,
+      rgba(var(--paper-rgb), 0)    79%,   rgba(var(--paper-rgb), 0.85) 79.4%,
+      rgba(var(--paper-rgb), 0.85) 80.6%, rgba(var(--paper-rgb), 0)    81.2%,
+      rgba(var(--paper-rgb), 0)    86%,   rgba(var(--paper-rgb), 0.9)  86.4%,
+      rgba(var(--paper-rgb), 0.9)  88%,   rgba(var(--paper-rgb), 0)    88.6%),
     /* 墨色本體：起筆濃、收筆淡 */
     linear-gradient(90deg,
       rgba(var(--brush-ink), 1)    0%,
@@ -279,10 +279,10 @@
   height: 220px;
   pointer-events: none;
   background: linear-gradient(180deg,
-    rgba(247, 243, 231, 0)    0%,
-    rgba(247, 243, 231, 0.72) 38%,
-    rgba(247, 243, 231, 0.86) 58%,
-    rgba(247, 243, 231, 0)   100%);
+    rgba(var(--paper-rgb), 0)    0%,
+    rgba(var(--paper-rgb), 0.72) 38%,
+    rgba(var(--paper-rgb), 0.86) 58%,
+    rgba(var(--paper-rgb), 0)   100%);
 }
 /* 帶一點苔綠的冷霧 */
 .v-mist.is-tinted {
