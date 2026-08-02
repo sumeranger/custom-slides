@@ -8,8 +8,8 @@
   "colorSchema": "light",
   "bestFor": ["主題演講", "理念/願景簡報", "文化與教育內容"],
   "preview": {
-    "shell": "#E4E1D6",
-    "surface": "#FBFAF6",
+    "shell": "#E6E5E0",
+    "surface": "#FCFCFB",
     "text": "#1F2D24",
     "accent": "#2E6B4F"
   }

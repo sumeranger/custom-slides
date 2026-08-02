@@ -16,7 +16,7 @@ import math, random
 from PIL import Image, ImageDraw, ImageFilter
 
 W, H = 1920, 1080
-PAPER = (251, 250, 246)   # 白宣紙 #FBFAF6
+PAPER = (252, 252, 251)   # 白宣紙 #FCFCFB（要與 tokens.css 的 --surface 一致）
 
 
 def ridge_points(x0, x1, base_y, amp, seed, n=9):
