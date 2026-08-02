@@ -91,7 +91,7 @@ CSS 放 `styles/`（獨立前綴），在 `index.ts` 的 base 之後、animation
 | 扉頁 frontmatter 契約 | 每章第一張 slide 一律 `layout: chapter-open`，frontmatter 帶 `chapter`（`"01"` 段落編號）、`chapterTitle`（進度條把手，**≤8 全形字，全 deck 必須唯一**——重複會撞進度條的 Vue `:key`，見 §6.17）、`eyebrow`（眉題，可省） |
 | 逐步揭示 | 口播逐項唸的清單 = 一項一拍亮起（`<v-clicks>` 包住 `<li>`），禁一次全上 |
 | 顏色字體走 token | 只用 `var(--accent/--text/--surface…)` 與 `var(--font-*)`；唯一例外：深色終端/代碼窗可用主題既定三色 `#2a2018 / #4a3a2e / #f4ecd8` |
-| primitives | `.v-pill`（膠囊標）`.v-corners`（角括號卡）`.v-strike`（劃掉）為 paper-grid extras 專屬；`.v-seal`（朱砂印章）`.v-enso`（圓相）`.v-brush-rule`（毛筆掃痕線）`.v-mist`（霧靄橫帶）為 mountain-ink extras 專屬（用法與各自的限制寫在該主題 `extras.css` 的註解裡——例如 `.v-brush-rule` 的紙色飛白不要用在 `class: v-art-full` 頁）；`.v-serif-bold` + `.v-em`（標題主 pattern：`base.css` 給每個主題一個粗體襯線基線，主題用 `--headline-weight` 調字重、paper-grid extras 再美化成 serif-900；**v-em 上色只在 v-serif-bold 內生效**，其他地方自己補 `.xx-scene .v-em { color: var(--accent) }`）；base 另有 `.hero-num .kicker .mono .label-mono .serif-cn .serif-it .display-en` |
+| primitives | `.v-pill`（膠囊標）`.v-corners`（角括號卡）`.v-strike`（劃掉）為 paper-grid extras 專屬；`.v-seal`（朱砂印章）`.v-enso`（圓相）`.v-brush-rule`（毛筆掃痕線）`.v-mist`（霧靄橫帶）`.v-safe`（底圖頁的文字安全寬，見 §6.33 ④）為 mountain-ink extras 專屬（用法與各自的限制寫在該主題 `extras.css` 的註解裡）；`.v-serif-bold` + `.v-em`（標題主 pattern：`base.css` 給每個主題一個粗體襯線基線，主題用 `--headline-weight` 調字重、paper-grid extras 再美化成 serif-900；**v-em 上色只在 v-serif-bold 內生效**，其他地方自己補 `.xx-scene .v-em { color: var(--accent) }`）；base 另有 `.hero-num .kicker .mono .label-mono .serif-cn .serif-it .display-en` |
 | CSS 前綴隔離 | 每章獨立前綴（`.sf-` `.bk-`…），不跨章共用；章節 css 放 `styles/`、在 `index.ts` base 之後 animations 之前 import |
 | 視覺演示 | 每章至少 1–2 處「動起來的演示」（長條生長/格子點亮/連線自繪/數字對撞/打字機 steps()）；每步主導動作要不同；整章純文字 = 重做 |
 | 畫面 > 口播 | 回 article 抽口播沒唸的細節掛成角標/副標/出處行（右下出處行 ≥20px） |
@@ -623,6 +623,26 @@ frontmatter 欄位，會經 props fallthrough 落到 layout 單根（＝`.stage-
 （`(0,2,0)` 勝過 `:root` 的 `(0,1,0)`，而 `::before` 讀 originating element 的值）。
 `mountain-ink` 的實作：內容頁＝`:root` 預設（極淡）、扉頁靠 `.chapter-open` 自動
 命中（中景）、封面/結尾寫 `class: v-art-full`、要乾淨寫 `class: v-art-none`。
+
+**④ 底圖頁的文字要有「安全區」，而且安全區寬度該由主題提供、不是每頁自己猜。**
+掛了底圖之後，文字不能無限往右長。注意這**不只是對比度問題**——`mountain-ink`
+實測 `v-art-full` 頁到 81% 寬都還有 4.5:1，但字壓在山的紋理上仍然「讀起來髒」。
+可讀性與版面清爽是兩件事，後者要靠限制文字寬度。
+
+做法：主題掃描自己的底圖、量出墨線起點，把結果寫成一個繼承用的 token 加一個
+class（`mountain-ink` 的 `--v-safe-w` + `.v-safe`）：
+
+```css
+:root          { --v-safe-w: 72%; }   /* 內容頁（底圖最淡） */
+.v-art-full    { --v-safe-w: 44%; }   /* 封面（墨線自 42% 起） */
+.chapter-open  { --v-safe-w: 58%; }   /* 扉頁（墨線自 68% 起） */
+.v-safe { max-width: var(--v-safe-w); }
+```
+
+`--v-safe-w` 宣告在 `.stage-frame` 上（跟氣壓 class 同一顆元素），`.v-safe` 是它的
+後代 → 自訂屬性正常繼承，同一個 class 在不同氣壓的頁面自動得到不同寬度，章節
+作者只要記一個 `.v-safe`。**數值要從實際圖量**（逐欄掃描、以中墨為門檻），不要
+憑目測。卡片/表格/圖表這類自帶不透明背景的區塊不需要它。
 
 **主題自帶的圖檔放哪**：見 `THEMES.md`「主題自帶靜態資源」——`themes/<id>/assets/`，
 由 `scaffold.sh` 複製到 `<target>/styles/assets/`，主題 CSS 用相對

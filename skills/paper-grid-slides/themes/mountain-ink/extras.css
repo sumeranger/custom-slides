@@ -106,7 +106,37 @@
 /* 完全乾淨的宣紙（資料密集頁 / 大表格 / 代碼頁） */
 .stage-frame.v-art-none {
   --surface-vignette: none;
+  --v-safe-w: 100%;
 }
+
+/* 1c. 文字安全區 .v-safe
+ *
+ * 底圖有畫面，文字就不能無限往右長——即使對比度還過關（實測 v-art-full 頁到
+ * 81% 寬都還有 4.5:1），字壓在山的紋理上仍然「讀起來髒」。可讀性與版面清爽
+ * 是兩件事，這裡管的是後者。
+ *
+ * --v-safe-w 是各氣壓下「文字可以佔多寬」，數值來自**實際量測三張底圖的墨線
+ * 起點**（逐欄掃描、以中墨 <185 為門檻）：
+ *   mi-full  中墨自 x=800  起（42% 寬）→ 安全區 44%（含一點喘息）
+ *   mi-ridge 中墨自 x=1312 起（68% 寬）→ 安全區 58%
+ *   mi-far   全圖無中墨、僅右下極淡 → 安全區 72%（純粹避免長行難讀）
+ * 換自己的圖時這三個數字要重量（掃描門檻與方法見 THEMES.md）。
+ *
+ * 用法：套在 .scene-pad 內的文字容器上（標題、正文、列表都可以）。
+ *   <div class="scene-pad">
+ *     <h2 class="v-serif-bold v-safe">…</h2>
+ *     <p class="v-safe">…</p>
+ *   </div>
+ * 卡片/表格/圖表這類「本來就有自己背景」的區塊不需要它——它們的底不透明，
+ * 壓在山上不會髒。 */
+:root            { --v-safe-w: 72%; }   /* 內容頁預設（mi-far） */
+.v-art-full      { --v-safe-w: 44%; }
+.chapter-open,
+.v-art-chapter   { --v-safe-w: 58%; }
+
+.v-safe { max-width: var(--v-safe-w); }
+/* 寬鬆版：讓文字多吃一點空間（短句、大標可用，仍不會撞到主峰） */
+.v-safe.is-wide  { max-width: calc(var(--v-safe-w) + 12%); }
 
 /* ─── Part 2：東方 primitive ────────────────────────────────────────────
  *
@@ -221,46 +251,36 @@
 .v-enso.is-faint { opacity: 0.16; }
 
 /* ── .v-brush-rule：毛筆掃痕分隔線（取代直線 rule）──────────────────────
- * 三層合成，**不用 mask**：
- *   1) clip-path 削成中間厚、兩端尖的柳葉形（提按）。clip-path 已被
+ * 兩層合成，**不用 mask、不用飛白**：
+ *   1) clip-path 削成中間厚、兩端尖的柳葉形（＝提按）。clip-path 已被
  *      animations.css 的 .mask-reveal 實戰驗過，export 安全。
- *   2) repeating-linear-gradient 畫**紙色**細條當飛白（不是透明！所以不需要
- *      任何 mask / 透明合成）。
- *   3) 墨色漸層：起筆濃、收筆淡。
+ *   2) 墨色漸層：起筆濃、收筆淡，一筆到底。
  *
- * ⚠ 限制：飛白是「紙色」細條，壓在濃度較高的底圖上會露餡 → **不要用在
- * class: v-art-full 的頁**（封面/結尾）。內容頁與扉頁沒問題。 */
+ * 任何底圖濃度的頁面都能用（沒有紙色圖層，不會在深底上露餡）。 */
 .v-brush-rule {
   --brush-ink: 31, 45, 36;             /* rgb 三元組，供下方 rgba() 組裝 */
-  height: 10px;
+  height: 9px;
   width: 100%;
   border: 0;
   margin: 0;
-  /* 柳葉形：中段飽滿、兩端收尖。用 % 座標，任何寬度都等比縮放。 */
+  /* 柳葉形：中段飽滿、兩端收尖（＝提按）。用 % 座標，任何寬度都等比縮放。
+     形狀刻意不對稱：上緣起伏大、下緣平緩，像側鋒掃過。 */
   clip-path: polygon(
-    0 48%, 5% 20%, 38% 8%, 70% 15%, 100% 44%,
-    100% 56%, 72% 86%, 36% 94%, 5% 80%);
+    0 47%, 4% 17%, 26% 7%, 52% 11%, 78% 20%, 100% 43%,
+    100% 57%, 76% 84%, 50% 93%, 24% 90%, 4% 79%);
+  /* 墨色本體：起筆濃、行筆穩、收筆淡——**一筆到底，不斷線**。
+     曾經在這層之上疊「紙色細條」模擬飛白，但飛白在 9px 高、上千 px 寬的細長
+     元素上不會被讀成筆觸的乾擦，只會讀成「這條線壞掉/是虛線」（實測兩版都
+     中招：等距 repeating-gradient 更糟，疏落斜痕仍像斷點）。飛白是大面積筆
+     觸才成立的細節，分隔線這種尺度只要「提按 + 濃淡」就夠有毛筆味。 */
   background-image:
-    /* 飛白：**不用 repeating-gradient**。等距重複條紋在寬元素上會重複幾十次，
-       讀起來就是一條虛線、不是毛筆（實測踩過）。改成收筆端幾道疏落的紙色斜
-       痕——位置用百分比、間距刻意不等距，所以任何寬度下都只有這幾道，密度不
-       隨寬度失控。 */
-    linear-gradient(97deg,
-      rgba(var(--paper-rgb), 0)    62%,   rgba(var(--paper-rgb), 0.75) 62.6%,
-      rgba(var(--paper-rgb), 0.75) 63.2%, rgba(var(--paper-rgb), 0)    63.8%,
-      rgba(var(--paper-rgb), 0)    71%,   rgba(var(--paper-rgb), 0.8)  71.5%,
-      rgba(var(--paper-rgb), 0.8)  72.4%, rgba(var(--paper-rgb), 0)    73%,
-      rgba(var(--paper-rgb), 0)    79%,   rgba(var(--paper-rgb), 0.85) 79.4%,
-      rgba(var(--paper-rgb), 0.85) 80.6%, rgba(var(--paper-rgb), 0)    81.2%,
-      rgba(var(--paper-rgb), 0)    86%,   rgba(var(--paper-rgb), 0.9)  86.4%,
-      rgba(var(--paper-rgb), 0.9)  88%,   rgba(var(--paper-rgb), 0)    88.6%),
-    /* 墨色本體：起筆濃、收筆淡 */
     linear-gradient(90deg,
       rgba(var(--brush-ink), 1)    0%,
-      rgba(var(--brush-ink), 1)   46%,
-      rgba(var(--brush-ink), 0.55) 78%,
-      rgba(var(--brush-ink), 0.15) 100%);
-  opacity: 0.85;
+      rgba(var(--brush-ink), 1)   44%,
+      rgba(var(--brush-ink), 0.72) 70%,
+      rgba(var(--brush-ink), 0.34) 88%,
+      rgba(var(--brush-ink), 0.12) 100%);
+  opacity: 0.88;
 }
 /* 墨綠版（accent 色的掃痕）——只換 rgb 三元組 */
 .v-brush-rule.is-accent { --brush-ink: 46, 107, 79; }
