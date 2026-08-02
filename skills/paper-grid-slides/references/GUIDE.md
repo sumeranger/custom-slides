@@ -91,7 +91,7 @@ CSS 放 `styles/`（獨立前綴），在 `index.ts` 的 base 之後、animation
 | 扉頁 frontmatter 契約 | 每章第一張 slide 一律 `layout: chapter-open`，frontmatter 帶 `chapter`（`"01"` 段落編號）、`chapterTitle`（進度條把手，**≤8 全形字，全 deck 必須唯一**——重複會撞進度條的 Vue `:key`，見 §6.17）、`eyebrow`（眉題，可省） |
 | 逐步揭示 | 口播逐項唸的清單 = 一項一拍亮起（`<v-clicks>` 包住 `<li>`），禁一次全上 |
 | 顏色字體走 token | 只用 `var(--accent/--text/--surface…)` 與 `var(--font-*)`；唯一例外：深色終端/代碼窗可用主題既定三色 `#2a2018 / #4a3a2e / #f4ecd8` |
-| primitives | `.v-pill`（膠囊標）`.v-corners`（角括號卡）`.v-strike`（劃掉）為 paper-grid extras 專屬；`.v-serif-bold` + `.v-em`（標題主 pattern：`base.css` 給每個主題一個粗體襯線基線，主題用 `--headline-weight` 調字重、paper-grid extras 再美化成 serif-900；**v-em 上色只在 v-serif-bold 內生效**，其他地方自己補 `.xx-scene .v-em { color: var(--accent) }`）；base 另有 `.hero-num .kicker .mono .label-mono .serif-cn .serif-it .display-en` |
+| primitives | `.v-pill`（膠囊標）`.v-corners`（角括號卡）`.v-strike`（劃掉）為 paper-grid extras 專屬；`.v-seal`（朱砂印章）`.v-enso`（圓相）`.v-brush-rule`（毛筆掃痕線）`.v-mist`（霧靄橫帶）為 mountain-ink extras 專屬（用法與各自的限制寫在該主題 `extras.css` 的註解裡——例如 `.v-brush-rule` 的紙色飛白不要用在 `class: v-art-full` 頁）；`.v-serif-bold` + `.v-em`（標題主 pattern：`base.css` 給每個主題一個粗體襯線基線，主題用 `--headline-weight` 調字重、paper-grid extras 再美化成 serif-900；**v-em 上色只在 v-serif-bold 內生效**，其他地方自己補 `.xx-scene .v-em { color: var(--accent) }`）；base 另有 `.hero-num .kicker .mono .label-mono .serif-cn .serif-it .display-en` |
 | CSS 前綴隔離 | 每章獨立前綴（`.sf-` `.bk-`…），不跨章共用；章節 css 放 `styles/`、在 `index.ts` base 之後 animations 之前 import |
 | 視覺演示 | 每章至少 1–2 處「動起來的演示」（長條生長/格子點亮/連線自繪/數字對撞/打字機 steps()）；每步主導動作要不同；整章純文字 = 重做 |
 | 畫面 > 口播 | 回 article 抽口播沒唸的細節掛成角標/副標/出處行（右下出處行 ≥20px） |
@@ -577,6 +577,57 @@ Slidev 的 dev/放映工具列固定在 `#slide-container` 左下角；章節進
 要新增類似的舞台底部/角落覆蓋層時，記得：尺寸用畫布 px（1920 座標系）表達，
 別去量 viewport。
 
+### 6.33 舞台底圖（背景插畫）只能掛 `--surface-vignette`，且 `::before` 必須 `z-index:-1`
+
+主題想在舞台上鋪一張插畫底圖（`mountain-ink` 的山水就是），有三個非顯而易見的
+約束，全部踩過：
+
+**① 不能用 `--surface-pattern`——那組 token 被進度條共用。**
+`base.css` 有兩個裝飾層插槽，看起來都能掛圖：
+
+| 插槽 | 消費者 | 能掛底圖？ |
+|---|---|---|
+| `--surface-pattern`（+`-size`/`-blend`/`-opacity`） | `.stage-frame::after` **與** `progress-bar.css` 的 `.pb-chapters::before` | **不行** |
+| `--surface-vignette` | 只有 `.stage-frame::before` | 可以 |
+
+`.pb-chapters::before` 那條規則的用途是「把 paper-grid 的藍圖網格延伸進底部進度條
+footer，讓舞台+footer 讀成同一張卡」，它用 `background-size: var(--pb-grid, 48px)`
+**覆寫尺寸**——一張插畫掛上去會在進度條裡被縮成 48×48 並平鋪成一排碎圖。而那條
+規則是 theme-agnostic 在 base 層，主題無法只關掉自己那半。所以底圖走
+`--surface-vignette`（`background` 是 shorthand，吃得下 `url()` 與多層逗號串接）。
+
+**② `.stage-frame::before` 預設的 `z-index: 1` 會蓋住扉頁文字。**
+它是**定位**子元素（繪製順序 step 7），而 `chapter-open.vue` 的眉題與 `<h1>` 是
+**非定位 in-flow**（step 3–5）→ 裝飾層畫在文字**之上**。paper-grid 的 vignette 幾乎
+全透明所以肉眼看不出來，但掛上有實體內容的底圖就會直接洗掉大標。修法是在主題的
+`extras.css` 加：
+
+```css
+.stage-frame::before { z-index: -1; border-radius: inherit; }
+```
+
+負 z-index 子元素畫在「元素自身背景之後、in-flow 內容之前」，正是底圖該在的位置。
+**安全前提**：`.stage-frame` 自成 stacking context——它同時帶 `.scene`（`z-index:2`
++ `position:absolute`），兩個內建 layout 都符合。若未來加了只掛 `.stage-frame`
+不掛 `.scene` 的 layout，底圖會掉到 letterbox 後面消失。**不要改 `base.css`**
+（那會影響全部主題）。
+
+**③ 濃淡靠「疊紙色 scrim」，不是 opacity。** `--surface-vignette` 沒有配套的
+opacity 插槽（那組綁在 pattern 上）。做法是在同一個 `background` 值裡把一層
+`--surface` 色的漸層疊在圖之上：在沒有圖的區域等於隱形，在有圖的區域等於降不透
+明度，還能順手做出「一側實、另一側透」的分佈。
+
+**每頁切換不同氣壓 = frontmatter 的 `class`。** `class` 不是 Slidev 的保留
+frontmatter 欄位，會經 props fallthrough 落到 layout 單根（＝`.stage-frame`），
+所以主題可以用 `.stage-frame.xxx` 覆寫該頁的 `--surface-vignette`
+（`(0,2,0)` 勝過 `:root` 的 `(0,1,0)`，而 `::before` 讀 originating element 的值）。
+`mountain-ink` 的實作：內容頁＝`:root` 預設（極淡）、扉頁靠 `.chapter-open` 自動
+命中（中景）、封面/結尾寫 `class: v-art-full`、要乾淨寫 `class: v-art-none`。
+
+**主題自帶的圖檔放哪**：見 `THEMES.md`「主題自帶靜態資源」——`themes/<id>/assets/`，
+由 `scaffold.sh` 複製到 `<target>/styles/assets/`，主題 CSS 用相對
+`url("./assets/x")` 引用。
+
 ## 7. Slidev 慣例速查
 
 模板已把 Slidev 接成 paper-grid 的樣子，日常寫章節只會用到這幾組慣例：
@@ -607,6 +658,7 @@ Slidev 的 dev/放映工具列固定在 `#slide-container` 左下角；章節進
 | `colorSchema` | headmatter | 淺色主題 `light`、深色主題 `dark`（scaffold 換主題時自動 patch，見 §6.30）。手刻 headmatter 時：深色 deck 一定要 `dark`，否則 Slidev chrome 白底白 icon |
 | `layout` | 每頁 | `chapter-open`（扉頁）/ `canvas`（自由畫布，掛 `.stage-frame`）/ `default` |
 | `chapter` / `chapterTitle` / `eyebrow` | 章首頁 | 進度條與扉頁資料源（見 §2、§6.17） |
+| `class` | 每頁 | 加到該頁 layout 根元素（＝`.stage-frame`）的 class。Slidev 不把 `class` 當保留欄位，會經 props fallthrough 落到 layout 單根上。主題用它切換每頁的舞台裝飾——如 mountain-ink 的 `class: v-art-full`（見 §6.33） |
 | `src: ./chapters/0N-x.md` | `slides.md` 分隔區塊 | 掛入外部章節檔 |
 
 ### presenter / export

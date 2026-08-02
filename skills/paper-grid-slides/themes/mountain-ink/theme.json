@@ -1,0 +1,16 @@
+{
+  "id": "mountain-ink",
+  "name": "Mountain Ink",
+  "nameZh": "水墨山水",
+  "description": "Ink-wash landscape on rice paper: warm off-white ground, ink-green accent, Ming-style serif CJK headlines, a self-contained mountain backdrop dialled to three pressure levels (full-bleed / chapter / faint), and a single cinnabar seal as the one warm note.",
+  "descriptionZh": "宣紙米白底＋墨綠 accent＋明體中文大標；自帶三張山水底圖（滿版／扉頁／內頁三段氣壓，可換成自己的圖），朱砂印章是全場唯一的暖色點綴。",
+  "mood": ["light", "editorial", "calm", "oriental"],
+  "colorSchema": "light",
+  "bestFor": ["主題演講", "理念/願景簡報", "文化與教育內容"],
+  "preview": {
+    "shell": "#DCD6C0",
+    "surface": "#F7F3E7",
+    "text": "#1F2D24",
+    "accent": "#2E6B4F"
+  }
+}

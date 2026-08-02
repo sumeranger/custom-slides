@@ -57,7 +57,7 @@ npm install && npm run dev        # Slidev dev server → http://localhost:3030
 | `example/01-service-flow/` | 去識別化的參考章節（散裝零件 + 切分表，卡住時去翻） |
 | `scripts/scaffold.sh` | 套用視覺主題（`--theme=<id>` / `--list-themes`） |
 | `scripts/tone-lint.py` | 文風檢查（`TONE.md` §9；純標準庫、簡繁通吃、`--self-test`） |
-| `themes/` | 內建主題（`paper-grid` / `dbx-style` / `midnight-press`） |
+| `themes/` | 內建主題（`paper-grid` / `dbx-style` / `midnight-press` / `modern-minimal` / `mountain-ink`） |
 | `template/presentation/slides.md` | deck 進入點（headmatter + `src:` 掛章節） |
 | `template/presentation/chapters/` | 各章 Markdown（一章一檔，`01-example.md` 為示範，做真實內容時刪除） |
 | `template/presentation/components/` | Vue 元件（`Term` tooltip / `PhaseTag` / `MaskReveal` / 整頁畫布，Slidev 自動註冊） |
