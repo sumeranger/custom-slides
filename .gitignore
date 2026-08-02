@@ -2,3 +2,4 @@
 .claude/
 .worktrees/
 .spike-slidev/
+__pycache__/

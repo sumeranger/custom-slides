@@ -16,11 +16,20 @@ npx skills add ssh://git@gitlab.webpat.co:2222/hank.hsueh/paper-grid-slides-temp
 技能自包含於 `skills/paper-grid-slides/`（SKILL.md + references/template/themes/scripts/example
 一起安裝）。更新：重跑同一行。
 
+## 版本
+
+| 版本 | 改動 |
+|---|---|
+| `1.1.0` | 文風規範獨立成 [`references/TONE.md`](skills/paper-grid-slides/references/TONE.md)（改寫自 [oil-tone](https://github.com/oil-oil/oil-tone)，繁體在地化），成為所有產出文字的唯一真相來源；`SCRIPT.md` §2.2 的人稱與用詞規定改為與之一致（原「能用『你』就用『你』」「口語詞優先」已移除）；新增 `scripts/tone-lint.py` 文風檢查（簡繁通吃） |
+| `1.0.0` | Slidev/Vue 引擎、三主題、對抗式 critic 迴圈產線 |
+
 ## 給 AI agent
 
 讀 **[skills/paper-grid-slides/references/GUIDE.md](skills/paper-grid-slides/references/GUIDE.md)**
 —— 從內容流程到章節鐵則到驗證腳本的完整手冊。skill 進入點見
 **[skills/paper-grid-slides/SKILL.md](skills/paper-grid-slides/SKILL.md)**。
+**文風一律照 [`references/TONE.md`](skills/paper-grid-slides/references/TONE.md)**，
+它與其他文件衝突時以它為準。
 
 ## 給人類
 
@@ -43,9 +52,11 @@ npm install && npm run dev        # Slidev dev server → http://localhost:3030
 |---|---|
 | `SKILL.md` | skill 進入點（觸發 + 硬提醒 + 指向 references/） |
 | `references/GUIDE.md` | 完整開發手冊（內容流程 / 章節鐵則 / Term / 驗證 / Slidev 慣例速查） |
+| `references/TONE.md` | **文風規範**——所有產出文字的唯一真相來源（改寫自 [oil-tone](https://github.com/oil-oil/oil-tone)，繁體在地化） |
 | `references/OUTLINE.md` · `SCRIPT.md` · `THEMES.md` · `ALIGN.md` | 切章 / 寫稿 / 主題系統 / 口述對齊方法論 |
 | `example/01-service-flow/` | 去識別化的參考章節（散裝零件 + 切分表，卡住時去翻） |
 | `scripts/scaffold.sh` | 套用視覺主題（`--theme=<id>` / `--list-themes`） |
+| `scripts/tone-lint.py` | 文風檢查（`TONE.md` §9；純標準庫、簡繁通吃、`--self-test`） |
 | `themes/` | 內建主題（`paper-grid` / `dbx-style` / `midnight-press`） |
 | `template/presentation/slides.md` | deck 進入點（headmatter + `src:` 掛章節） |
 | `template/presentation/chapters/` | 各章 Markdown（一章一檔，`01-example.md` 為示範，做真實內容時刪除） |
