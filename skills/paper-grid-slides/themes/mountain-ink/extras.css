@@ -303,8 +303,10 @@
       rgba(var(--brush-ink), 0.12) 100%);
   opacity: 0.88;
 }
-/* 墨綠版（accent 色的掃痕）——只換 rgb 三元組 */
-.v-brush-rule.is-accent { --brush-ink: 46, 107, 79; }
+/* 墨綠版（accent 色的掃痕）——只換 rgb 三元組。
+ * 這裡必須硬編 rgb（漸層要組 rgba，var() 帶不了 alpha），所以**改
+ * tokens.css 的 --accent 時，這一行要一起改**（值 = --accent 的 rgb）。 */
+.v-brush-rule.is-accent { --brush-ink: 74, 107, 92; }   /* = --accent #4A6B5C */
 /* 短掃痕：小標下方那條（配合 GUIDE §6.11 的段落編號眉題） */
 .v-brush-rule.is-short { width: 120px; height: 8px; }
 
