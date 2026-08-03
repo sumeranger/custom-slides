@@ -249,9 +249,13 @@ fallback，`base.css` 的 `:root` **沒有**同名宣告，所以寫 `tokens.css
 | `--stage-edge` | `rgba(60,40,20,0.15)` | 舞台邊線色；進度條 footer 借用它續接舞台的三面邊 |
 | `--stage-drop` | `0 40px 100px rgba(60,40,20,0.22)` | 舞台落影；footer 與舞台共用一坨影子 |
 
-fallback 是 paper-grid 的暖棕。**冷色系主題應該覆寫這兩個**，否則 footer 會掛著
-一圈暖棕邊（目前 `dbx-style` / `midnight-press` / `modern-minimal` 都還沒覆寫，
-是已知的既有小瑕疵，等有人要修時各加兩行即可）。
+fallback 是 paper-grid 的暖棕（`paper-grid` 因此不必宣告，吃 fallback 即為原值）。
+**其餘主題都應該覆寫這兩個**，否則 footer 會掛著一圈暖棕邊、與自己的色系對不上。
+內建主題現況：五個主題除 `paper-grid` 外皆已在各自的 `tokens.css` 覆寫。
+
+挑值的原則：`--stage-edge` 對齊該主題的 `--rule` 或 `--stage-border` 同階，
+`--stage-drop` 直接沿用該主題 `--shadow-stage` 的落影段（沒覆寫 `--shadow-stage`
+的主題就取 base 預設的黑色系）——footer 與舞台共用同一組語彙，才讀得出是同一張卡。
 
 ## 主題自帶靜態資源（`themes/<id>/assets/`）
 

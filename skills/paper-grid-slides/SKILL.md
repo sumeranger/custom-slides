@@ -1,6 +1,6 @@
 ---
 name: paper-grid-slides
-version: 1.2.0
+version: 1.2.1
 description: Use when asked to make a slide deck / presentation / 簡報 / slides for any topic, especially the paper-grid style (warm cream paper + terracotta + editorial serif + blueprint grid), click-driven web presentations with step-by-step reveal, or hover tooltips for terms and source quotes.
 ---
 

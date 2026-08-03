@@ -22,6 +22,14 @@
   --text-mute:    #7a7972;
   --text-faint:   #4a443e;
   --rule:         #2f2a25;
+  /* 底部進度條 footer 借用的「舞台邊線 / 舞台落影」，讓 [舞台 + footer] 讀成
+   * 同一張卡。不設的話會沿用 progress-bar.css 的 fallback ——那是 paper-grid
+   * 的暖棕 rgba(60,40,20,…)，掛在 espresso 舞台上會顯髒。邊線＝本主題的 --rule
+   * 同階；落影沿用 base 預設的黑色系（本主題刻意不覆寫 --shadow-stage）。
+   * 寫 tokens.css 安全：base.css 的 :root 沒宣告這兩個（只有 progress-bar.css
+   * 的行內 fallback），與 --font-features 同一類、非 † 那批。 */
+  --stage-edge:   rgba(245, 240, 229, 0.10);
+  --stage-drop:   0 40px 100px rgba(0, 0, 0, 0.55);
   --accent:       #ff4a2b;
   --accent-soft:  rgba(255, 74, 43, 0.14);
   --accent-glow:  rgba(255, 74, 43, 0.55);

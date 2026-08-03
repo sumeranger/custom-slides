@@ -20,6 +20,7 @@ npx skills add ssh://git@gitlab.webpat.co:2222/hank.hsueh/paper-grid-slides-temp
 
 | 版本 | 改動 |
 |---|---|
+| `1.2.1` | 修掉 `dbx-style` / `midnight-press` / `modern-minimal` 的進度條 footer 仍掛 `paper-grid` 暖棕邊線與落影的既有瑕疵——三者各在 `tokens.css` 覆寫 `--stage-edge`/`--stage-drop`，對齊自身色系 |
 | `1.2.0` | 新增第五個內建主題 `mountain-ink`（水墨山水）：白宣紙底＋墨綠 accent＋明體大標＋自帶三張山水底圖（三段氣壓，可換圖）；六個 primitive（`.v-seal` `.v-enso` `.v-brush-rule` `.v-mist` `.v-safe` `.v-step`）與 `--seq-1..4` 序列色。`scaffold.sh` 新增主題靜態資產搬運機制（`themes/<id>/assets/` → `styles/assets/`）；`progress-bar.css` 的舞台邊線/落影 tokenize 成 `--stage-edge`/`--stage-drop`（既有四主題零視覺差異）；補登記漏列的 `modern-minimal` |
 | `1.1.0` | 文風規範獨立成 [`references/TONE.md`](skills/paper-grid-slides/references/TONE.md)（改寫自 [oil-tone](https://github.com/oil-oil/oil-tone)，繁體在地化），成為所有產出文字的唯一真相來源；`SCRIPT.md` §2.2 的人稱與用詞規定改為與之一致（原「能用『你』就用『你』」「口語詞優先」已移除）；新增 `scripts/tone-lint.py` 文風檢查（簡繁通吃） |
 | `1.0.0` | Slidev/Vue 引擎、三主題、對抗式 critic 迴圈產線 |

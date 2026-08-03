@@ -44,6 +44,14 @@
   --text-mute:    #9aa9bc;
   --text-faint:   #5b6a80;
   --rule:         rgba(155, 176, 205, 0.18);
+  /* 底部進度條 footer 借用的「舞台邊線 / 舞台落影」，讓 [舞台 + footer] 讀成
+   * 同一張卡。不設的話會沿用 progress-bar.css 的 fallback ——那是 paper-grid
+   * 的暖棕 rgba(60,40,20,…)，掛在深藍舞台上會顯髒。值對齊本主題的舞台語彙：
+   * 邊線＝冷藍髮絲、落影＝extras.css 的 --shadow-stage 第一段。
+   * 寫 tokens.css 安全：base.css 的 :root 沒宣告這兩個（只有 progress-bar.css
+   * 的行內 fallback），與 --font-features 同一類、非 † 那批。 */
+  --stage-edge:   rgba(155, 176, 205, 0.16);
+  --stage-drop:   0 40px 100px rgba(0, 0, 0, 0.5);
   --accent:       #6ea8ff;
   --accent-soft:  rgba(110, 168, 255, 0.12);
   --accent-glow:  rgba(110, 168, 255, 0.35);

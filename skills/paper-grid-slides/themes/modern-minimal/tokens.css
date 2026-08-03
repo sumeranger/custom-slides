@@ -31,6 +31,15 @@
   --text-mute:    #787774;             /* labels / meta */
   --text-faint:   #A5A29B;             /* hints / disabled */
   --rule:         #EAEAEA;             /* hairline */
+  /* 底部進度條 footer 借用的「舞台邊線 / 舞台落影」，讓 [舞台 + footer] 讀成
+   * 同一張卡。不設的話會沿用 progress-bar.css 的 fallback ——那是 paper-grid
+   * 的暖棕 rgba(60,40,20,…)，掛在白舞台上會偏黃、與本主題的 #EAEAEA 髮絲線
+   * 對不上。值對齊本主題的舞台語彙：邊線＝--stage-border 同色、落影＝
+   * extras.css 的 --shadow-stage 第二段（近零擴散的極輕投影）。
+   * 寫 tokens.css 安全：base.css 的 :root 沒宣告這兩個（只有 progress-bar.css
+   * 的行內 fallback），與 --font-features 同一類、非 † 那批。 */
+  --stage-edge:   #EAEAEA;
+  --stage-drop:   0 24px 60px -34px rgba(47, 52, 55, 0.16);
   --accent:       #1F6C9F;             /* single restrained lead accent (muted blue) */
   --accent-soft:  rgba(31, 108, 159, 0.10);
   --accent-glow:  rgba(31, 108, 159, 0.26);
