@@ -16,15 +16,75 @@ npx skills add ssh://git@gitlab.webpat.co:2222/hank.hsueh/paper-grid-slides-temp
 技能自包含於 `skills/paper-grid-slides/`（SKILL.md + references/template/themes/scripts/example
 一起安裝）。更新：重跑同一行。
 
-## 版本
+目前版本 `1.3.0`，沿革見 **[CHANGELOG.md](CHANGELOG.md)**。
 
-| 版本 | 改動 |
+## 內建主題
+
+五個主題，一份 deck 從頭到尾只跑一個（不要中途換，會打斷視覺連貫性）。
+套用：`bash scripts/scaffold.sh <presentation-dir> --theme=<id>`，
+或 `--list-themes` 列出全部。**預設 `paper-grid`**。
+
+下圖皆為同一頁示範內容在各主題下的實際畫面，可直接比較字體、accent 與質感。
+
+| 主題 | 預覽 |
 |---|---|
-| `1.3.0` | 新增第三種可選敘事骨架「條目式報讀」（`SCRIPT.md` §1.7 + `OUTLINE.md` §1.1）：每段只報條目與數字、一條目一句摘要，延展留給問答。適用月報／週報這類講者在場、能被追問的例行報告；明列不適用場合（單向播放、需要說服）與與 §1.6 的分歧點（收尾**不**做逐章回顧、量化獨立成最後一章、開場不給總量數字） |
-| `1.2.1` | 修掉 `dbx-style` / `midnight-press` / `modern-minimal` 的進度條 footer 仍掛 `paper-grid` 暖棕邊線與落影的既有瑕疵——三者各在 `tokens.css` 覆寫 `--stage-edge`/`--stage-drop`，對齊自身色系 |
-| `1.2.0` | 新增第五個內建主題 `mountain-ink`（水墨山水）：白宣紙底＋墨綠 accent＋明體大標＋自帶三張山水底圖（三段氣壓，可換圖）；六個 primitive（`.v-seal` `.v-enso` `.v-brush-rule` `.v-mist` `.v-safe` `.v-step`）與 `--seq-1..4` 序列色。`scaffold.sh` 新增主題靜態資產搬運機制（`themes/<id>/assets/` → `styles/assets/`）；`progress-bar.css` 的舞台邊線/落影 tokenize 成 `--stage-edge`/`--stage-drop`（既有四主題零視覺差異）；補登記漏列的 `modern-minimal` |
-| `1.1.0` | 文風規範獨立成 [`references/TONE.md`](skills/paper-grid-slides/references/TONE.md)（改寫自 [oil-tone](https://github.com/oil-oil/oil-tone)，繁體在地化），成為所有產出文字的唯一真相來源；`SCRIPT.md` §2.2 的人稱與用詞規定改為與之一致（原「能用『你』就用『你』」「口語詞優先」已移除）；新增 `scripts/tone-lint.py` 文風檢查（簡繁通吃） |
-| `1.0.0` | Slidev/Vue 引擎、三主題、對抗式 critic 迴圈產線 |
+| **`paper-grid`** 暖紙藍圖 · 預設<br>暖奶油紙底＋磚紅 accent＋厚編輯襯線＋藍圖格線簽名。<br>適合：技術簡報 / 教程 / 產品評測 | ![paper-grid 主題預覽](docs/previews/theme-paper-grid.png) |
+| **`modern-minimal`** 現代極簡<br>白底編輯式極簡：sans 大標、髮絲線、趨近於零的陰影、安靜微互動。<br>適合：技術簡報 / 選型報告 / 產品評估 | ![modern-minimal 主題預覽](docs/previews/theme-modern-minimal.png) |
+| **`mountain-ink`** 水墨山水<br>白宣紙底＋墨綠 accent＋明體大標；自帶山水底圖（扉頁滿版、內頁淡化，可換自己的圖），朱砂印章是全場唯一暖色。<br>適合：主題演講 / 願景簡報 / 文化教育內容 | ![mountain-ink 主題預覽](docs/previews/theme-mountain-ink.png) |
+| **`dbx-style`** DBX 深色科技<br>深色科技感＋玻璃質感工程師風，取自 DBX 官網色票。<br>適合：產品簡報 / 技術評測 / 工程團隊分享 | ![dbx-style 主題預覽](docs/previews/theme-dbx-style.png) |
+| **`midnight-press`** 午夜印刷<br>電影感編輯級深色，暖 espresso 底、單一火熱橙 accent。此 skill 的舊主題，保留原樣不修改視覺。<br>適合：備用（此 skill 實際驗收的是 `paper-grid`） | ![midnight-press 主題預覽](docs/previews/theme-midnight-press.png) |
+
+主題怎麼組成、`tokens.css` 與 `extras.css` 各自負責什麼、自製主題要注意的
+cascade 地雷，見 **[`references/THEMES.md`](skills/paper-grid-slides/references/THEMES.md)**。
+
+## 敘事骨架（三選一，可選）
+
+全篇的敘事結構，**不是預設模板**——套用前先跟講者對過語氣與場合
+（[`SCRIPT.md`](skills/paper-grid-slides/references/SCRIPT.md) §0-A）。
+三種都不合適時就不套，照 §1.1～§1.4 的基本原則寫。
+
+### 破題結構（[§1.5](skills/paper-grid-slides/references/SCRIPT.md)）
+
+```
+開場：現況觀察（聽眾會點頭的背景）
+  └→ 轉出真正的問題意識
+     ├ 各段落展開
+     └ 收尾：平實陳述句收束（預設不丟 mic-drop 金句）
+```
+
+三個特徵：鋪陳現況再轉問題意識、收尾平實、技術詞彙直接點名不做防禦性包裝。
+
+適合：技術分享、方法論陳述，講者定位是「講一套做事方法」
+不適合：對主管做風險敏感的正式匯報（那裡需要防禦性措辭）
+
+### 路線圖 + 收尾回顧（[§1.6](skills/paper-grid-slides/references/SCRIPT.md)）
+
+```
+開場：列出路線圖（① 是什麼 → ② 比較 → ③ 心得）
+  ├ 段落 ①
+  ├ 段落 ②
+  └ 段落 ③
+收尾：逐點回顧，用詞與開場路線圖呼應
+```
+
+適合：教學、技術分享——聽眾從頭就有地圖，中途不迷路
+不適合：需要懸念或戲劇性轉折（開場就劇透了大綱）
+
+### 條目式報讀（[§1.7](skills/paper-grid-slides/references/SCRIPT.md)）
+
+```
+開場：路線圖，但不給總量數字
+  ├ 段落 1  條目·條目·條目 + 1 個數字視覺
+  ├ 段落 2  條目·條目·條目 + 1 個數字視覺
+  └ 量化段（總量數字留到這裡才有參照點）
+收尾：一句「以上是本月彙整」— 不逐段回顧
+```
+
+一條目一句摘要，不展開因果；**延展發生在問答，不在投影片上**。
+必須配 `verbosity: concise`——刻意短是設計選擇，不是內容不足。
+
+適合：月報／週報等例行報告，講者在場、能被當場追問
+不適合：單向播放（錄影、非同步分享）、需要說服的簡報
 
 ## 給 AI agent
 
@@ -70,3 +130,7 @@ npm install && npm run dev        # Slidev dev server → http://localhost:3030
 | `template/presentation/global-top.vue` · `global-bottom.vue` | 點擊推進閘 / 章節進度條 |
 | `template/presentation/*.mjs` | playwright 驗證腳本（`snap-sweep` tooltip 超界掃描 / `snap-hover` 單點 / `lint-notes` 旁白覆蓋） |
 | `template/presentation/scripts/` | SRT/TTS 工具（`script-to-srt.sh` 今日可用於切 step；`synthesize-audio.sh` + tts-providers 等 phase 2 notes 版 extractor，見該目錄 README） |
+
+repo 根目錄的 `README.md` / `CHANGELOG.md` / `docs/` **不隨 skill 安裝**——
+`npx skills add` 只搬 `skills/paper-grid-slides/`。上面那些主題預覽圖放在
+`docs/previews/`（純展示用），安裝者不會被迫下載。
