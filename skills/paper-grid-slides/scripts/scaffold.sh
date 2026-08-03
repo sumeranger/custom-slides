@@ -93,6 +93,24 @@ else
     > "$TARGET/styles/extras.css"
 fi
 
+# ── 主題靜態資產（可選）：主題可自帶靜態檔於 themes/<id>/assets/（如底圖）。
+# 契約：整包複製到 <target>/styles/assets/，主題 CSS 用相對 url("./assets/x")
+# 引用——Vite 解析 CSS url() 是以「該 CSS 檔自己的實體路徑」為基準（含自訂屬性
+# 宣告內的 url），所以同一行字面路徑在 themes/<id>/ 與 <target>/styles/ 兩邊都
+# 成立，dev / build / export 三種模式皆然（export 走的也是 dev server 路徑）。
+# 一律先清掉目標既有的 styles/assets（＝上一個主題留下的圖）再複製本主題的；
+# 沒有 assets/ 的主題（paper-grid 等）＝只清不建，不留空目錄。
+ASSET_COUNT=0
+rm -rf "${TARGET:?}/styles/assets"     # :? 防 TARGET 意外為空造成災難性刪除
+if [[ -d "$THEME_DIR/assets" ]]; then
+  mkdir -p "$TARGET/styles/assets"
+  cp -R "$THEME_DIR/assets/." "$TARGET/styles/assets/"   # 複製內容，避免 assets/assets/
+  ASSET_COUNT=$(find "$TARGET/styles/assets" -type f | wc -l | tr -d ' ')
+elif grep -q 'url("\./assets/' "$THEME_DIR/tokens.css" 2>/dev/null; then
+  echo "⚠ 主題 '$THEME' 的 tokens.css 引用了 ./assets/，但 themes/$THEME/assets/" >&2
+  echo "  不存在——build 會 fail（資產走模組圖，這是刻意的 fail-loud）。" >&2
+fi
+
 echo "$THEME" > "$TARGET/.theme"
 
 # ── colorSchema：依 theme.json 的 "colorSchema" 欄位 patch slides.md headmatter。
@@ -117,10 +135,12 @@ if [[ -f "$THEME_DIR/theme.json" && -f "$TARGET/slides.md" ]]; then
 fi
 
 echo "✓ 已套用主題：$THEME"
+echo "  改了 $TARGET/styles/tokens.css、$TARGET/styles/extras.css、$TARGET/.theme"
 if [[ -n "$SCHEMA_PATCHED" ]]; then
-  echo "  改了 $TARGET/styles/tokens.css、$TARGET/styles/extras.css、$TARGET/.theme"
   echo "  headmatter colorSchema → ${SCHEMA_PATCHED}（依 theme.json，見 slides.md）"
-else
-  echo "  改了 $TARGET/styles/tokens.css、$TARGET/styles/extras.css、$TARGET/.theme"
+fi
+if [[ "$ASSET_COUNT" -gt 0 ]]; then
+  echo "  另複製了 ${ASSET_COUNT} 個主題資產到 $TARGET/styles/assets/"
+  echo "  （要換成自己的圖：覆蓋同名檔即可；重跑 scaffold 會蓋掉，與兩個 css 檔同規則）"
 fi
 echo "  重新整理 dev server 即可看到效果，章節程式碼一行沒動。"

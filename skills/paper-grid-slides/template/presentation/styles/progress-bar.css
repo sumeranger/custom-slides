@@ -36,12 +36,19 @@
   bottom: 88px !important;
 }
 
-/* 條帶 = 與舞台同寬 + 同紙面，讀作卡片的 footer，而非獨立浮動面板 */
+/* 條帶 = 與舞台同寬 + 同紙面，讀作卡片的 footer，而非獨立浮動面板。
+
+   --stage-edge / --stage-drop 的語義是「舞台的邊線色 / 舞台的落影」——footer
+   借用它們，[舞台 + footer] 才讀成同一張卡。兩者**不在 base.css 的 :root 裡
+   宣告**（只有這裡的行內 fallback），所以主題直接寫在 tokens.css 是安全的，
+   屬 --font-features / --headline-weight 那一類，不是 THEMES.md「理由二」那批
+   必須放 extras.css 的性格旋鈕。fallback 值 = paper-grid 的暖棕，讓未宣告這
+   兩個 token 的既有主題維持原輸出。 */
 .pb-chapters {
   position: relative;
   width: 100%;
   background: var(--surface);
-  border-top: 1px solid rgba(60, 40, 20, 0.15);
+  border-top: 1px solid var(--stage-edge, rgba(60, 40, 20, 0.15));
   border-radius: 0 0 var(--r-stage, 0) var(--r-stage, 0);
   /* small side padding so the outermost pills reach (touch) the card edges */
   padding: 12px 10px;
@@ -52,10 +59,10 @@
   /* continue the stage's 1px edge on the 3 open sides + share its soft drop
      shadow so the whole [stage + footer] casts one shadow */
   box-shadow:
-    inset 1px 0 0 rgba(60, 40, 20, 0.15),
-    inset -1px 0 0 rgba(60, 40, 20, 0.15),
-    inset 0 -1px 0 rgba(60, 40, 20, 0.15),
-    0 40px 100px rgba(60, 40, 20, 0.22);
+    inset 1px 0 0 var(--stage-edge, rgba(60, 40, 20, 0.15)),
+    inset -1px 0 0 var(--stage-edge, rgba(60, 40, 20, 0.15)),
+    inset 0 -1px 0 var(--stage-edge, rgba(60, 40, 20, 0.15)),
+    var(--stage-drop, 0 40px 100px rgba(60, 40, 20, 0.22));
   pointer-events: auto;
 }
 

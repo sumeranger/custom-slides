@@ -104,6 +104,8 @@ preflight 靠的是**載入順序**、不是 specificity，所以絕不能重排
 | `paper-grid` | 暖紙編輯風＋磚紅 accent＋藍圖網格簽名。**本 skill 目前實際使用與驗收的預設主題**，切換主題前先確認你真的需要換掉它。 |
 | `dbx-style` | 深色科技感＋玻璃質感工程師風，取自 DBX 官網色票，固定角落光暈裝飾。 |
 | `midnight-press` | 電影感編輯級深色，暖色 espresso 底、單一火熱橙 accent。此 skill 的舊主題殘留，保留相容、非目前使用對象。 |
+| `modern-minimal` | 白底編輯式極簡：暖 monochrome 底、霧面粉彩點綴、sans 大標、髮絲分隔線、趨近於零的陰影。依 `minimalist-ui` 協定。另備 `--sem-*` 非契約 token 做狀態色。 |
+| `mountain-ink` | 宣紙米白底＋墨綠 accent＋明體中文大標＋山水底圖（三段氣壓，見下「主題自帶靜態資源」）。六個 primitive：`.v-seal`（朱砂印）`.v-enso`（圓相）`.v-brush-rule`（毛筆掃痕）`.v-mist`（霧靄）`.v-safe`（底圖頁的文字安全寬，隨氣壓自動變）`.v-step`（timeline 階段圓）。另備 `--seq-1..4` 序列色（同色相的墨色濃淡階，每階白字皆 ≥4.5:1）。**唯一自帶靜態資產的主題**。 |
 
 隨時列出可用主題：
 
@@ -224,12 +226,65 @@ bash <skill-root>/scripts/scaffold.sh <新專案>/presentation --theme=dbx-style
 
 | token | 作用 |
 |---|---|
-| `--surface-pattern` | 疊在舞台上的 `background-image`（噪聲/網格/掃描線） |
-| `--surface-pattern-size` | 配套的 `background-size` |
-| `--surface-pattern-blend` | pattern 層的 `mix-blend-mode` |
-| `--surface-pattern-opacity` | pattern 層透明度乘子 |
-| `--surface-vignette` | vignette/光暈疊層的 `background`（可放多個 `radial-gradient`，逗號分隔對應多個固定角落光暈——`dbx-style` 就是這樣做兩個角的固定光暈裝飾） |
+| `--surface-pattern` ‡ | 疊在舞台上的 `background-image`（噪聲/網格/掃描線） |
+| `--surface-pattern-size` ‡ | 配套的 `background-size` |
+| `--surface-pattern-blend` ‡ | pattern 層的 `mix-blend-mode` |
+| `--surface-pattern-opacity` ‡ | pattern 層透明度乘子 |
+| `--surface-vignette` | vignette/光暈疊層的 `background`（可放多個 `radial-gradient`，逗號分隔對應多個固定角落光暈——`dbx-style` 就是這樣做兩個角的固定光暈裝飾；`mountain-ink` 則用它掛整張底圖，見下） |
 | `--text-shadow` | 應用在 `.serif-cn`/`.serif-it`/`.display-en` 上 |
+
+‡ **這四個不只餵舞台，也餵底部進度條。** `styles/progress-bar.css` 的
+`.pb-chapters::before` 也消費它們（用途：讓 paper-grid 的藍圖網格延伸進 footer，
+使舞台+footer 讀成同一張卡），而且用 `background-size: var(--pb-grid, 48px)`
+**覆寫尺寸**。所以：**細碎、可平鋪的紋理**（網格、噪聲、掃描線）掛這裡沒問題；
+**一張具體的插畫/照片**掛這裡會在進度條裡被縮成 48×48 平鋪成一排碎圖——那種要
+改掛 `--surface-vignette`（只有 `.stage-frame::before` 消費）。`.pb-chapters::before`
+是 theme-agnostic 在 base 層，主題無法只關掉自己那半。詳見 GUIDE §6.33。
+
+另外兩個非 base 契約、但主題可覆寫的 token（宣告在 `progress-bar.css` 的行內
+fallback，`base.css` 的 `:root` **沒有**同名宣告，所以寫 `tokens.css` 安全）：
+
+| token | fallback | 作用 |
+|---|---|---|
+| `--stage-edge` | `rgba(60,40,20,0.15)` | 舞台邊線色；進度條 footer 借用它續接舞台的三面邊 |
+| `--stage-drop` | `0 40px 100px rgba(60,40,20,0.22)` | 舞台落影；footer 與舞台共用一坨影子 |
+
+fallback 是 paper-grid 的暖棕。**冷色系主題應該覆寫這兩個**，否則 footer 會掛著
+一圈暖棕邊（目前 `dbx-style` / `midnight-press` / `modern-minimal` 都還沒覆寫，
+是已知的既有小瑕疵，等有人要修時各加兩行即可）。
+
+## 主題自帶靜態資源（`themes/<id>/assets/`）
+
+主題可以自帶靜態檔（底圖、材質、logo…），放 `themes/<id>/assets/`。
+`scripts/scaffold.sh` 套用主題時會**整包複製**到 `<target>/styles/assets/`，並在
+切換主題時先清掉上一個主題留下的資產（`rm -rf <target>/styles/assets`）。
+沒有 `assets/` 的主題不受任何影響（清一個不存在的目錄是 no-op）。
+
+主題 CSS 用**相對路徑**引用：
+
+```css
+--mi-art-far: url("./assets/mi-far.webp");
+```
+
+**為什麼相對路徑兩邊都成立**：Vite 解析 CSS `url()` 是以「該 CSS 檔自己的實體
+路徑」為基準（`UrlRewritePostcssPlugin` 走所有宣告，含自訂屬性宣告）。所以同一行
+字面路徑，在 `themes/<id>/tokens.css`（旁邊就是 `assets/`）與被複製後的
+`<target>/styles/tokens.css`（旁邊也是 `assets/`）都解析得到。dev、`npm run build`、
+`slidev export` 三種模式皆然（export 走的也是 dev server 路徑）。
+
+慣例：
+
+- **`url()` 只寫在 `tokens.css`**（收成幾個 `--xxx-art-*` 變數），`extras.css` 只引用
+  變數——資產依賴集中一處，好稽核。
+- **放 `styles/assets/`，不要新建 `public/`。** 走模組圖的好處是 **fail-loud**：
+  資產漏了 `npm run build` 直接報 `Failed to resolve`，而 `public/` 只會靜默 404。
+  清理面積也小（只動一個目錄，不會誤刪使用者自己放在 `public/` 的東西），且天然
+  帶 base 前綴與 hash。
+- **使用者換自己的圖 = 覆蓋 `<target>/styles/assets/` 的同名檔**，不必動 CSS。但要
+  知道那是 scaffold 的產物，**重跑 scaffold 會被蓋掉**（與 `tokens.css`/`extras.css`
+  同規則）；要永久化就放進自己的 `themes/<id>/assets/`。
+- 資產會隨 `npx skills add` 分發，**控制體積**（`mountain-ink` 的三張 1920×1080
+  WebP 合計 &lt;25KB）。
 
 ## 新增主題
 
@@ -243,9 +298,22 @@ bash <skill-root>/scripts/scaffold.sh <新專案>/presentation --theme=dbx-style
    **不要只憑肉眼看 `tokens.css` 源碼就判斷「應該生效了」**：跑一次
    `npm run build`，grep 建出來的 `dist/assets/*.css` 確認該屬性最後
    一次出現的值就是你要的值，這一步做完才算新主題完成。
-4. 改 `theme.json`：`id` 必須等於目錄名。
-5. 用 `scripts/scaffold.sh <暫存目錄> --theme=my-theme` 套用，`npm run dev` 過一遍所有章節，用 `npm run export`（逐頁逐拍 PNG）＋ `npm run snap-sweep` 截圖檢查。
-6. 在本文件「內建主題」表格加一行。
+4. 改 `theme.json`：`id` 必須等於目錄名，**別漏 `colorSchema`**（scaffold 靠它 patch
+   `slides.md` headmatter；深色主題漏填會讓 Slidev chrome 白底白 icon，見 GUIDE §6.30）。
+5. **若主題要掛整張插畫底圖**：掛 `--surface-vignette`（不是 `--surface-pattern`——
+   那組被底部進度條共用），並在 `extras.css` 加
+   `.stage-frame::before { z-index: -1 }`（否則裝飾層會蓋在扉頁大標之上）。
+   完整原理與三段氣壓的 `class:` 切換法見 GUIDE §6.33；資產放法見上面
+   「主題自帶靜態資源」。
+6. **冷色系主題順手覆寫 `--stage-edge` / `--stage-drop`**，否則底部進度條 footer
+   會掛著 paper-grid 的暖棕邊與落影（見「可選的裝飾層」末段）。
+7. 用 `scripts/scaffold.sh <暫存目錄> --theme=my-theme` 套用，`npm run dev` 過一遍所有章節，用 `npm run export`（逐頁逐拍 PNG）＋ `npm run snap-sweep` 截圖檢查。
+   **用了 `mask` / `clip-path` / `mix-blend-mode` 這類會影響合成的效果，就連跑兩次
+   export 並 `compare -metric AE` 逐張比對**（全 0 才算穩定；不為 0 或出現白框就
+   換成 inline SVG data-uri，那條路徑走一般 image 解碼、dev/export 必然一致——
+   `mountain-ink` 的 `.v-enso` 就是為此從 conic+mask 改成 SVG 的）。
+8. 在本文件「內建主題」表格加一行，**並且改 repo 根 `README.md` 的 `themes/` 那一列**
+   （`modern-minimal` 當初就漏了這兩處，補登記時才發現）。
 
 ## 反模式
 

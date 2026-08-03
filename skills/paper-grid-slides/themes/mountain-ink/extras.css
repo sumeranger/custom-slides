@@ -1,0 +1,379 @@
+/* ─────────────────────────────────────────────────────────────────────
+ * mountain-ink theme · extras.css
+ *
+ * 載入在 base.css + animations.css 之後，所以同選擇器、同 :root 自訂屬性
+ * 都能贏過它們（cascade 契約見 THEMES.md）。
+ *
+ * Part 0 — base.css 會碰撞的性格旋鈕 :root 覆寫（必須放這裡，不能放 tokens.css）
+ * Part 1 — 舞台底圖：::before 層級修正 + 三段氣壓 class
+ * Part 2 — 四個東方 primitive（.v-seal / .v-enso / .v-brush-rule / .v-mist）
+ * ───────────────────────────────────────────────────────────────────── */
+
+/* ─── Part 0 ────────────────────────────────────────────────────────────
+ * base.css 自己的 :root 把 --r-card / --rule-w / --rule-style / --dur-* /
+ * --hero-num-* / --stage-pad-x / --stage-pad-y / --shadow-stage 也宣告了一次
+ * 當 fallback。tokens.css 載入在 base.css **之前**，寫在那裡會被靜默蓋掉
+ * （純文字 diff 看不出來——驗證方式是 npm run build 後 grep dist/assets/*.css
+ * 看該屬性最後一次出現的值）。所以這批必須寫在這裡。
+ * --dur-quick 不覆寫（沿用 base 的 280ms，UI 回饋不該跟著墨一起慢）。 */
+:root {
+  --r-card:          2px;              /* 宣紙貼片，近乎直角 */
+  --rule-w:          1px;
+  --rule-style:      solid;
+  --dur-base:        700ms;            /* 墨要慢慢暈 */
+  --dur-slow:       1100ms;
+  --dur-cinematic:  1600ms;
+  --hero-num-font:   var(--font-display-cn);   /* 明體數字，不用拉丁襯線 */
+  --hero-num-style:  normal;                   /* 中式不用 italic */
+  --hero-num-weight: 900;
+  --hero-num-track:  -0.03em;
+  --stage-pad-x:     132px;            /* 留白比 paper-grid 更多（水墨要透氣） */
+  --stage-pad-y:     100px;
+  --shadow-stage:
+    0 40px 120px rgba(31, 45, 36, 0.20),
+    0 0 0 1px rgba(31, 45, 36, 0.06);
+}
+
+/* ─── Part 1：舞台底圖 ──────────────────────────────────────────────────
+ *
+ * 1a. 層級修正（**沒有這條，扉頁大標會被底圖洗掉**）
+ *
+ * base.css 的 .stage-frame::before 是 z-index:1 的 absolute 子元素。CSS 繪製
+ * 順序裡，正 z-index 的定位子元素（step 7）排在「非定位 in-flow 後代」
+ * （step 3–5）**之上**——而 chapter-open.vue 的眉題與 <h1> 正是非定位 in-flow。
+ * paper-grid 的 vignette 幾乎全透明所以看不出來（既有的隱性小 bug），但本主題
+ * 掛的是 0.28 不透明度的山形圖，不修就會直接蓋在標題上。
+ *
+ * 改 -1：負 z-index 子元素畫在「元素自身背景之後、in-flow 內容之前」，正好是
+ * 底圖該在的位置。安全前提是 .stage-frame 自成 stacking context——它同時帶
+ * .scene（z-index:2 + position:absolute），已用 devtools 實測確認；所以 -1 不會
+ * 逃出去掉到 letterbox 後面。**若未來有 layout 只掛 .stage-frame 不掛 .scene，
+ * 底圖會消失**（見 THEMES.md 新增主題 checklist）。
+ * 這條只寫在本主題的 extras，不動 base.css（那會影響其他四個主題）。 */
+.stage-frame::before {
+  z-index: -1;
+  border-radius: inherit;
+}
+
+/* 1b. 三段氣壓
+ *
+ * 預設（一般內容頁）= tokens.css 的 :root --surface-vignette（極淡遠山）。
+ * 下面用 .stage-frame 上的 class 切換：(0,2,0) 勝過 :root 的 (0,1,0)，而
+ * ::before 讀的是 originating element 的自訂屬性值。
+ *
+ * 作者 API：
+ *   一般內容頁（layout: canvas）      → 什麼都不用寫
+ *   章節扉頁（layout: chapter-open）  → 什麼都不用寫（.chapter-open 自動命中）
+ *   封面 / 結尾                       → frontmatter 加 `class: v-art-full`
+ *   要完全乾淨                        → frontmatter 加 `class: v-art-none`
+ *   canvas 手刻的扉頁                 → frontmatter 加 `class: v-art-chapter`
+ *
+ * frontmatter 的 class 會經 Slidev 的 frontmatterToProps（class 不在
+ * FRONTMATTER_FIELDS 白名單內）+ Vue fallthrough 落到 layout 單根元素，
+ * 也就是 .stage-frame 本身——已實測確認。
+ *
+ * 耦合揭露：.stage-frame.chapter-open 讓主題 CSS 引用了模板 layout 的 class。
+ * 刻意為之（換來「扉頁零 API」），依賴 chapter-open.vue 的根元素同時帶
+ * .stage-frame 與 .chapter-open。
+ *
+ * 順序重要：.chapter-open 在前、.v-art-* 在後（同 specificity，後者贏），
+ * 這樣作者能在 chapter-open 頁用 class 覆蓋成別的氣壓。 */
+
+/* 章節扉頁：中景山形靠右（~0.28），左側留給大標 */
+.stage-frame.chapter-open,
+.stage-frame.v-art-chapter {
+  --surface-vignette:
+    linear-gradient(100deg,
+      rgba(var(--paper-rgb), 1.00)   0%,
+      rgba(var(--paper-rgb), 0.97)  30%,
+      rgba(var(--paper-rgb), 0.86)  58%,
+      rgba(var(--paper-rgb), 0.72) 100%),
+    var(--mi-art-ridge) right center / cover no-repeat;
+}
+
+/* 封面 / 結尾：滿版（~0.55）。scrim 仍在左上留一塊較實的區域托住標題，
+ * 不然大標壓在山上會掉到 4.5:1 以下。 */
+.stage-frame.v-art-full {
+  --surface-vignette:
+    linear-gradient(112deg,
+      rgba(var(--paper-rgb), 0.92)   0%,
+      rgba(var(--paper-rgb), 0.72)  34%,
+      rgba(var(--paper-rgb), 0.48)  62%,
+      rgba(var(--paper-rgb), 0.40) 100%),
+    var(--mi-art-full) center / cover no-repeat;
+}
+
+/* 完全乾淨的宣紙（資料密集頁 / 大表格 / 代碼頁） */
+.stage-frame.v-art-none {
+  --surface-vignette: none;
+  --v-safe-w: 100%;
+}
+
+/* 1c. 文字安全區 .v-safe（寬度）＋ .v-art-full 的垂直乾淨帶
+ *
+ * 底圖有畫面，文字就不能無限往右長——**這不只是對比度問題**：實測 v-art-full
+ * 頁到 81% 寬都還有 4.5:1，但字壓在山的紋理上仍然「讀起來髒」。可讀性與版面
+ * 清爽是兩件事，這裡管的是後者。
+ *
+ * --v-safe-w 的數值是**量出來的，不是猜的**。方法：把 scrim 的漸層在程式裡重
+ * 算一次、與底圖逐點合成，找出「合成後亮度 ≥ 249（與紙 252 差 3 以內，肉眼
+ * 幾乎看不出有東西）」的最右邊界。
+ *
+ * ⚠ 門檻要用「乾淨紙」而不是「中墨」。第一版用中墨 <185 掃，得到 full 44% /
+ * ridge 58%，實際看仍然髒——因為**霧氣比中墨淡得多，卻一樣讓字顯髒**。改用
+ * 249 門檻重量的結果（逐 y 帶分別量，因為霧的分佈隨高度變）：
+ *   mi-full   大標帶 42%、正文帶 0%（見下方 .v-art-full 的垂直處理）
+ *   mi-ridge  大標帶 67%、正文帶 60%  → 取 58%
+ *   mi-far    大標帶 100%、正文帶 80% → 取 72%（也順便避免長行難讀）
+ * 換自己的圖時這些數字要重量（方法見 THEMES.md）。
+ *
+ * 用法：套在 .scene-pad 內的文字容器上（標題、正文、列表都可以）。
+ *   <div class="scene-pad">
+ *     <h2 class="v-serif-bold v-safe">…</h2>
+ *     <p class="v-safe">…</p>
+ *   </div>
+ * 卡片/表格/圖表這類「本來就有自己背景」的區塊不需要它——它們的底不透明，
+ * 壓在山上不會髒。 */
+:root            { --v-safe-w: 72%; }   /* 內容頁預設（mi-far） */
+.v-art-full      { --v-safe-w: 38%; }   /* 42% 量測值再收 4% 當喘息 */
+.chapter-open,
+.v-art-chapter   { --v-safe-w: 58%; }
+
+.v-safe { max-width: var(--v-safe-w); }
+/* 寬鬆版：讓文字多吃一點空間（短句、大標可用，仍不會撞到主峰） */
+.v-safe.is-wide  { max-width: calc(var(--v-safe-w) + 12%); }
+
+/* .v-art-full 的垂直乾淨帶
+ *
+ * 滿版底圖光收窄寬度救不了：逐橫帶量測顯示 mi-full 在 **y > 52%** 之後，
+ * 連最左邊緣都有霧與水面（左側 0–45% 區間的最暗合成亮度掉到 193–224），
+ * 任何寬度都不乾淨。所以滿版頁的文字群要整體**貼上半部**，不要垂直置中。
+ *
+ * 做法：把 .scene-pad 的內容推到上方並限制高度在 52% 以內。章節若自己在
+ * .scene-pad 上寫了 justify-content（例如置中），這條會被章節的 inline style
+ * 蓋掉——那是刻意的逃生口，但蓋掉之前先確認該頁的文字量真的塞得進乾淨帶。 */
+.v-art-full .scene-pad {
+  justify-content: flex-start;
+  padding-bottom: 0;
+}
+/* 文字群佔上半部；底下留給山水。用 grid 而非 margin 才不會影響絕對定位元素。 */
+.v-art-full .scene-pad > * { flex-shrink: 0; }
+
+/* ─── Part 2：東方 primitive ────────────────────────────────────────────
+ *
+ * 匯出安全性的判準（GUIDE §6.24 的教訓）：白屏成因是 backdrop-filter 要讀
+ * 「背後已合成的緩衝區」。clip-path / gradient / mix-blend-mode 只讀自身或
+ * 同 stacking context 的既有繪製，**不是同一失效類**，且模板已有實戰先例
+ * （animations.css 的 .mask-reveal 用 clip-path 過了整套 export；paper-grid
+ * 的 --surface-pattern-blend: multiply 也過了）。
+ * mask 屬「低風險但必須驗」——見 .v-enso。
+ * ───────────────────────────────────────────────────────────────────── */
+
+/* ── .v-seal：朱砂印章 ──────────────────────────────────────────────────
+ * 全場唯一的暖色點綴。
+ *
+ * ⚠ 四字印**不要用 writing-mode 讓瀏覽器自動折欄**。writing-mode 是「填滿一欄
+ * 再換下一欄」：給「山水之間」四字，vertical-rl 會排成「山之／水間」（右欄
+ * 山水、左欄之間，但橫著讀就錯了），vertical-lr 也只是左右對調，兩種都不對。
+ * 傳統四字印的讀序是「右上→右下→左上→左下」，也就是**右欄「山水」、左欄
+ * 「之間」**——這要靠明確的兩欄結構，不能靠自動折行。
+ *
+ * 所以 .v-seal 用 grid 兩欄（direction: rtl 讓第一欄落在右邊），每欄是一個
+ * <span>，文字在欄內縱向排。章節寫法：
+ *   <div class="v-seal"><span>山水</span><span>之間</span></div>
+ * 兩字印更簡單，直接一個 <span>：
+ *   <div class="v-seal"><span>山水</span></div>
+ * 完全不想處理字：<div class="v-seal is-blank"></div>
+ *
+ * 誠實揭露：fonts.css 沒有篆體 webfont，所以這是「明體白字壓朱紅」的**印章
+ * 感**，不是真篆刻。想要零風險就用 .is-blank 無字變體。
+ *
+ * 不用 mix-blend-mode: multiply——朱紅壓在宣紙上 multiply 幾乎不改變顏色
+ * （白宣紙是極高亮度底，multiply 幾乎等於不變），卻讓元素多一層合成風險。改用極輕的 inset 暗邊 + 外緣
+ * 淡朱色暈染，看起來就有印泥吃進紙的感覺。 */
+.v-seal {
+  display: grid;
+  grid-auto-flow: column;
+  direction: rtl;                      /* 第一個 span 落在右欄（傳統讀序） */
+  justify-content: center;
+  align-items: center;
+  gap: 2px;
+  width: 84px;
+  height: 84px;
+  padding: 8px;
+  background: var(--ink-seal);
+  border-radius: 3px;
+  box-shadow:
+    inset 0 0 0 3px rgba(var(--paper-rgb), 0.24),
+    inset 0 0 12px rgba(90, 20, 14, 0.35),        /* 印泥不均 */
+    0 0 0 1px rgba(178, 58, 46, 0.30),
+    0 0 14px 2px rgba(233, 161, 147, 0.35);       /* 外緣暈染 */
+  color: var(--surface);
+  font-family: var(--font-display-cn);
+  font-weight: 700;
+  font-size: 30px;
+  line-height: 1.02;
+  letter-spacing: 0;
+  transform: rotate(-1.5deg);          /* 手蓋的印不會完全正 */
+}
+/* 每一欄：欄內文字縱向排（一個字一行） */
+.v-seal > span {
+  direction: ltr;
+  writing-mode: vertical-rl;
+  text-orientation: upright;
+  display: block;
+}
+/* 無字變體：純朱紅方塊 + 雙層內描邊，視覺風險為零（沒有字就沒有字體問題） */
+.v-seal.is-blank {
+  box-shadow:
+    inset 0 0 0 3px  rgba(var(--paper-rgb), 0.24),
+    inset 0 0 0 15px var(--ink-seal),
+    inset 0 0 0 18px rgba(var(--paper-rgb), 0.20),
+    inset 0 0 12px rgba(90, 20, 14, 0.35),
+    0 0 0 1px rgba(178, 58, 46, 0.30),
+    0 0 14px 2px rgba(233, 161, 147, 0.35);
+}
+/* 落在舞台右下角。**不可貼底**——底部進度條吃掉舞台約 70px（GUIDE §6.25），
+ * 所以 bottom 給 110px（70 + 40 呼吸）。 */
+.v-seal-corner {
+  position: absolute;
+  right: var(--stage-pad-x);
+  bottom: 110px;
+  z-index: 5;
+}
+
+/* ── .v-enso：圓相（禪意毛筆圓環）────────────────────────────────────────
+ * 走 inline SVG data-uri，**刻意不用 conic-gradient + mask**。兩個理由：
+ *
+ *  1. 匯出穩定性：mask 會強制 layer 提升。它跟 §6.24 的 backdrop-filter 不是
+ *     同一失效類（不讀 backdrop 緩衝），但既然有等效且零風險的做法，就沒必要
+ *     賭。SVG 走一般 image 解碼路徑，dev / build / export 三路必然一致。
+ *  2. 效果更好：conic 只能改顏色/透明度，配等寬的 radial mask 只做得出「等寬、
+ *     頭尾淡出」的環，不是毛筆。SVG 用兩條同心 arc 疊放（粗的一條負責中段飽滿
+ *     的筆腹、細的一條 + gradient 負責起收筆的提按），加 stroke-linecap:round
+ *     給筆尖，才有一筆畫成的味道。
+ *
+ * 代價（誠實揭露）：SVG data-uri 內讀不到 CSS 變數，所以墨色**硬編 #1F2D24**
+ * ＝ tokens.css 的 --text。這是本主題唯一的硬編色，例外邏輯同 GUIDE §2 鐵則
+ * 允許的「深色終端三色」。若你改了 --text，這裡要一起改（grep 231F2D24）。
+ *
+ * 缺口在右上（rotate 128deg 起筆、dasharray 留約 9% 空隙），符合傳統圓相
+ * 「起收筆不接」的樣子。 */
+.v-enso {
+  --enso-size: 320px;
+  width: var(--enso-size);
+  height: var(--enso-size);
+  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><linearGradient id="e" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="%231F2D24" stop-opacity="0.35"/><stop offset="0.28" stop-color="%231F2D24" stop-opacity="1"/><stop offset="0.78" stop-color="%231F2D24" stop-opacity="0.9"/><stop offset="1" stop-color="%231F2D24" stop-opacity="0.2"/></linearGradient></defs><g transform="rotate(128 50 50)"><circle cx="50" cy="50" r="41" fill="none" stroke="url(%23e)" stroke-width="9" stroke-linecap="round" pathLength="100" stroke-dasharray="72 100"/><circle cx="50" cy="50" r="41" fill="none" stroke="url(%23e)" stroke-width="4.5" stroke-linecap="round" pathLength="100" stroke-dasharray="91 100"/></g></svg>')
+    center / contain no-repeat;
+  opacity: 0.5;
+  pointer-events: none;
+}
+/* 墨色更淡的裝飾版（當大面積背景元素時用，避免搶走文字） */
+.v-enso.is-faint { opacity: 0.16; }
+
+/* ── .v-brush-rule：毛筆掃痕分隔線（取代直線 rule）──────────────────────
+ * 兩層合成，**不用 mask、不用飛白**：
+ *   1) clip-path 削成中間厚、兩端尖的柳葉形（＝提按）。clip-path 已被
+ *      animations.css 的 .mask-reveal 實戰驗過，export 安全。
+ *   2) 墨色漸層：起筆濃、收筆淡，一筆到底。
+ *
+ * 任何底圖濃度的頁面都能用（沒有紙色圖層，不會在深底上露餡）。 */
+.v-brush-rule {
+  --brush-ink: 31, 45, 36;             /* rgb 三元組，供下方 rgba() 組裝 */
+  height: 9px;
+  width: 100%;
+  border: 0;
+  margin: 0;
+  /* 柳葉形：中段飽滿、兩端收尖（＝提按）。用 % 座標，任何寬度都等比縮放。
+     形狀刻意不對稱：上緣起伏大、下緣平緩，像側鋒掃過。 */
+  clip-path: polygon(
+    0 47%, 4% 17%, 26% 7%, 52% 11%, 78% 20%, 100% 43%,
+    100% 57%, 76% 84%, 50% 93%, 24% 90%, 4% 79%);
+  /* 墨色本體：起筆濃、行筆穩、收筆淡——**一筆到底，不斷線**。
+     曾經在這層之上疊「紙色細條」模擬飛白，但飛白在 9px 高、上千 px 寬的細長
+     元素上不會被讀成筆觸的乾擦，只會讀成「這條線壞掉/是虛線」（實測兩版都
+     中招：等距 repeating-gradient 更糟，疏落斜痕仍像斷點）。飛白是大面積筆
+     觸才成立的細節，分隔線這種尺度只要「提按 + 濃淡」就夠有毛筆味。 */
+  background-image:
+    linear-gradient(90deg,
+      rgba(var(--brush-ink), 1)    0%,
+      rgba(var(--brush-ink), 1)   44%,
+      rgba(var(--brush-ink), 0.72) 70%,
+      rgba(var(--brush-ink), 0.34) 88%,
+      rgba(var(--brush-ink), 0.12) 100%);
+  opacity: 0.88;
+}
+/* 墨綠版（accent 色的掃痕）——只換 rgb 三元組。
+ * 這裡必須硬編 rgb（漸層要組 rgba，var() 帶不了 alpha），所以**改
+ * tokens.css 的 --accent 時，這一行要一起改**（值 = --accent 的 rgb）。 */
+.v-brush-rule.is-accent { --brush-ink: 74, 107, 92; }   /* = --accent #4A6B5C */
+/* 短掃痕：小標下方那條（配合 GUIDE §6.11 的段落編號眉題） */
+.v-brush-rule.is-short { width: 120px; height: 8px; }
+
+/* ── .v-step：階段圓（timeline / 流程步驟的編號圓）──────────────────────
+ * 消費上面的序列色。用法：
+ *   <div class="v-step" style="--step-c: var(--seq-1)">01</div>
+ * 或用序號 class（等價，少寫一點）：
+ *   <div class="v-step is-1">01</div> … <div class="v-step is-4">04</div>
+ *
+ * 白字壓在四階上都 ≥ 4.5:1（見 tokens.css 的序列色註解），可安心用實色。
+ * 連接線用 .v-step-line（放在 flex 容器裡當兄弟元素，或用容器的 ::before）。 */
+.v-step {
+  display: inline-grid;
+  place-items: center;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: var(--step-c, var(--accent));
+  color: var(--surface);
+  font-family: var(--font-mono);
+  font-size: var(--t-label);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  flex-shrink: 0;
+}
+.v-step.is-1 { --step-c: var(--seq-1); }
+.v-step.is-2 { --step-c: var(--seq-2); }
+.v-step.is-3 { --step-c: var(--seq-3); }
+.v-step.is-4 { --step-c: var(--seq-4); }
+.v-step.is-warm { --step-c: var(--seq-warm); }
+/* 未達成／待辦：淡底墨字（不是實色圓） */
+.v-step.is-pending {
+  background: var(--surface-2);
+  border: 1.5px solid var(--rule);
+  color: var(--text-mute);
+}
+/* timeline 的水平連接線——放在 .v-step 之間，flex:1 讓它自動撐開 */
+.v-step-line {
+  flex: 1;
+  height: 1.5px;
+  background: linear-gradient(90deg,
+    var(--rule) 0%, var(--rule) 88%, rgba(203, 210, 198, 0.3) 100%);
+  align-self: center;
+  min-width: 24px;
+}
+
+/* ── .v-mist：霧靄橫帶 ──────────────────────────────────────────────────
+ * 純漸層，零匯出風險。**刻意不加 filter: blur()**——純漸層本來就沒有邊要糊，
+ * 而大面積 filter 是唯一可能引入合成差異的地方。
+ * 用途：分層、柔化卡片邊界、把上下兩塊內容隔開。
+ * 定位時注意舞台底部 ~70px 是進度條（GUIDE §6.25），別貼死底部。 */
+.v-mist {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 220px;
+  pointer-events: none;
+  background: linear-gradient(180deg,
+    rgba(var(--paper-rgb), 0)    0%,
+    rgba(var(--paper-rgb), 0.72) 38%,
+    rgba(var(--paper-rgb), 0.86) 58%,
+    rgba(var(--paper-rgb), 0)   100%);
+}
+/* 帶一點苔綠的冷霧 */
+.v-mist.is-tinted {
+  background: linear-gradient(180deg,
+    rgba(207, 227, 209, 0)    0%,
+    rgba(207, 227, 209, 0.45) 50%,
+    rgba(207, 227, 209, 0)   100%);
+}

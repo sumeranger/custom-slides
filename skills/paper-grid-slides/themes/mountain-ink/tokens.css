@@ -1,0 +1,158 @@
+/* ─────────────────────────────────────────────────────────────────────
+ * Theme · mountain-ink（水墨山水）
+ *   白宣紙底 + 墨綠 accent + 明體中文大標 + 自帶山水底圖。
+ *
+ *   character knobs:
+ *     • headlines      — Ming-style serif CJK (Noto Serif TC), weight 900
+ *     • hero numbers   — 同一套明體，upright（不斜體，中式不用 italic）
+ *     • rule           — 1px solid 淡墨髮絲線
+ *     • card           — 近乎直角（2px），宣紙貼片感的極輕陰影
+ *     • surface        — 山水底圖三段氣壓（見下方 --surface-vignette）
+ *     • motion         — 比 paper-grid 更慢（墨要暈開）：700/1100/1600ms
+ *
+ *   本主題是這個 skill 第一個**自帶靜態資產**的主題：三張底圖放在
+ *   themes/mountain-ink/assets/，scaffold.sh 會整包複製到目標專案的
+ *   styles/assets/。url() 只出現在本檔（下面三個 --mi-art-* 變數），
+ *   extras.css 只引用變數——資產依賴集中一處。詳見 THEMES.md
+ *   「主題自帶靜態資源」。
+ *
+ *   Selector-level overrides 這個主題需要（.stage-frame::before 的
+ *   z-index 修正、三個 .v-art-* 氣壓 class、四個東方 primitive），連同
+ *   base.css 會碰撞的那批性格旋鈕 :root 覆寫，都在 extras.css。
+ * ───────────────────────────────────────────────────────────────────── */
+:root {
+  /* ─── palette：白宣紙 + 墨綠 ───
+   * 水墨的底是**白宣紙**，不是米黃牛皮紙——暖米底會讓墨綠偏土、失掉水墨該有
+   * 的清冷。#FCFCFB 幾乎是白、只留一絲暖，**刻意對齊 assets/ 三張底圖自身的
+   * 紙色**（那三張的留白量到 #FCFCFC～#FEFEFC）——舞台底色與圖的紙色必須同一
+   * 階，否則圖的邊界會在舞台上顯出一塊色差方框。換自己的圖時若紙色不同，這裡
+   * 與下面 --paper-rgb 要跟著調。
+   * 對比度已核（相對 --surface #FCFCFB）：text 14.0:1、text-2 7.1:1、
+   * text-mute 5.1:1、accent 6.1:1，皆過 GUIDE §6.1 的 4.5:1 硬地板。
+   *
+   * --paper-rgb 是同一個紙色的 rgb 三元組，給下面所有需要「紙色半透明」的
+   * 地方組 rgba() 用（scrim / 飛白 / 霧靄 / 印章描邊——var() 帶不了 alpha，
+   * 所以必須有這個三元組）。**改紙色時這兩個要一起改**，否則 scrim 會跟舞台
+   * 底色對不上、露出一片色差。 */
+  --paper-rgb:    252, 252, 251;
+  --shell:        #E6E5E0;             /* letterbox — 較舞台深一階的冷灰紙箱色 */
+  --surface:      #FCFCFB;             /* 白宣紙（對齊底圖自身的紙色） */
+  --surface-2:    #FFFFFF;             /* 凸起卡片 —— 比紙面更亮才浮得起來 */
+  --surface-3:    #F4F4F1;             /* 內嵌 */
+  --text:         #1F2D24;             /* 濃墨（近黑但帶綠） */
+  --text-2:       #4A5B47;             /* 次要 / 正文 */
+  --text-mute:    #56745A;             /* 標籤 / 眉題 —— 見下方 --ink-moss 註 */
+  --text-faint:   #93A98F;             /* 提示 / 禁用（不承載資訊） */
+  --rule:         #CBD2C6;             /* 淡墨髮絲線 */
+  /* accent —— 全站唯一品牌強色。
+   * 飽和度是這個主題最關鍵的一個數字：**底圖的墨實測只有 S 5–8%**
+   * （mi-full 中深調平均 #737F76 = H137° S5% L48%）。第一版用 #2E6B4F
+   * （S40%）當 accent，比底圖飽和五倍，結果整片綠跳出畫面、不像水墨——
+   * 水墨的顏色邏輯是「墨分五色」，靠濃淡不靠彩度。
+   * 現在的 #4A6B5C 是 S18%：仍然辨得出是綠、能承擔「指引視線」的功能
+   * （進度條當前章、v-em 強調、Term 底線），但不再與山水打架。
+   * 要再往下調可以，但 S 低於 ~12% 之後 accent 會與 --text-2 難以區分，
+   * 進度條就失去「現在在第幾章」的辨識度。 */
+  --accent:       #4A6B5C;             /* 淡墨綠（S18%，對紙 5.8:1） */
+  --accent-soft:  rgba(74, 107, 92, 0.10);
+  --accent-glow:  rgba(74, 107, 92, 0.24);
+
+  /* ─── fonts：明體中文大標 + 幾何 sans 拉丁與正文 ─── */
+  --font-display-cn: "Noto Serif TC", "Noto Serif SC", "Source Han Serif TC", serif;
+  --font-display-en: "Manrope", "Inter", system-ui, -apple-system, sans-serif;
+  --font-body:       "Manrope", "Noto Sans TC", "PingFang TC", system-ui, sans-serif;
+  --font-mono:       "JetBrains Mono", "IBM Plex Mono", ui-monospace, monospace;
+  --font-features:   "tnum", "ss01";
+  /* .v-serif-bold 標題字重。寫這裡安全：base.css 只用行內
+   * var(--headline-weight, 800) 引用、自己的 :root 沒宣告同名屬性。 */
+  --headline-weight: 900;
+
+  /* ─── 非契約補充 token（比照 modern-minimal 的 --sem-*）───
+   * --ink-seal 是「朱砂」，**只給 .v-seal 用**，不是第二個 accent：任何 UI
+   * 狀態、強調、連結、圖表都不得使用它（THEMES.md 反模式「第二個飽和 accent」）。
+   * --ink-moss 是使用者原始色票的 #6D8F6D，對白宣紙底只有 3.47:1、過不了
+   * GUIDE §6.1 的 4.5:1 硬地板，所以**不能**當 --text-mute（那個壓深成
+   * #56745A 了），降級為純裝飾用色。 */
+  --ink-seal:      #B23A2E;            /* 朱砂 */
+  --ink-seal-edge: #E9A193;            /* 印泥外緣 */
+  --ink-moss:      #6D8F6D;            /* 裝飾用苔綠（勿用於文字） */
+  --ink-moss-pale: #A7C4A1;
+  --ink-mist:      #CFE3D1;            /* 霧靄色 */
+  --ink-sand:      #EFCB93;            /* 暖沙（朝陽/落款用，勿當 accent） */
+  --ink-sand-pale: #F2E7C7;
+
+  /* ─── 序列色（timeline / 步驟 / 分類）───────────────────────────────
+   * 用途：timeline 的階段圓、流程步驟編號、少量分類編碼。**不是第二個
+   * accent**——它們全是同一個墨綠色相的濃淡階，符合「墨分五色」，不會在
+   * 畫面上多出一個競爭色。
+   *
+   * ⚠ 這組是「墨的濃淡」不是「彩虹」。需要 5 個以上分類時，不要自己往下
+   * 加更淡的階（會與 --text-faint / --rule 混淆、也擠不出區辨度）——改用
+   * 形狀、位置或分頁來區分。
+   *
+   * **每一階都保證白字（紙色）壓上去 ≥ 4.5:1**，所以可以安心當實色圓底、
+   * 標籤底、長條圖填色。這一點刻意偏離常見的水墨參考稿：那類設計常用
+   * #6D8F6D / #A7C4A1 這種淺色配白字（實測只有 3.5:1 與 1.9:1），投影到
+   * 大螢幕會看不清楚。這裡沿用它們的**色相**，但把亮度壓到可讀。
+   *   --seq-1 12.9:1   --seq-2 8.5:1   --seq-3 5.8:1   --seq-4 4.7:1
+   * 相鄰階亮度比 1.2–1.5，肉眼可分辨順序。
+   *
+   * --seq-3 就是 --accent 本身：序列走到「當前/重點」那一階時自然與品牌色
+   * 對齊，不需要另外記一個顏色。
+   * 淺色版（--seq-N-soft）是同色相的淡底，配 --text 墨字用（卡片底、
+   * 表格斑馬紋）；它們**不保證白字可讀**，只給墨字用。 */
+  --seq-1:      #243328;   --seq-1-soft: #DDE3DD;
+  --seq-2:      #3A5040;   --seq-2-soft: #E2E8E2;
+  --seq-3:      #4A6B5C;   --seq-3-soft: #E4EBE6;   /* = --accent */
+  --seq-4:      #597A60;   --seq-4-soft: #E7EDE7;
+  --seq-warm:   #96574A;   --seq-warm-soft: #F3E4E0; /* 暖色重音，朱砂系 */
+
+  /* ─── design identity（不與 base.css :root 碰撞，寫這裡安全）───
+   * NOTE: --r-card、--rule-w/-style、--dur-*、--hero-num-*、--stage-pad-x/-y、
+   * --shadow-stage **不在這裡**——base.css 自己的 :root 也宣告了那批屬性當
+   * fallback，而 tokens.css 載入在 base.css 之前，寫這裡會被靜默蓋掉。
+   * 那些覆寫在 extras.css 頂部的 :root 區塊（extras 載入在 base 之後）。 */
+  --r-stage:      0;                   /* 宣紙是方的（也避免 ::before 底圖圓角溢出） */
+  --card-shadow:
+    0 1px 0 var(--rule),
+    0 10px 26px rgba(31, 45, 36, 0.06);
+  --stage-border: 1px solid rgba(31, 45, 36, 0.12);
+
+  /* 底部進度條 footer 借用的「舞台邊線 / 舞台落影」。這兩個 token 只在
+   * styles/progress-bar.css 有行內 fallback、base.css 的 :root 沒宣告，
+   * 所以寫 tokens.css 安全（同 --font-features 那一類）。不設的話 footer
+   * 會沿用 fallback 的 paper-grid 暖棕，配青綠白宣紙會顯髒。 */
+  --stage-edge:   rgba(31, 45, 36, 0.14);
+  --stage-drop:   0 40px 100px rgba(31, 45, 36, 0.18);
+
+  /* ─── SIGNATURE：山水底圖 ───────────────────────────────────────────
+   * 三張圖 = 三段「氣壓」。全部 16:9、1920×1080，**構圖（留白在哪、墨的
+   * 重心）烘進圖片本身**，CSS 一律 cover 鋪滿 → 圖必然溢出舞台四邊，永遠
+   * 不會露出硬矩形邊界。要換自己的圖：覆蓋 styles/assets/ 的同名檔即可，
+   * 不必動任何 CSS。
+   *
+   * 這是唯一出現 url() 的地方（見檔頭）。 */
+  --mi-art-full:  url("./assets/mi-full.webp");   /* 滿版（封面 / 結尾） */
+  --mi-art-ridge: url("./assets/mi-ridge.webp");  /* 中景山形靠右（章節扉頁） */
+  --mi-art-far:   url("./assets/mi-far.webp");    /* 極淡遠山右下（一般內容頁） */
+
+  /* 預設氣壓 = 一般內容頁：極淡遠山（~0.12），左上大片留白給文字。
+   * 濃淡不是靠 opacity（--surface-vignette 沒有配套的 opacity 插槽，那組
+   * 綁在 --surface-pattern 上），而是**疊一層宣紙色 scrim 漸層在圖之上**：
+   * scrim 色 = --paper-rgb（＝--surface 的 rgb），在沒有圖的區域等於隱形，
+   * 在有圖的區域等於降不透明度，同時做出「左上實、右下透」的霧靄分佈。
+   * 三段氣壓的另外兩段在 extras.css 的 .v-art-* / .chapter-open。
+   *
+   * 為什麼不用 --surface-pattern：那組 token 同時餵 progress-bar.css 的
+   * .pb-chapters::before（讓 paper-grid 的藍圖網格延伸進 footer），而它用
+   * background-size: var(--pb-grid, 48px) 覆寫尺寸——底圖掛上去會在底部進度
+   * 條裡平鋪成一排碎山。本主題**刻意完全不設 --surface-pattern**（水墨不要
+   * 網格，順帶讓 footer 保持乾淨宣紙）。詳見 THEMES.md 裝飾層一節。 */
+  --surface-vignette:
+    linear-gradient(104deg,
+      rgba(var(--paper-rgb), 1.00)   0%,
+      rgba(var(--paper-rgb), 0.98)  34%,
+      rgba(var(--paper-rgb), 0.86)  62%,
+      rgba(var(--paper-rgb), 0.70) 100%),
+    var(--mi-art-far) right bottom / cover no-repeat;
+}
