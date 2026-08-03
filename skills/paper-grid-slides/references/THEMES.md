@@ -105,7 +105,7 @@ preflight 靠的是**載入順序**、不是 specificity，所以絕不能重排
 | `dbx-style` | 深色科技感＋玻璃質感工程師風，取自 DBX 官網色票，固定角落光暈裝飾。 |
 | `midnight-press` | 電影感編輯級深色，暖色 espresso 底、單一火熱橙 accent。此 skill 的舊主題殘留，保留相容、非目前使用對象。 |
 | `modern-minimal` | 白底編輯式極簡：暖 monochrome 底、霧面粉彩點綴、sans 大標、髮絲分隔線、趨近於零的陰影。依 `minimalist-ui` 協定。另備 `--sem-*` 非契約 token 做狀態色。 |
-| `mountain-ink` | 宣紙米白底＋墨綠 accent＋明體中文大標＋山水底圖（三段氣壓，見下「主題自帶靜態資源」）。五個 primitive：`.v-seal`（朱砂印）`.v-enso`（圓相）`.v-brush-rule`（毛筆掃痕）`.v-mist`（霧靄）`.v-safe`（底圖頁的文字安全寬，隨氣壓自動變）。**唯一自帶靜態資產的主題**。 |
+| `mountain-ink` | 宣紙米白底＋墨綠 accent＋明體中文大標＋山水底圖（三段氣壓，見下「主題自帶靜態資源」）。六個 primitive：`.v-seal`（朱砂印）`.v-enso`（圓相）`.v-brush-rule`（毛筆掃痕）`.v-mist`（霧靄）`.v-safe`（底圖頁的文字安全寬，隨氣壓自動變）`.v-step`（timeline 階段圓）。另備 `--seq-1..4` 序列色（同色相的墨色濃淡階，每階白字皆 ≥4.5:1）。**唯一自帶靜態資產的主題**。 |
 
 隨時列出可用主題：
 

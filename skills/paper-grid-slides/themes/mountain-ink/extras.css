@@ -310,6 +310,49 @@
 /* 短掃痕：小標下方那條（配合 GUIDE §6.11 的段落編號眉題） */
 .v-brush-rule.is-short { width: 120px; height: 8px; }
 
+/* ── .v-step：階段圓（timeline / 流程步驟的編號圓）──────────────────────
+ * 消費上面的序列色。用法：
+ *   <div class="v-step" style="--step-c: var(--seq-1)">01</div>
+ * 或用序號 class（等價，少寫一點）：
+ *   <div class="v-step is-1">01</div> … <div class="v-step is-4">04</div>
+ *
+ * 白字壓在四階上都 ≥ 4.5:1（見 tokens.css 的序列色註解），可安心用實色。
+ * 連接線用 .v-step-line（放在 flex 容器裡當兄弟元素，或用容器的 ::before）。 */
+.v-step {
+  display: inline-grid;
+  place-items: center;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: var(--step-c, var(--accent));
+  color: var(--surface);
+  font-family: var(--font-mono);
+  font-size: var(--t-label);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  flex-shrink: 0;
+}
+.v-step.is-1 { --step-c: var(--seq-1); }
+.v-step.is-2 { --step-c: var(--seq-2); }
+.v-step.is-3 { --step-c: var(--seq-3); }
+.v-step.is-4 { --step-c: var(--seq-4); }
+.v-step.is-warm { --step-c: var(--seq-warm); }
+/* 未達成／待辦：淡底墨字（不是實色圓） */
+.v-step.is-pending {
+  background: var(--surface-2);
+  border: 1.5px solid var(--rule);
+  color: var(--text-mute);
+}
+/* timeline 的水平連接線——放在 .v-step 之間，flex:1 讓它自動撐開 */
+.v-step-line {
+  flex: 1;
+  height: 1.5px;
+  background: linear-gradient(90deg,
+    var(--rule) 0%, var(--rule) 88%, rgba(203, 210, 198, 0.3) 100%);
+  align-self: center;
+  min-width: 24px;
+}
+
 /* ── .v-mist：霧靄橫帶 ──────────────────────────────────────────────────
  * 純漸層，零匯出風險。**刻意不加 filter: blur()**——純漸層本來就沒有邊要糊，
  * 而大面積 filter 是唯一可能引入合成差異的地方。
