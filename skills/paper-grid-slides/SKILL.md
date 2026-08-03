@@ -1,6 +1,6 @@
 ---
 name: paper-grid-slides
-version: 1.2.1
+version: 1.3.0
 description: Use when asked to make a slide deck / presentation / 簡報 / slides for any topic, especially the paper-grid style (warm cream paper + terracotta + editorial serif + blueprint grid), click-driven web presentations with step-by-step reveal, or hover tooltips for terms and source quotes.
 ---
 
@@ -21,6 +21,10 @@ description: Use when asked to make a slide deck / presentation / 簡報 / slide
    切章、SRT-informed 切 step，寫進各章 md 的 per-slide notes，`[click]` 對齊
    拍點）→ 停下來給用戶 checkpoint 對齊（標題／稿子／outline／素材／開發模式）
    → 逐章開發（GUIDE §1 起，本 skill 自足，不依賴任何外部 plugin）。
+   **敘事骨架有三種可選**（都不是預設，套用前先跟使用者對過）：SCRIPT.md
+   §1.5 破題結構＋平實收尾、§1.6 全篇路線圖＋收尾回顧、§1.7 條目式報讀
+   （月報／週報這類講者在場、能被追問的例行報告；每段只報條目與數字，
+   延展留給問答）。切章的對應差異寫在 OUTLINE.md §1.1。
 4. **讀完整手冊**：`references/GUIDE.md` —— 章節鐵則、Term tooltip 規範、
    驗證腳本，全部在那裡。
 5. **起專案**：`cp -r template/presentation <新專案>/presentation` → `npm install`
